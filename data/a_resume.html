@@ -1,0 +1,340 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html>
+<head>
+
+	<title>Mou</title>
+	<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+
+	<meta name="keywords" content="" />
+	<meta name="description" content="" />
+<style type ="text/css">
+/*
+Copyright (c) 2009, Yahoo! Inc. All rights reserved.
+Code licensed under the BSD License:
+http://developer.yahoo.net/yui/license.txt
+version: 2.7.0
+*/
+html{color:#000;background:#FFF;}body,div,dl,dt,dd,ul,ol,li,h1,h2,h3,h4,h5,h6,pre,code,form,fieldset,legend,input,button,textarea,p,blockquote,th,td{margin:0;padding:0;}table{border-collapse:collapse;border-spacing:0;}fieldset,img{border:0;}address,caption,cite,code,dfn,em,strong,th,var,optgroup{font-style:inherit;font-weight:inherit;}del,ins{text-decoration:none;}li{list-style:none;}caption,th{text-align:left;}h1,h2,h3,h4,h5,h6{font-size:100%;font-weight:normal;}q:before,q:after{content:'';}abbr,acronym{border:0;font-variant:normal;}sup{vertical-align:baseline;}sub{vertical-align:baseline;}legend{color:#000;}input,button,textarea,select,optgroup,option{font-family:inherit;font-size:inherit;font-style:inherit;font-weight:inherit;}input,button,textarea,select{*font-size:100%;}body{font:13px/1.231 arial,helvetica,clean,sans-serif;*font-size:small;*font:x-small;}select,input,button,textarea,button{font:99% arial,helvetica,clean,sans-serif;}table{font-size:inherit;font:100%;}pre,code,kbd,samp,tt{font-family:monospace;*font-size:108%;line-height:100%;}body{text-align:center;}#doc,#doc2,#doc3,#doc4,.yui-t1,.yui-t2,.yui-t3,.yui-t4,.yui-t5,.yui-t6,.yui-t7{margin:auto;text-align:left;width:57.69em;*width:56.25em;}#doc2{width:73.076em;*width:71.25em;}#doc3{margin:auto 10px;width:auto;}#doc4{width:74.923em;*width:73.05em;}.yui-b{position:relative;}.yui-b{_position:static;}#yui-main .yui-b{position:static;}#yui-main,.yui-g .yui-u .yui-g{width:100%;}.yui-t1 #yui-main,.yui-t2 #yui-main,.yui-t3 #yui-main{float:right;margin-left:-25em;}.yui-t4 #yui-main,.yui-t5 #yui-main,.yui-t6 #yui-main{float:left;margin-right:-25em;}.yui-t1 .yui-b{float:left;width:12.30769em;*width:12.00em;}.yui-t1 #yui-main .yui-b{margin-left:13.30769em;*margin-left:13.05em;}.yui-t2 .yui-b{float:left;width:13.8461em;*width:13.50em;}.yui-t2 #yui-main .yui-b{margin-left:14.8461em;*margin-left:14.55em;}.yui-t3 .yui-b{float:left;width:23.0769em;*width:22.50em;}.yui-t3 #yui-main .yui-b{margin-left:24.0769em;*margin-left:23.62em;}.yui-t4 .yui-b{float:right;width:13.8456em;*width:13.50em;}.yui-t4 #yui-main .yui-b{margin-right:14.8456em;*margin-right:14.55em;}.yui-t5 .yui-b{float:right;width:18.4615em;*width:18.00em;}.yui-t5 #yui-main .yui-b{margin-right:19.4615em;*margin-right:19.125em;}.yui-t6 .yui-b{float:right;width:23.0769em;*width:22.50em;}.yui-t6 #yui-main .yui-b{margin-right:24.0769em;*margin-right:23.62em;}.yui-t7 #yui-main .yui-b{display:block;margin:0 0 1em 0;}#yui-main .yui-b{float:none;width:auto;}.yui-gb .yui-u,.yui-g .yui-gb .yui-u,.yui-gb .yui-g,.yui-gb .yui-gb,.yui-gb .yui-gc,.yui-gb .yui-gd,.yui-gb .yui-ge,.yui-gb .yui-gf,.yui-gc .yui-u,.yui-gc .yui-g,.yui-gd .yui-u{float:left;}.yui-g .yui-u,.yui-g .yui-g,.yui-g .yui-gb,.yui-g .yui-gc,.yui-g .yui-gd,.yui-g .yui-ge,.yui-g .yui-gf,.yui-gc .yui-u,.yui-gd .yui-g,.yui-g .yui-gc .yui-u,.yui-ge .yui-u,.yui-ge .yui-g,.yui-gf .yui-g,.yui-gf .yui-u{float:right;}.yui-g div.first,.yui-gb div.first,.yui-gc div.first,.yui-gd div.first,.yui-ge div.first,.yui-gf div.first,.yui-g .yui-gc div.first,.yui-g .yui-ge div.first,.yui-gc div.first div.first{float:left;}.yui-g .yui-u,.yui-g .yui-g,.yui-g .yui-gb,.yui-g .yui-gc,.yui-g .yui-gd,.yui-g .yui-ge,.yui-g .yui-gf{width:49.1%;}.yui-gb .yui-u,.yui-g .yui-gb .yui-u,.yui-gb .yui-g,.yui-gb .yui-gb,.yui-gb .yui-gc,.yui-gb .yui-gd,.yui-gb .yui-ge,.yui-gb .yui-gf,.yui-gc .yui-u,.yui-gc .yui-g,.yui-gd .yui-u{width:32%;margin-left:1.99%;}.yui-gb .yui-u{*margin-left:1.9%;*width:31.9%;}.yui-gc div.first,.yui-gd .yui-u{width:66%;}.yui-gd div.first{width:32%;}.yui-ge div.first,.yui-gf .yui-u{width:74.2%;}.yui-ge .yui-u,.yui-gf div.first{width:24%;}.yui-g .yui-gb div.first,.yui-gb div.first,.yui-gc div.first,.yui-gd div.first{margin-left:0;}.yui-g .yui-g .yui-u,.yui-gb .yui-g .yui-u,.yui-gc .yui-g .yui-u,.yui-gd .yui-g .yui-u,.yui-ge .yui-g .yui-u,.yui-gf .yui-g .yui-u{width:49%;*width:48.1%;*margin-left:0;}.yui-g .yui-g .yui-u{width:48.1%;}.yui-g .yui-gb div.first,.yui-gb .yui-gb div.first{*margin-right:0;*width:32%;_width:31.7%;}.yui-g .yui-gc div.first,.yui-gd .yui-g{width:66%;}.yui-gb .yui-g div.first{*margin-right:4%;_margin-right:1.3%;}.yui-gb .yui-gc div.first,.yui-gb .yui-gd div.first{*margin-right:0;}.yui-gb .yui-gb .yui-u,.yui-gb .yui-gc .yui-u{*margin-left:1.8%;_margin-left:4%;}.yui-g .yui-gb .yui-u{_margin-left:1.0%;}.yui-gb .yui-gd .yui-u{*width:66%;_width:61.2%;}.yui-gb .yui-gd div.first{*width:31%;_width:29.5%;}.yui-g .yui-gc .yui-u,.yui-gb .yui-gc .yui-u{width:32%;_float:right;margin-right:0;_margin-left:0;}.yui-gb .yui-gc div.first{width:66%;*float:left;*margin-left:0;}.yui-gb .yui-ge .yui-u,.yui-gb .yui-gf .yui-u{margin:0;}.yui-gb .yui-gb .yui-u{_margin-left:.7%;}.yui-gb .yui-g div.first,.yui-gb .yui-gb div.first{*margin-left:0;}.yui-gc .yui-g .yui-u,.yui-gd .yui-g .yui-u{*width:48.1%;*margin-left:0;}.yui-gb .yui-gd div.first{width:32%;}.yui-g .yui-gd div.first{_width:29.9%;}.yui-ge .yui-g{width:24%;}.yui-gf .yui-g{width:74.2%;}.yui-gb .yui-ge div.yui-u,.yui-gb .yui-gf div.yui-u{float:right;}.yui-gb .yui-ge div.first,.yui-gb .yui-gf div.first{float:left;}.yui-gb .yui-ge .yui-u,.yui-gb .yui-gf div.first{*width:24%;_width:20%;}.yui-gb .yui-ge div.first,.yui-gb .yui-gf .yui-u{*width:73.5%;_width:65.5%;}.yui-ge div.first .yui-gd .yui-u{width:65%;}.yui-ge div.first .yui-gd div.first{width:32%;}#hd:after,#bd:after,#ft:after,.yui-g:after,.yui-gb:after,.yui-gc:after,.yui-gd:after,.yui-ge:after,.yui-gf:after{content:".";display:block;height:0;clear:both;visibility:hidden;}#hd,#bd,#ft,.yui-g,.yui-gb,.yui-gc,.yui-gd,.yui-ge,.yui-gf{zoom:1;}
+/*
+/*
+---------------------------------------------------------------------------------
+	STRIPPED DOWN RESUME TEMPLATE
+    html resume
+
+    v0.9: 5/28/09
+
+    design and code by: thingsthatarebrown.com 
+                        (matt brown)
+	modified by: Mou
+---------------------------------------------------------------------------------
+*/
+.msg { padding: 10px; background: #222; position: relative; }
+.msg h1 { color: #fff;  }
+.msg a { margin-left: 20px; background: #408814; color: white; padding: 4px 8px; text-decoration: none; }
+.msg a:hover { background: #266400; }
+
+/* //-- yui-grids style overrides -- */
+body { font-family: Georgia; color: #444; }
+#inner { padding: 10px 80px; margin: 80px auto; background: #FFFF; }
+.yui-gf { margin-bottom: 1em; padding-bottom: 1em; border-bottom: 0px solid #ccc; }
+
+/* //-- header, body, footer -- */
+#hd { margin: -2em 0 1em 0; padding-bottom: 1.5em;}
+#hd h2 { text-transform: uppercase; letter-spacing: 2px; }
+#bd, #ft { margin-bottom: 1em; }
+
+/* //-- core typography and style -- */
+#hd h1 { font-size: 42px; text-transform: uppercase; letter-spacing: 2px; }
+h2 { font-size: 130% }
+h3, h4 { font-size: 120%; margin-bottom: .2em;}
+h3.title{}
+h1, h2, h3, h4 { color: #333; }
+p { font-size: 110%; line-height: 18px; padding-right: 2em; }
+a { color: #990003 }
+#mInt { font-size: 125%; font-style: none}
+a:hover { text-decoration: none; }
+strong { font-weight: bold;}
+p.enlarge {font-size: 144%; padding-right: 6.5em; line-height: 24px; }
+p.enlarge span { color: #000 }
+span.first {font-size: 120%}
+.contact-info { margin-top: 7px; }
+.first h2 { font-style: italic; }
+.last { border-bottom: 0 }
+/* //-- section styles -- */
+a#pdf { display: block; float: left; background: #666; color: white; padding: 6px 50px 6px 12px; margin-bottom: 6px; text-decoration: none;  }
+a#pdf:hover { background: #222; }
+.job { position: relative; margin-bottom: .75em; padding-bottom: .5em;}
+.job h4 { position: absolute; top: 0.35em; right: 0 }
+.job p { margin: 0.5em 0 3em 0; }
+.job ul {padding-left: 1.4em;list-style-type: circle}
+.job li {list-style-type: circle}
+.last { border: none; }
+.skills-list {  }
+.skills-list ul { margin: 0; list-style-type:circle;}
+.skills-list li { display:inline; margin: 3px 0; padding: 3px 0; }
+.skills-list li span { font-size: 152%; display: block; margin-bottom: -2px; padding: 0 }
+.talent { width: 100%; float: bottom }
+.talent li {display: inline; padding: 2px ;}
+.talent li.cat{font-style: none ; font-size: 120% }
+.talent h2 { margin-bottom: 6px; }
+#srt-ttab { margin-bottom: 100px; text-align: center;  }
+#srt-ttab img.last { margin-top: 20px }
+.clear {
+    height: 9.5em;
+}
+.logo {
+    position: absolute;
+}
+.name {
+    margin: auto;
+    font-size: 72px;
+    line-height: 0.8;
+}
+.right {
+    float: right;
+}
+
+p.bubble
+{
+	top:-2em;
+	margin: auto;
+	padding-left: 20px;
+	padding-top: 15px;
+	position: relative;
+	width: 15em;
+	height: 10em;
+	line-height: 1.5;
+	text-align: justify;
+	background-color: #fff;
+	border: 5px solid #666;
+	-webkit-border-radius: 30px;
+	-moz-border-radius: 30px;
+	border-radius: 30px;
+	-webkit-box-shadow: 2px 2px 4px #888;
+	-moz-box-shadow: 2px 2px 4px #888;
+	box-shadow: 2px 2px 4px #888;
+}
+
+p.bubble:before, p.bubble:after
+{
+	content: ' ';
+	position: absolute;
+	width: 0;
+	height: 0;
+}
+
+p.speech:before
+{
+	left: -55px;
+	top: 20px;
+	border: 25px solid;
+	background-color: #fff;
+	border-color: transparent #fff transparent transparent;
+}
+
+p.speech:after
+{
+	left: -45px;
+	top: 25px;
+    background-color: #fff;
+	border: 20px solid;
+	border-color: transparent #666 transparent transparent ;
+}
+
+.bold {
+	font-weight: bold;
+}
+
+.grey {
+	color: #C3C3C3;
+}
+
+.normal {
+	color: #000000;
+}
+
+/* --// override to force 1/8th width grids -- */
+.yui-gf .yui-u{width:80.2%;}
+.yui-u ul {list-style-type:circle; }
+.yui-gf div.first{width:12.3%;}
+
+#menu li {
+	float: left;
+}
+</style>
+</head>
+
+<body>
+
+<div id="doc2" class="yui-t7">
+    <div style="text-align:center;">
+    </div>
+	<div id="inner">
+		<div id="hd">
+            <div class="logo">
+                <span class="name">MOU<br/>&nbspPAUL</span>
+                <br />
+            </div>
+                
+            <div style="margin-top: -2em;" class="right">
+                <br /><br />
+                <h3 class="title">Email: <a STYLE="text-decoration:none" href="mailto:ppymou@uwaterloo.ca">ppymou@uwaterloo.ca</a></h3>
+                <br />
+				<h3 class="title">Website: <a STYLE="text-decoration:none" href="http://www.moo-mou.com/">www.moo-mou.com</a></h3>
+                <br />
+				<h3 class="title">GitHub: <a STYLE="text-decoration:none" href="https://github.com/ppymou">ppymou</a></h3>
+            </div>
+                
+            <p class="bubble speech grey">I am a <span class="normal">System Engineer</span> with a <span class="normal">global perspective</span> and a passion for <span class="normal">complex systems</span> and <span class="normal">intelligent software</span>. Fluent in <span class="normal">Mandarin</span> and intermediate <span class="normal">Japanese</span></p>
+        </div><!--// hd -->
+        
+		<div id="bd" style="margin-top:-2em;">
+			<div id="yui-main">
+				<div class="yui-b">
+					<div class="yui-gf">
+						<div class="yui-u first">
+							<h2>Publication</h2>
+						</div>
+						<div class="yui-u">
+							<ul class="c">
+								<li><span class="first">Mou, Cho, Histon (2012) ‘Managing Flight Pattern Visualization Complexity’ 1st International Conference on Interdisciplinary Science for Air Traffic Management. Daytona Beach, USA.</li>
+							</ul>
+						</div>
+					</div><!--// .yui-gf-->
+					<div class="yui-gf">
+						<div class="yui-u first">
+							<h2>Awards</h2>
+						</div>
+						<div class="yui-u">
+							<ul class="c">
+								<li><span class="first">Undergraduate Research Award on radar visualization</span> - 2012 (Prof. Histon)</li>
+								<li><span class="first">Sandford Fleming Foundation Exchange Scholarship</span> - 2011 &amp; 2012</li>
+								<li><span class="first">JR. Courtis International Experience Awards</span> - 2011</li>
+								<li><span class="first">Undergraduate Research Award on virus reproduction simulation</span> - 2010 (Prof. Aucoin)</li>
+							</ul>
+						</div>
+					</div><!--// .yui-gf-->
+					<div class="yui-gf">
+						<div class="yui-u first">
+							<h2>Technical Skills</h2>
+						</div>
+						<div class="yui-u">
+							<ul class="talent">
+								<li class="cat grey">Language&nbsp&nbsp&nbsp&nbsp&nbsp</li>
+								<li>Python, </li>
+								<li>Javascript,</li>
+								<li>Java, </li>
+								<li class="last">HTML &amp; CSS, </li>
+								<li>C++/C</li>
+							</ul>
+							<ul class="talent">
+								<li class="cat grey">Framework&nbsp</li>
+								<li>jQuery, </li>
+								<li>App Engine, </li>
+								<li>TCP/IP, </li>
+								<li class="last">pthreads</li>
+							</ul>
+							<ul class="talent">
+								<li class="cat grey">Software&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp</li>
+								<li>Systinternals tools, </li>
+								<li>Linux, </li>
+								<li>Matlab, </li>
+								<li class="last">VMware ESX &amp; vCenter</li>
+							</ul>
+						</div>
+					</div><!--// .yui-gf-->
+
+					<div class="yui-gf">	
+						<div class="yui-u first">
+							<h2>Experience</h2>
+						</div><!--// .yui-u -->
+
+						<div class="yui-u">
+							<div class="job">
+								<h2>Amazon.com, Seattle</h2>
+								<h5>Software Design Engineer Intern</h5>
+								<h4>2012/05-2012/09</h4>
+								<ul>
+									<li>Designed and implemented a time-based resource allocation token system to optimize distributed system resource allocation for clients</li>
+									<li>Significantly reduced web page load time of internal tool through caching by using AWS cloud services</li>
+								</ul>
+							</div>
+							<div class="job">
+								<h2>Nippon Koei, Tsukuba</h2>
+								<h5>Research Intern</h5>
+								<h4>2011/09-2011/12</h4>
+								<ul>
+									<li>Analyzed road embankment damage data and created statistical model to predict future road embankment damage probability during earthquake</li>
+									<li>Researched connections between landslide and vegetation through analyzing satellite image using ENVI and ArcGIS</li>
+								</ul>
+							</div>
+
+							<div class="job">
+								<h2>Qualcomm, San Diego</h2>
+								<h5>Multimedia Software Intern</h5>
+								<h4>2011/01-2011/04</h4>
+								<ul>
+									<li>Developed and debugged camera sensor and auto-focus driver for Windows Phone</li>
+									<li>Designed and improved automatic camera sensor driver code generator with supervisor</li>
+								</ul>
+							</div>
+
+							<div class="job">
+								<h2>Novell, Toronto</h2>
+								<h5>System Testing Specialist</h5>
+								<h4>2010/05-2010/09</h4>
+								<ul>
+									<li>Customized virtual machines to create varied production environment for efficient tests</li>
+									<li>Gathered and analyzed memory dumps and stack traces with Sysinternal tools</li>
+								</ul>
+							</div>
+
+							<div class="job">
+								<h2>IPeak Networks, Ottawa</h2>
+								<h5>Software Engineer</h5>
+								<h4>2009/09-2009/12</h4>
+								<ul>
+									<li>Designed and developed a multithreaded network loss simulator for efficient test of packet loss correction algorithms</li>
+									<li>Rearchitectured IPeak's web dashboard using CGI Perl and improved the maintainability and upgradeability of the system</li>
+								</ul>
+							</div>
+						</div><!--// .yui-u -->
+					</div><!--// .yui-gf -->
+                    
+					<div class="yui-gf">
+						<div class="yui-u first">
+							<h2>Personal</h2>
+						</div>
+						<div class="yui-u">
+							<ul class="c">
+							<li><span class="first">Entrepreneurship</span> - member of VeloCity program, an exclusive residence for fostering startups</li>
+						</div>
+					</div><!--// .yui-gf -->
+          
+					<div class="yui-gf last">
+						<div class="yui-u first">
+							<h2>Education</h2>
+						</div>
+						<div class="yui-u">
+							<div class="job" style="float:left">
+								<h2>University of Waterloo, Canada</h2>
+								<h5>Class of 2013</h5>
+								<h3>System Design Engineering</h3>						
+							</div>
+							<div class="job" style="float:right">
+								<h2>Tottori University, Japan</h2>
+								<h5>Exchange Student 2011</h5>
+								<h3>Social Systems Engineering</h3>
+							</div>
+						</div><!--// .yui-gf -->
+					</div>
+				</div><!--// .yui-b -->
+			</div><!--// yui-main -->
+		</div><!--// bd -->
+
+	</div><!-- // inner -->
+</div><!--// doc -->
+</body>
+</html>
