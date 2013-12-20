@@ -71,7 +71,7 @@
     success = false;
     for (ind = _i = 0, _len = inputs.length; _i < _len; ind = ++_i) {
       input = inputs[ind];
-      if (window.allCmd[input]) {
+      if (window.allCmd[input.toLowerCase()]) {
         _score += CMD_SCORE;
         success = true;
       }
