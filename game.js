@@ -45,7 +45,7 @@
     var finalComment, ind, letter, letters, rank, _i, _len;
     rank = _score / CMD_SCORE * 25;
     rank = parseInt(rank * 10);
-    finalComment = "You score is " + _score + ". <br><br>";
+    finalComment = "Your score is " + _score + ". <br><br>";
     if (_missingLetters.length === 0) {
       finalComment += "You got everything!";
     } else {
@@ -77,7 +77,7 @@
       }
     }
     if (!success) {
-      _missingLetters.push(window.aToZ[_currentLetter]);
+      _missingLetters.push(window.aToZ[_currentLetter - 1]);
     }
     return inputBox.value = "";
   };
