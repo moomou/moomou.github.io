@@ -1,0 +1,38 @@
+ul {
+  list-style: none;
+}
+
+body {
+  padding: 100px;
+}
+
+#profile {
+  float: left;
+  width: 50%;
+}
+
+#playground {
+  float: right;
+  width: 50%;
+}
+
+.projects li {
+  float: left;
+  margin: 15px;
+}
+
+.circle-img {
+  display: inline-block;
+  width: 75px;
+  height: 75px;
+  background-position: center center;
+  background-size: cover;
+  border-radius: 100%;
+  -webkit-border-radius: 100%;
+  background-clip: padding-box;
+  width: 75px;
+  height: 75px;
+}
+.circle-img: hover {
+
+}
