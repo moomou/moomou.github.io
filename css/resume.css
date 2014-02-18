@@ -10,6 +10,8 @@ design and code by: thingsthatarebrown.com
 modified by: Mou
 ---------------------------------------------------------------------------------
  */
+* {
+}
 
 .msg {
   background:#222;
@@ -52,7 +54,7 @@ body {
 
 #hd {
   padding-bottom:0.25em;
-  margin:-2em 0 0 0;
+  margin: -2em 0 35px 0
 }
 
 #hd h2 {
@@ -156,6 +158,9 @@ a#pdf:hover {
 }
 
 .job ul {
+  border-right: 3px solid #C3C3C3;
+  padding-right: 25px;
+  width: 90%;
   padding-left:1.4em;
   list-style-type:circle;
 }
@@ -211,12 +216,12 @@ li.cat.grey, .field {
   vertical-align: middle;
 }
 .field {
-  min-width: 70px;
-  max-width: 70px;
-  width: 70px;
+  min-width: 75px;
+  max-width: 55px;
 }
 
 .title {
+  width: 120%;
 }
 
 #srt-ttab {
@@ -237,6 +242,17 @@ li.cat.grey, .field {
 }
 
 .name {
+  font-family: 'Gruppo', cursive;
+  /*
+  font-family: 'Nixie One', cursive;
+  font-family: 'Varela Round', sans-serif;
+  font-family: 'Press Start 2P', cursive;
+  font-family: 'Architects Daughter', cursive;
+  font-family: 'Maven Pro', sans-serif;
+  font-family: 'Carme', sans-serif;
+  font-family: 'Happy Monkey', cursive;
+  font-family: 'Gruppo', cursive;
+  */
   font-size:72px;
   line-height:0.8;
   margin:auto;
@@ -247,23 +263,22 @@ li.cat.grey, .field {
 }
 
 p.bubble {
-  top:-2em;
-  padding-left:20px;
-  padding-top:15px;
-  position:relative;
-  width:15em;
-  height:10em;
-  line-height:1.5;
-  text-align:justify;
-  background-color:#fff;
-  border:5px solid #666;
-  -webkit-border-radius:30px;
-  -moz-border-radius:30px;
-  border-radius:30px;
-  -webkit-box-shadow:2px 2px 4px #888;
-  -moz-box-shadow:2px 2px 4px #888;
-  box-shadow:2px 2px 4px #888;
-  margin:auto;
+  font-family           : 'Gruppo', cursive;
+  top                   : -2em;
+  padding               : 30px;
+  position              : relative;
+  width                 : 15em;
+  line-height           : 1.5;
+  text-align            : justify;
+  background-color      : #fff;
+  border                : 5px solid #666;
+  -webkit-border-radius : 30px;
+  -moz-border-radius    : 30px;
+  border-radius         : 30px;
+  -webkit-box-shadow    : 2px 2px 4px #888;
+  -moz-box-shadow       : 2px 2px 4px #888;
+  box-shadow            : 2px 2px 4px #888;
+  margin                : auto;
 }
 
 p.bubble:before,p.bubble:after {
