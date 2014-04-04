@@ -1,2 +1,2 @@
-$('#searchForm').submit();
+$('#user').remove();
 console.log("HI");
