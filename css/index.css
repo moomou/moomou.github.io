@@ -1,25 +1,37 @@
 ul {
-  list-style: none;
-}
+  list-style: none; }
 
 body {
-  padding: 100px;
-}
+  padding: 100px; }
+
+#canvas {
+  margin: 0 auto;
+  width: 600px;
+  display: block;
+  border: 1px solid black;
+  overflow: auto; }
 
 #profile {
-  float: left;
-  width: 50%;
-}
+  text-align: center; }
+  #profile .name {
+    clear: both;
+    display: block;
+    text-transform: uppercase;
+    font-size: 36px; }
 
-#playground {
-  float: right;
-  width: 50%;
-}
+#playground .title {
+  display: block;
+  text-align: center;
+  clear: both; }
 
-.projects li {
-  float: left;
-  margin: 15px;
-}
+.projects {
+  overflow: auto;
+  text-align: center;
+  display: block;
+  margin-left: 10%; }
+  .projects li {
+    float: left;
+    margin: 15px; }
 
 .circle-img {
   display: inline-block;
@@ -31,8 +43,4 @@ body {
   -webkit-border-radius: 100%;
   background-clip: padding-box;
   width: 75px;
-  height: 75px;
-}
-.circle-img: hover {
-
-}
+  height: 75px; }
