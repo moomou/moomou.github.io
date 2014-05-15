@@ -405,11 +405,14 @@ p.enlarge span,.normal {
 }
 
 @media print {
+  #detailBtn {
+    display: none !important;
+  }
+  
   .job ul {
     display: block;
-  
     margin-top: 10px;
-}
+  }
   .job .title {
     font-size: 17px;
   }
