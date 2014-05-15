@@ -159,6 +159,7 @@ a#pdf:hover {
 }
 
 .job ul {
+  display: none;
   border-right: 2px solid #C3C3C3;
   padding-right: 25px;
   width: 90%;
@@ -169,6 +170,15 @@ a#pdf:hover {
 .job li {
   list-style-type:circle;
   margin-top:.5em;
+}
+
+.job .title {
+  font-size: 24px;
+}
+.job .title:after {
+  content: ' @';
+  width: 50px;
+  height: 50px;
 }
 
 .skills-list ul {
@@ -192,11 +202,15 @@ a#pdf:hover {
 .talent {
   width:100%;
   float:bottom;
+  margin: 20px 10px 5px 10px;
+}
+.talent:first-child {
+  margin-top: 0px;
 }
 
 .talent li {
-  display:inline;
-  padding:2px;
+  display: inline;
+  padding: 5px;
 }
 
 .talent li.cat {
@@ -219,6 +233,8 @@ li.cat.grey, .field {
 .field {
   min-width: 75px;
   max-width: 55px;
+  height: 20px;
+  width: 25px;
 }
 
 .title {
@@ -243,20 +259,10 @@ li.cat.grey, .field {
 }
 
 .name {
-  font-family: 'Gruppo', cursive;
-  /*
   font-family: 'Nixie One', cursive;
-  font-family: 'Varela Round', sans-serif;
-  font-family: 'Press Start 2P', cursive;
-  font-family: 'Architects Daughter', cursive;
-  font-family: 'Maven Pro', sans-serif;
-  font-family: 'Carme', sans-serif;
-  font-family: 'Happy Monkey', cursive;
-  font-family: 'Gruppo', cursive;
-   */
-font-size:72px;
-line-height:0.8;
-margin:auto;
+  font-size: 72px;
+  line-height:0.8;
+  margin:auto;
 }
 
 .right {
@@ -264,7 +270,7 @@ margin:auto;
 }
 
 p.bubble {
-  font-family           : 'Gruppo', cursive;
+  font-family           : 'Nixie One', cursive;
   top                   : -1.5em;
   padding               : 30px;
   position              : relative;
@@ -377,7 +383,43 @@ p.enlarge span,.normal {
   width: 45px;
   height: 45px;
   background-size: 40px;
-  border: 1px solid whitesmoke;
+  background-repeat: no-repeat;
 }
 .circle-img: hover {
+}
+
+.logo, .school img, .company img, .skill img {
+  max-width: 80px;
+  max-height: 32px;
+  width: auto;
+  height: auto;
+  margin-left: 5px;
+}
+
+.degree {
+  font-size: 20px;
+  margin-left: 5px;
+}
+.class {
+  float: right;
+}
+
+@media print {
+  .job ul {
+    display: block;
+  
+    margin-top: 10px;
+}
+  .job .title {
+    font-size: 17px;
+  }
+  .talent {
+    margin: 0px;
+  }
+  .talent li {
+    padding: 2px;
+  }
+  .class {
+    float: left;
+  }
 }

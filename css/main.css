@@ -10,6 +10,11 @@
    Base styles: opinionated defaults
    ========================================================================== */
 
+* {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
 html {
     color: #222;
     font-size: 1em;
@@ -212,6 +217,17 @@ textarea {
 
   .circle-img {
     -webkit-print-color-adjust: exact;
+  }
+
+  .school:before, .company:before, .skill:before {
+    content: attr(data-alt);
+  }
+  .school img, .company img, .skill img {
+    display: none;
+  }
+  .school:before {
+    display: block;
+    font-size: 20px;
   }
 
   a,
