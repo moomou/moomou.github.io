@@ -404,11 +404,19 @@ p.enlarge span,.normal {
   float: right;
 }
 
+.print-only {
+  display: none;
+}
+
 @media print {
-  #detailBtn {
+  .screen-only, #detailBtn {
     display: none !important;
   }
-  
+
+  .print-only {
+    display: block !important;
+  }
+
   .job ul {
     display: block;
     margin-top: 10px;
