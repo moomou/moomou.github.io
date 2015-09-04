@@ -1,0 +1,75 @@
+.print-only {
+  display: none;
+}
+
+@media print {
+  body {
+    padding: 5px !important;
+    margin-bottom: 0;
+  }
+
+  .print-only {
+    display: block !important;
+  }
+
+  .screen-only, .skill img {
+    display: none !important;
+  }
+
+  .school .degree {
+    padding-left: 0 !important;
+  }
+
+  .job .title:after, .skill:before, .school:before, .skill:before {
+    content: attr(data-print);
+  }
+
+  .main {
+    width: auto !important;
+  }
+
+  .job {
+    overflow: auto !important;
+
+    .title {
+      font-size: 17px;
+
+      &:after {
+        content: attr(data-print);
+      }
+    }
+
+    .detail {
+      border-right: 2px solid #C3C3C3;
+      display: block;
+      margin-top: 10px;
+      padding-left: 1.4em;
+      padding-right: 25px;
+      width: 90%;
+      min-height: 12px;
+    }
+  }
+
+  .talent {
+    margin: 5px;
+    li {
+      padding: 2px;
+    }
+  }
+
+  .group {
+    margin: 20px;
+  }
+
+  .skill {
+    line-height: normal !important;
+  }
+
+  .project-icon {
+    -webkit-print-color-adjust: exact;
+  }
+
+  .school .class {
+    float: left !important;
+  }
+}

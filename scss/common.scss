@@ -1,0 +1,72 @@
+.pull-right {
+  float: right;
+}
+
+.pull-left {
+  float: left;
+}
+
+.flex-container {
+  display: flex;
+  justify-content: space-around;
+}
+
+.label {
+  color: #C3C3C3;
+  display: inline-block;
+  max-width: 100px;
+  min-width: 100px;
+  overflow: hidden;
+  vertical-align: middle;
+  width: 100px;
+}
+
+.group {
+  overflow: auto;
+  margin: 25px;
+
+  .content {
+    float: left;
+    width: 75%;
+    margin-left: 72px;
+  }
+}
+
+.title {
+  float: left;
+  font-size: 20px;
+  font-style: italic;
+  font-weight: 300;
+
+  span {
+    display: block;
+    max-width: 100px;
+  }
+}
+
+.icon-css {
+  position: relative;
+  display: inline-block;
+  transform: scale(0.5);
+}
+
+.icon-css:before,
+.icon-css:after {
+  content: "";
+  position: absolute;
+}
+
+.icon-mail {
+  border-top: 1.063em solid transparent;
+  border-right: 1.25em solid black;
+  border-bottom: .5em solid black;
+  border-left: 1.25em solid black;
+}
+
+.icon-mail:before {
+  top: -1.25em;
+  left: -1.25em;
+  border-top: 1.063em solid black;
+  border-right: 1.25em solid transparent;
+  border-left: 1.25em solid transparent;
+}

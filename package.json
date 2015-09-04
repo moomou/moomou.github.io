@@ -1,0 +1,36 @@
+{
+  "name": "moo-mou.github.com",
+  "version": "1.0.0",
+  "description": "Personal site",
+  "main": "index.js",
+  "directories": {
+    "doc": "doc"
+  },
+  "devDependencies": {
+    "autoprefixer-loader": "^1.2.0",
+    "babel-core": "^4.7.16",
+    "babel-loader": "^4.3.0",
+    "css-loader": "^0.9.1",
+    "extract-text-webpack-plugin": "^0.3.8",
+    "file-loader": "^0.8.1",
+    "sass-loader": "^0.4.2",
+    "style-loader": "^0.8.3",
+    "webpack": "^1.12.0",
+    "webpack-dev-server": "^1.10.1"
+  },
+  "scripts": {
+    "prod": "rm dist/* || true && NODE_ENV=production webpack --colors -p",
+    "start": "webpack-dev-server --hot --inline",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/moo-mou/moo-mou.github.io.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/moo-mou/moo-mou.github.io/issues"
+  },
+  "homepage": "https://github.com/moo-mou/moo-mou.github.io#readme"
+}
