@@ -38,18 +38,22 @@ ul {
   div {
     margin: 5px 25px;
   }
+
   .logo {
     width: 420px;
   }
+
   .icon {
     margin: 10px 0;
   }
+
   .name {
     font-family: 'Nixie One', cursive;
     font-size: 72px;
     line-height: 0.8;
     margin: auto;
   }
+
   .summary {
     border-radius: 25px;
     border: 2px solid #666;
@@ -57,6 +61,7 @@ ul {
     padding: 15px 20px;
     position: relative;
     text-align: justify;
+
     &:after {
       left: -45px;
       top: 25px;
@@ -69,25 +74,30 @@ ul {
       height: 0;
     }
   }
+
   .info {
     a:first-child {
       margin-top: 0;
     }
+
     a.link {
       margin: 10px 0;
       text-decoration: none;
     }
+
     .title {
       font-size: 17px;
       font-weight: 300;
       margin: 5px;
       width: 120%;
     }
+
     .icon-container {
       margin: 0;
       margin-left: -10px;
       width: 50px;
     }
+
     .icon {
       width: 50px;
     }
@@ -107,6 +117,7 @@ ul {
 .project {
   list-style: none;
   margin: 10px 5px;
+
   &:first-child {
     margin-top: 0;
   }
@@ -150,6 +161,7 @@ ul {
   overflow: hidden;
   padding-bottom: 5px;
   position: relative;
+
   h4 {
     font-weight: 300;
     margin-top: 5px;
@@ -157,18 +169,22 @@ ul {
     right: 0;
     top: -8px;
   }
+
   .detail {
     clear: both;
     padding-left: 20px;
     list-style: circle;
+
     li {
       margin: 10px 0;
     }
   }
+
   .title {
     font-size: 24px;
     font-style: normal;
     margin: 0 10px 5px 0;
+
     &:after {
       content: " @ ";
     }
@@ -179,22 +195,50 @@ ul {
   list-style: none;
   padding-left: 0;
   overflow: auto;
+
   &:first-child {
     margin-top: 0;
   }
+
   &:last-child {
     margin-bottom: 0;
   }
+
   li.label {
     margin: 0;
   }
+
   li {
     float: left;
     margin: 0 8px;
   }
+
   .skill {
     line-height: 32px;
   }
+}
+
+.sections {
+  display: grid;
+  grid-template-columns: 100px 100px 100px;
+}
+
+.nav {
+  margin-top: 20px;
+}
+
+.nav li {
+  margin: 10px;
+}
+
+.nav li a {
+  text-decoration: none;
+  color: gray;
+}
+
+.nav li.highlight a {
+  color: #e74c3c;
+  border-bottom: 2px solid #e74c3c;
 }
 
 @import "./responsive";
