@@ -1,4 +1,14 @@
 ## 2017-08
+### Learning a Predictable and Generative Vector Representation for Objects
+keyword:
+- a generative embedding for 3D object that also works for 2D
+- autoencoder for generative and cnn for predictability
+- joint loss from both input - image + voxel
+- training performed in 3 stages, 1) autoencoder only, 2) cnn with autoencoder embedding and 3) jointly optimizes with scaled loss function
+- experimentally verified semantic meaning of the 64D vector by observing effects when changing value in only 1D; compared against PCA to justify nonlinear rep
+Q:
+    -
+
 ### Learning to Compare Image Patches via Convolutional Neural Networks
 keyword:
 Q:

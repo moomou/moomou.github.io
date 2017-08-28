@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Posts on moomou</title>
+    <link>http://moomou.io/posts/</link>
+    <description>Recent content in Posts on moomou</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <copyright>&amp;copy; 2017 | Follow on &lt;a href=&#34;https://github.com/moomou&#34; target=&#34;_blank&#34;&gt;Github&lt;/a&gt;</copyright>
+    <lastBuildDate>Tue, 22 Aug 2017 23:01:25 -0700</lastBuildDate>
+    
+	<atom:link href="http://moomou.io/posts/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    <item>
+      <title>Dev Ux</title>
+      <link>http://moomou.io/posts/dev-ux/</link>
+      <pubDate>Tue, 22 Aug 2017 23:01:25 -0700</pubDate>
+      
+      <guid>http://moomou.io/posts/dev-ux/</guid>
+      <description>Automation (aka make it easy) Developers tend to repeat themselves. A lot. This can be as innocuous as running a test manually after you update a test file or as insidious as deploying a newly built binary into production manually. Nobody likes to repeat themselves over and over again. And for good reasons. Not only does it take time to repeatedly figure all the parameters in a tricky commandline program, it is also increases stress when you are get something done as quickly as possible during a server outage or just to meet that client deadline.</description>
+    </item>
+    
+  </channel>
+</rss>
