@@ -20,21 +20,19 @@
 .group {
   overflow: auto;
   margin: 25px; }
-
-.group .content {
-  float: left;
-  width: 75%;
-  margin-left: 72px; }
+  .group .content {
+    float: left;
+    width: 75%;
+    margin-left: 72px; }
 
 .title {
   float: left;
   font-size: 20px;
   font-style: italic;
   font-weight: 300; }
-
-.title span {
-  display: block;
-  max-width: 100px; }
+  .title span {
+    display: block;
+    max-width: 100px; }
 
 .icon-css {
   position: relative;
@@ -59,6 +57,647 @@
   border-right: 1.25em solid transparent;
   border-left: 1.25em solid transparent; }
 
-/*# sourceMappingURL=main.scss.map */
+* {
+  -webkit-font-smoothing: antialiased;
+  font-family: Georgia;
+  color: #444; }
+
+a {
+  color: #990003; }
+
+body {
+  padding: 25px;
+  display: flex;
+  min-height: 100vh;
+  flex-direction: column; }
+
+ul {
+  padding: 0; }
+
+*[data-maingo] img {
+  width: 42px; }
+
+.header {
+  align-items: center;
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  margin: 0 auto;
+  max-width: 1000px; }
+  .header div {
+    margin: 5px 25px; }
+  .header .logo {
+    width: 420px; }
+  .header .icon {
+    margin: 10px 0; }
+  .header .name {
+    font-family: 'Nixie One', cursive;
+    font-size: 72px;
+    line-height: 0.8;
+    margin: auto; }
+  .header .summary {
+    border-radius: 25px;
+    border: 2px solid #666;
+    max-width: 500px;
+    padding: 15px 20px;
+    position: relative;
+    text-align: justify; }
+    .header .summary:after {
+      left: -45px;
+      top: 25px;
+      background-color: #FFF;
+      border: 20px solid;
+      border-color: transparent #666666 transparent transparent;
+      content: ' ';
+      position: absolute;
+      width: 0;
+      height: 0; }
+  .header .info a:first-child {
+    margin-top: 0; }
+  .header .info a.link {
+    margin: 10px 0;
+    text-decoration: none; }
+  .header .info .title {
+    font-size: 17px;
+    font-weight: 300;
+    margin: 5px;
+    width: 120%; }
+  .header .info .icon-container {
+    margin: 0;
+    margin-left: -10px;
+    width: 50px; }
+  .header .info .icon {
+    width: 50px; }
+
+.main {
+  margin: 0 auto;
+  display: block;
+  width: 70vw; }
+
+.projects {
+  margin-top: 0; }
+
+.project {
+  list-style: none;
+  margin: 10px 5px; }
+  .project:first-child {
+    margin-top: 0; }
+
+.description {
+  list-style: none; }
+
+.project-icon {
+  background-clip: padding-box;
+  background-position: center center;
+  background-repeat: no-repeat;
+  background-size: 40px;
+  display: inline-block;
+  float: left;
+  height: 32px;
+  width: 42px;
+  margin-right: 20px; }
+
+.school-logo img {
+  line-height: 32px;
+  vertical-align: middle; }
+
+.school .degree {
+  font-size: 20px;
+  padding-left: 10px;
+  line-height: 32px;
+  vertical-align: middle; }
+
+.school .class {
+  float: right; }
+
+.job {
+  margin-left: 10px;
+  min-height: 58px;
+  overflow: hidden;
+  padding-bottom: 5px;
+  position: relative; }
+  .job h4 {
+    font-weight: 300;
+    margin-top: 5px;
+    position: absolute;
+    right: 0;
+    top: -8px; }
+  .job .detail {
+    clear: both;
+    padding-left: 20px;
+    list-style: circle; }
+    .job .detail li {
+      margin: 10px 0; }
+  .job .title {
+    font-size: 24px;
+    font-style: normal;
+    margin: 0 10px 5px 0; }
+    .job .title:after {
+      content: " @ "; }
+
+.talent {
+  list-style: none;
+  padding-left: 0;
+  overflow: auto; }
+  .talent:first-child {
+    margin-top: 0; }
+  .talent:last-child {
+    margin-bottom: 0; }
+  .talent li.label {
+    margin: 0; }
+  .talent li {
+    float: left;
+    margin: 0 8px; }
+  .talent .skill {
+    line-height: 32px; }
+
+.sections {
+  display: grid;
+  grid-template-columns: 100px 100px 100px; }
+
+.nav {
+  margin-top: 20px; }
+
+.nav li {
+  margin: 10px; }
+
+.nav li a {
+  text-decoration: none;
+  color: gray; }
+
+.nav li.highlight a {
+  color: #e74c3c;
+  border-bottom: 2px solid #e74c3c; }
+
+/*
+---------------------------------------------------------------------------------
+STRIPPED DOWN RESUME TEMPLATE
+html resume
+
+v0.9: 5/28/09
+
+design and code by: thingsthatarebrown.com
+(matt brown)
+modified by: Mou
+---------------------------------------------------------------------------------
+ */
+.msg {
+  background: #222;
+  position: relative;
+  padding: 10px; }
+
+.msg h1 {
+  color: #fff; }
+
+.msg a {
+  margin-left: 20px;
+  background: #408814;
+  color: #FFF;
+  text-decoration: none;
+  padding: 4px 8px; }
+
+.msg a:hover {
+  background: #266400; }
+
+body {
+  font-family: Georgia;
+  color: #444; }
+
+#inner {
+  background: #FFFF;
+  margin: 80px auto;
+  padding: 10px 80px; }
+
+.yui-gf {
+  margin-bottom: 1em;
+  padding-bottom: 1em;
+  border-bottom: 0 solid #ccc; }
+
+#hd {
+  padding-bottom: 0.25em;
+  margin: -2em 0 15px 0; }
+
+#hd h2 {
+  text-transform: uppercase;
+  letter-spacing: 2px; }
+
+#bd, #ft {
+  margin-bottom: 1em; }
+
+#hd h1 {
+  font-size: 42px;
+  text-transform: uppercase;
+  letter-spacing: 2px; }
+
+h2 {
+  font-size: 130%; }
+
+h3, h4 {
+  font-size: 120%;
+  margin-bottom: .2em; }
+
+h1, h2, h3, h4 {
+  color: #333; }
+
+p {
+  font-size: 110%;
+  line-height: 18px;
+  padding-right: 2em; }
+
+a {
+  color: #990003; }
+
+#mInt {
+  font-size: 125%;
+  font-style: none; }
+
+a:hover {
+  text-decoration: none; }
+
+p.enlarge {
+  font-size: 144%;
+  padding-right: 6.5em;
+  line-height: 24px; }
+
+span.first {
+  font-size: 120%; }
+
+.contact-info {
+  margin-top: 7px; }
+
+.first h2 {
+  font-style: italic; }
+
+.last {
+  border-bottom: 0;
+  border: none; }
+
+a#pdf {
+  display: block;
+  float: left;
+  background: #666;
+  color: #FFF;
+  margin-bottom: 6px;
+  text-decoration: none;
+  padding: 6px 50px 6px 12px; }
+
+a#pdf:hover {
+  background: #222; }
+
+.job {
+  position: relative;
+  margin-bottom: .75em;
+  padding-bottom: .5em; }
+
+.job h4 {
+  position: absolute;
+  top: .35em;
+  right: 0; }
+
+.job p {
+  margin: .5em 0 3em; }
+
+.job ul {
+  display: none;
+  border-right: 2px solid #C3C3C3;
+  padding-right: 25px;
+  width: 90%;
+  padding-left: 1.4em;
+  list-style-type: circle; }
+
+.job li {
+  list-style-type: circle;
+  margin-top: .5em; }
+
+.job .title {
+  font-size: 24px; }
+
+.job .title:after {
+  content: ' @';
+  width: 50px;
+  height: 50px; }
+
+.skills-list ul {
+  list-style-type: circle;
+  margin: 0; }
+
+.skills-list li {
+  display: inline;
+  margin: 3px 0;
+  padding: 3px 0; }
+
+.skills-list li span {
+  font-size: 152%;
+  display: block;
+  margin-bottom: -2px;
+  padding: 0; }
+
+.talent {
+  width: 100%;
+  float: bottom;
+  margin: 20px 10px 5px 10px; }
+
+.talent:first-child {
+  margin-top: 0px; }
+
+.talent li {
+  display: inline;
+  padding: 5px; }
+
+.talent li.cat {
+  font-style: none;
+  font-size: 120%; }
+
+.talent h2 {
+  margin-bottom: 6px; }
+
+li.cat.grey, .field {
+  display: inline-block;
+  overflow: hidden;
+  min-width: 100px;
+  max-width: 100px;
+  width: 100px;
+  vertical-align: middle; }
+
+.field {
+  min-width: 75px;
+  max-width: 55px;
+  height: 20px;
+  width: 25px; }
+
+.title {
+  width: 120%; }
+
+#srt-ttab {
+  margin-bottom: 100px;
+  text-align: center; }
+
+#srt-ttab img.last {
+  margin-top: 20px; }
+
+.clear {
+  height: 9.5em; }
+
+.logo {
+  position: absolute; }
+
+.name {
+  font-family: 'Nixie One', cursive;
+  font-size: 72px;
+  line-height: 0.8;
+  margin: auto; }
+
+.right {
+  float: right; }
+
+p.bubble {
+  font-family: 'Nixie One', cursive;
+  top: -1.5em;
+  padding: 30px;
+  position: relative;
+  width: 15em;
+  line-height: 1.5;
+  text-align: justify;
+  background-color: #fff;
+  border: 2px solid #666;
+  -webkit-border-radius: 30px;
+  -moz-border-radius: 30px;
+  border-radius: 30px;
+  -webkit-box-shadow: 1px 1px 1px #888;
+  -moz-box-shadow: 1px 1px 1px #888;
+  box-shadow: 1px 1px 1px #888;
+  margin: auto; }
+
+p.bubble:before, p.bubble:after {
+  content: ' ';
+  position: absolute;
+  width: 0;
+  height: 0; }
+
+p.speech:before {
+  left: -55px;
+  top: 20px;
+  border: 25px solid;
+  background-color: #fff;
+  border-color: transparent #fff transparent transparent; }
+
+p.speech:after {
+  left: -45px;
+  top: 25px;
+  background-color: #fff;
+  border: 20px solid;
+  border-color: transparent #666 transparent transparent; }
+
+.grey {
+  color: #C3C3C3; }
+
+.yui-gf .yui-u {
+  width: 80.2%; }
+
+.yui-u ul {
+  list-style-type: circle; }
+
+.yui-gf div.first {
+  width: 12.3%; }
+
+#centeredmenu {
+  margin-top: -2em;
+  border-bottom: 4px solid #000;
+  margin-bottom: 2em; }
+
+.break {
+  visibility: hidden;
+  height: 5em; }
+
+.break3 {
+  visibility: hidden;
+  height: 3em; }
+
+figure img {
+  display: block;
+  margin: 0 auto; }
+
+h1 {
+  font-size: 25px; }
+
+strong, .bold {
+  font-weight: 700; }
+
+p.enlarge span, .normal {
+  color: #000; }
+
+.project {
+  width: 100%;
+  height: 35px;
+  margin-bottom: 25px;
+  clear: both; }
+
+.description {
+  margin-left: 60px; }
+
+.circle-img {
+  float: left;
+  display: inline-block;
+  width: 75px;
+  height: 75px;
+  background-position: center center;
+  background-size: cover;
+  border-radius: 100%;
+  -webkit-border-radius: 100%;
+  background-clip: padding-box;
+  width: 45px;
+  height: 45px;
+  background-size: 40px;
+  background-repeat: no-repeat; }
+
+.logo, .school img, .company img, .skill img {
+  max-width: 80px;
+  max-height: 32px;
+  width: auto;
+  height: auto;
+  margin-left: 5px; }
+
+.degree {
+  font-size: 20px;
+  margin-left: 5px; }
+
+.class {
+  float: right; }
+
+.print-only {
+  display: none; }
+
+@media print {
+  .screen-only, #detailBtn {
+    display: none !important; }
+
+  .print-only {
+    display: block !important; }
+
+  .job ul {
+    display: block;
+    margin-top: 10px; }
+
+  .job .title {
+    font-size: 17px; }
+
+  .talent {
+    margin: 0px; }
+
+  .talent li {
+    padding: 2px; }
+
+  .class {
+    float: left; } }
+@media screen and (max-width: 992px) and (min-width: 320px) {
+  .job {
+    margin-bottom: 25px; }
+    .job h4 {
+      position: static;
+      font-size: 14px;
+      clear: both;
+      margin: 0; }
+    .job .title {
+      font-size: 17px; } }
+@media screen and (max-width: 720px) and (min-width: 320px) {
+  .main {
+    width: 85vw; }
+
+  *[data-maingo] img {
+    width: 32px; }
+
+  .flex-container {
+    flex-direction: column; }
+
+  .header {
+    flex-direction: column;
+    flex-wrap: wrap; }
+    .header .logo {
+      width: initial; }
+    .header .info {
+      width: initial; }
+    .header .summary {
+      display: none; }
+
+  .talent li.label {
+    margin: 10px 0;
+    padding-right: 100%; }
+
+  .group .content {
+    float: none;
+    width: 100%;
+    margin-left: 0; }
+
+  .title {
+    margin-bottom: 10px; }
+
+  .group > .title {
+    float: none;
+    text-decoration: underline; }
+    .group > .title span {
+      max-width: 100%; }
+
+  .school {
+    margin: 10px; }
+    .school .degree {
+      font-size: 17px; }
+    .school .class {
+      margin-top: 12px;
+      display: block;
+      float: none; } }
+.print-only {
+  display: none; }
+
+@media print {
+  body {
+    padding: 5px !important;
+    margin-bottom: 0; }
+
+  .print-only {
+    display: block !important; }
+
+  .screen-only, .skill img {
+    display: none !important; }
+
+  .school .degree {
+    padding-left: 0 !important; }
+
+  .job .title:after, .skill:before, .school:before, .skill:before {
+    content: attr(data-print); }
+
+  .main {
+    width: auto !important; }
+
+  .job {
+    overflow: auto !important; }
+    .job .title {
+      font-size: 17px; }
+      .job .title:after {
+        content: attr(data-print); }
+    .job .detail {
+      border-right: 2px solid #C3C3C3;
+      display: block;
+      margin-top: 10px;
+      padding-left: 1.4em;
+      padding-right: 25px;
+      width: 90%;
+      min-height: 12px; }
+
+  .talent {
+    margin: 5px; }
+    .talent li {
+      padding: 2px; }
+
+  .group {
+    margin: 15px; }
+
+  .skill {
+    line-height: normal !important; }
+
+  .project-icon {
+    -webkit-print-color-adjust: exact; }
+
+  .school .class {
+    float: left !important; } }
 
 /*# sourceMappingURL=main.scss.map */
