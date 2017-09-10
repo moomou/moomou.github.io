@@ -1,61 +1,362 @@
 /*
-Error: Invalid CSS after ".circle-img:": expected pseudoclass or pseudoelement, was " hover"
-        on line 388 of scss/resume.scss
+---------------------------------------------------------------------------------
+STRIPPED DOWN RESUME TEMPLATE
+html resume
 
-383:   width: 45px;
-384:   height: 45px;
-385:   background-size: 40px;
-386:   background-repeat: no-repeat;
-387: }
-388: .circle-img: hover {
-389: }
-390: 
-391: .logo, .school img, .company img, .skill img {
-392:   max-width: 80px;
-393:   max-height: 32px;
+v0.9: 5/28/09
 
-Backtrace:
-scss/resume.scss:388
-/usr/local/lib/ruby/gems/2.3.0/gems/sass-3.4.22/lib/sass/scss/parser.rb:1189:in `expected'
-/usr/local/lib/ruby/gems/2.3.0/gems/sass-3.4.22/lib/sass/scss/parser.rb:1125:in `expected'
-/usr/local/lib/ruby/gems/2.3.0/gems/sass-3.4.22/lib/sass/scss/parser.rb:1120:in `tok!'
-/usr/local/lib/ruby/gems/2.3.0/gems/sass-3.4.22/lib/sass/scss/static_parser.rb:276:in `pseudo'
-/usr/local/lib/ruby/gems/2.3.0/gems/sass-3.4.22/lib/sass/scss/static_parser.rb:159:in `simple_selector_sequence'
-/usr/local/lib/ruby/gems/2.3.0/gems/sass-3.4.22/lib/sass/scss/static_parser.rb:111:in `selector'
-/usr/local/lib/ruby/gems/2.3.0/gems/sass-3.4.22/lib/sass/scss/static_parser.rb:86:in `selector_comma_sequence'
-/usr/local/lib/ruby/gems/2.3.0/gems/sass-3.4.22/lib/sass/scss/parser.rb:1103:in `expr!'
-/usr/local/lib/ruby/gems/2.3.0/gems/sass-3.4.22/lib/sass/scss/static_parser.rb:20:in `parse_selector'
-/usr/local/lib/ruby/gems/2.3.0/gems/sass-3.4.22/lib/sass/tree/visitors/perform.rb:427:in `visit_rule'
-/usr/local/lib/ruby/gems/2.3.0/gems/sass-3.4.22/lib/sass/tree/visitors/base.rb:36:in `visit'
-/usr/local/lib/ruby/gems/2.3.0/gems/sass-3.4.22/lib/sass/tree/visitors/perform.rb:160:in `block in visit'
-/usr/local/lib/ruby/gems/2.3.0/gems/sass-3.4.22/lib/sass/stack.rb:79:in `block in with_base'
-/usr/local/lib/ruby/gems/2.3.0/gems/sass-3.4.22/lib/sass/stack.rb:115:in `with_frame'
-/usr/local/lib/ruby/gems/2.3.0/gems/sass-3.4.22/lib/sass/stack.rb:79:in `with_base'
-/usr/local/lib/ruby/gems/2.3.0/gems/sass-3.4.22/lib/sass/tree/visitors/perform.rb:160:in `visit'
-/usr/local/lib/ruby/gems/2.3.0/gems/sass-3.4.22/lib/sass/tree/visitors/base.rb:52:in `block in visit_children'
-/usr/local/lib/ruby/gems/2.3.0/gems/sass-3.4.22/lib/sass/tree/visitors/base.rb:52:in `map'
-/usr/local/lib/ruby/gems/2.3.0/gems/sass-3.4.22/lib/sass/tree/visitors/base.rb:52:in `visit_children'
-/usr/local/lib/ruby/gems/2.3.0/gems/sass-3.4.22/lib/sass/tree/visitors/perform.rb:169:in `block in visit_children'
-/usr/local/lib/ruby/gems/2.3.0/gems/sass-3.4.22/lib/sass/tree/visitors/perform.rb:181:in `with_environment'
-/usr/local/lib/ruby/gems/2.3.0/gems/sass-3.4.22/lib/sass/tree/visitors/perform.rb:168:in `visit_children'
-/usr/local/lib/ruby/gems/2.3.0/gems/sass-3.4.22/lib/sass/tree/visitors/base.rb:36:in `block in visit'
-/usr/local/lib/ruby/gems/2.3.0/gems/sass-3.4.22/lib/sass/tree/visitors/perform.rb:188:in `visit_root'
-/usr/local/lib/ruby/gems/2.3.0/gems/sass-3.4.22/lib/sass/tree/visitors/base.rb:36:in `visit'
-/usr/local/lib/ruby/gems/2.3.0/gems/sass-3.4.22/lib/sass/tree/visitors/perform.rb:159:in `visit'
-/usr/local/lib/ruby/gems/2.3.0/gems/sass-3.4.22/lib/sass/tree/visitors/perform.rb:8:in `visit'
-/usr/local/lib/ruby/gems/2.3.0/gems/sass-3.4.22/lib/sass/tree/root_node.rb:36:in `css_tree'
-/usr/local/lib/ruby/gems/2.3.0/gems/sass-3.4.22/lib/sass/tree/root_node.rb:29:in `render_with_sourcemap'
-/usr/local/lib/ruby/gems/2.3.0/gems/sass-3.4.22/lib/sass/engine.rb:381:in `_render_with_sourcemap'
-/usr/local/lib/ruby/gems/2.3.0/gems/sass-3.4.22/lib/sass/engine.rb:298:in `render_with_sourcemap'
-/usr/local/lib/ruby/gems/2.3.0/gems/sass-3.4.22/lib/sass/exec/sass_scss.rb:391:in `run'
-/usr/local/lib/ruby/gems/2.3.0/gems/sass-3.4.22/lib/sass/exec/sass_scss.rb:63:in `process_result'
-/usr/local/lib/ruby/gems/2.3.0/gems/sass-3.4.22/lib/sass/exec/base.rb:52:in `parse'
-/usr/local/lib/ruby/gems/2.3.0/gems/sass-3.4.22/lib/sass/exec/base.rb:19:in `parse!'
-/usr/local/lib/ruby/gems/2.3.0/gems/sass-3.4.22/bin/sass:13:in `<top (required)>'
-/usr/local/bin/sass:23:in `load'
-/usr/local/bin/sass:23:in `<main>'
-*/
-body:before {
-  white-space: pre;
-  font-family: monospace;
-  content: "Error: Invalid CSS after \".circle-img:\": expected pseudoclass or pseudoelement, was \" hover\"\A         on line 388 of scss/resume.scss\A \A 383:   width: 45px;\A 384:   height: 45px;\A 385:   background-size: 40px;\A 386:   background-repeat: no-repeat;\A 387: }\A 388: .circle-img: hover {\A 389: }\A 390: \A 391: .logo, .school img, .company img, .skill img {\A 392:   max-width: 80px;\A 393:   max-height: 32px;"; }
+design and code by: thingsthatarebrown.com
+(matt brown)
+modified by: Mou
+---------------------------------------------------------------------------------
+ */
+.msg {
+  background: #222;
+  position: relative;
+  padding: 10px; }
+
+.msg h1 {
+  color: #fff; }
+
+.msg a {
+  margin-left: 20px;
+  background: #408814;
+  color: #FFF;
+  text-decoration: none;
+  padding: 4px 8px; }
+
+.msg a:hover {
+  background: #266400; }
+
+body {
+  font-family: Georgia;
+  color: #444; }
+
+#inner {
+  background: #FFFF;
+  margin: 80px auto;
+  padding: 10px 80px; }
+
+.yui-gf {
+  margin-bottom: 1em;
+  padding-bottom: 1em;
+  border-bottom: 0 solid #ccc; }
+
+#hd {
+  padding-bottom: 0.25em;
+  margin: -2em 0 15px 0; }
+
+#hd h2 {
+  text-transform: uppercase;
+  letter-spacing: 2px; }
+
+#bd, #ft {
+  margin-bottom: 1em; }
+
+#hd h1 {
+  font-size: 42px;
+  text-transform: uppercase;
+  letter-spacing: 2px; }
+
+h2 {
+  font-size: 130%; }
+
+h3, h4 {
+  font-size: 120%;
+  margin-bottom: .2em; }
+
+h1, h2, h3, h4 {
+  color: #333; }
+
+p {
+  font-size: 110%;
+  line-height: 18px;
+  padding-right: 2em; }
+
+a {
+  color: #990003; }
+
+#mInt {
+  font-size: 125%;
+  font-style: none; }
+
+a:hover {
+  text-decoration: none; }
+
+p.enlarge {
+  font-size: 144%;
+  padding-right: 6.5em;
+  line-height: 24px; }
+
+span.first {
+  font-size: 120%; }
+
+.contact-info {
+  margin-top: 7px; }
+
+.first h2 {
+  font-style: italic; }
+
+.last {
+  border-bottom: 0;
+  border: none; }
+
+a#pdf {
+  display: block;
+  float: left;
+  background: #666;
+  color: #FFF;
+  margin-bottom: 6px;
+  text-decoration: none;
+  padding: 6px 50px 6px 12px; }
+
+a#pdf:hover {
+  background: #222; }
+
+.job {
+  position: relative;
+  margin-bottom: .75em;
+  padding-bottom: .5em; }
+
+.job h4 {
+  position: absolute;
+  top: .35em;
+  right: 0; }
+
+.job p {
+  margin: .5em 0 3em; }
+
+.job ul {
+  display: none;
+  border-right: 2px solid #C3C3C3;
+  padding-right: 25px;
+  width: 90%;
+  padding-left: 1.4em;
+  list-style-type: circle; }
+
+.job li {
+  list-style-type: circle;
+  margin-top: .5em; }
+
+.job .title {
+  font-size: 24px; }
+
+.job .title:after {
+  content: ' @';
+  width: 50px;
+  height: 50px; }
+
+.skills-list ul {
+  list-style-type: circle;
+  margin: 0; }
+
+.skills-list li {
+  display: inline;
+  margin: 3px 0;
+  padding: 3px 0; }
+
+.skills-list li span {
+  font-size: 152%;
+  display: block;
+  margin-bottom: -2px;
+  padding: 0; }
+
+.talent {
+  width: 100%;
+  float: bottom;
+  margin: 20px 10px 5px 10px; }
+
+.talent:first-child {
+  margin-top: 0px; }
+
+.talent li {
+  display: inline;
+  padding: 5px; }
+
+.talent li.cat {
+  font-style: none;
+  font-size: 120%; }
+
+.talent h2 {
+  margin-bottom: 6px; }
+
+li.cat.grey, .field {
+  display: inline-block;
+  overflow: hidden;
+  min-width: 100px;
+  max-width: 100px;
+  width: 100px;
+  vertical-align: middle; }
+
+.field {
+  min-width: 75px;
+  max-width: 55px;
+  height: 20px;
+  width: 25px; }
+
+.title {
+  width: 120%; }
+
+#srt-ttab {
+  margin-bottom: 100px;
+  text-align: center; }
+
+#srt-ttab img.last {
+  margin-top: 20px; }
+
+.clear {
+  height: 9.5em; }
+
+.logo {
+  position: absolute; }
+
+.name {
+  font-family: 'Nixie One', cursive;
+  font-size: 72px;
+  line-height: 0.8;
+  margin: auto; }
+
+.right {
+  float: right; }
+
+p.bubble {
+  font-family: 'Nixie One', cursive;
+  top: -1.5em;
+  padding: 30px;
+  position: relative;
+  width: 15em;
+  line-height: 1.5;
+  text-align: justify;
+  background-color: #fff;
+  border: 2px solid #666;
+  -webkit-border-radius: 30px;
+  -moz-border-radius: 30px;
+  border-radius: 30px;
+  -webkit-box-shadow: 1px 1px 1px #888;
+  -moz-box-shadow: 1px 1px 1px #888;
+  box-shadow: 1px 1px 1px #888;
+  margin: auto; }
+
+p.bubble:before, p.bubble:after {
+  content: ' ';
+  position: absolute;
+  width: 0;
+  height: 0; }
+
+p.speech:before {
+  left: -55px;
+  top: 20px;
+  border: 25px solid;
+  background-color: #fff;
+  border-color: transparent #fff transparent transparent; }
+
+p.speech:after {
+  left: -45px;
+  top: 25px;
+  background-color: #fff;
+  border: 20px solid;
+  border-color: transparent #666 transparent transparent; }
+
+.grey {
+  color: #C3C3C3; }
+
+.yui-gf .yui-u {
+  width: 80.2%; }
+
+.yui-u ul {
+  list-style-type: circle; }
+
+.yui-gf div.first {
+  width: 12.3%; }
+
+#centeredmenu {
+  margin-top: -2em;
+  border-bottom: 4px solid #000;
+  margin-bottom: 2em; }
+
+.break {
+  visibility: hidden;
+  height: 5em; }
+
+.break3 {
+  visibility: hidden;
+  height: 3em; }
+
+figure img {
+  display: block;
+  margin: 0 auto; }
+
+h1 {
+  font-size: 25px; }
+
+strong, .bold {
+  font-weight: 700; }
+
+p.enlarge span, .normal {
+  color: #000; }
+
+.project {
+  width: 100%;
+  height: 35px;
+  margin-bottom: 25px;
+  clear: both; }
+
+.description {
+  margin-left: 60px; }
+
+.circle-img {
+  float: left;
+  display: inline-block;
+  width: 75px;
+  height: 75px;
+  background-position: center center;
+  background-size: cover;
+  border-radius: 100%;
+  -webkit-border-radius: 100%;
+  background-clip: padding-box;
+  width: 45px;
+  height: 45px;
+  background-size: 40px;
+  background-repeat: no-repeat; }
+
+.logo, .school img, .company img, .skill img {
+  max-width: 80px;
+  max-height: 32px;
+  width: auto;
+  height: auto;
+  margin-left: 5px; }
+
+.degree {
+  font-size: 20px;
+  margin-left: 5px; }
+
+.class {
+  float: right; }
+
+.print-only {
+  display: none; }
+
+@media print {
+  .screen-only, #detailBtn {
+    display: none !important; }
+
+  .print-only {
+    display: block !important; }
+
+  .job ul {
+    display: block;
+    margin-top: 10px; }
+
+  .job .title {
+    font-size: 17px; }
+
+  .talent {
+    margin: 0px; }
+
+  .talent li {
+    padding: 2px; }
+
+  .class {
+    float: left; } }
+
+/*# sourceMappingURL=resume.scss.map */
