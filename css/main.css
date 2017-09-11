@@ -86,8 +86,6 @@ ul {
   max-width: 1000px; }
   .header div {
     margin: 5px 25px; }
-  .header .logo {
-    width: 420px; }
   .header .icon {
     margin: 10px 0; }
   .header .name {
@@ -98,8 +96,8 @@ ul {
   .header .summary {
     border-radius: 25px;
     border: 2px solid #666;
-    max-width: 500px;
-    padding: 15px 20px;
+    max-width: 250px;
+    padding: 10px 3px 15px 40px;
     position: relative;
     text-align: justify; }
     .header .summary:after {
@@ -112,22 +110,23 @@ ul {
       position: absolute;
       width: 0;
       height: 0; }
-  .header .info a:first-child {
-    margin-top: 0; }
-  .header .info a.link {
-    margin: 10px 0;
-    text-decoration: none; }
-  .header .info .title {
-    font-size: 17px;
-    font-weight: 300;
-    margin: 5px;
-    width: 120%; }
-  .header .info .icon-container {
-    margin: 0;
-    margin-left: -10px;
-    width: 50px; }
-  .header .info .icon {
-    width: 50px; }
+  .header .info {
+    overflow: auto; }
+    .header .info a:first-child {
+      margin-top: 0; }
+    .header .info a.link {
+      margin: 10px 0;
+      text-decoration: none; }
+    .header .info .title {
+      font-size: 17px;
+      font-weight: 300;
+      margin: 5px; }
+    .header .info .icon-container {
+      margin: 0;
+      margin-left: -10px;
+      width: 50px; }
+    .header .info .icon {
+      width: 50px; }
 
 .main {
   margin: 0 auto;
@@ -425,9 +424,6 @@ li.cat.grey, .field {
   height: 20px;
   width: 25px; }
 
-.title {
-  width: 120%; }
-
 #srt-ttab {
   margin-bottom: 100px;
   text-align: center; }
@@ -437,9 +433,6 @@ li.cat.grey, .field {
 
 .clear {
   height: 9.5em; }
-
-.logo {
-  position: absolute; }
 
 .name {
   font-family: 'Nixie One', cursive;
@@ -700,4 +693,4 @@ p.enlarge span, .normal {
   .school .class {
     float: left !important; } }
 
-/*# sourceMappingURL=main.scss.map */
+/*# sourceMappingURL=main.css.map */
