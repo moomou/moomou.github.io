@@ -111,6 +111,7 @@ ul {
       width: 0;
       height: 0; }
   .header .info {
+    max-width: 300px;
     overflow: auto; }
     .header .info a:first-child {
       margin-top: 0; }
