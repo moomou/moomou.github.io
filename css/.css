@@ -194,9 +194,6 @@ li.cat.grey, .field {
   height: 20px;
   width: 25px; }
 
-.title {
-  width: 120%; }
-
 #srt-ttab {
   margin-bottom: 100px;
   text-align: center; }
@@ -206,9 +203,6 @@ li.cat.grey, .field {
 
 .clear {
   height: 9.5em; }
-
-.logo {
-  position: absolute; }
 
 .name {
   font-family: 'Nixie One', cursive;
