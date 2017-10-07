@@ -328,6 +328,9 @@ span.first {
 .contact-info {
   margin-top: 7px; }
 
+.header .info .title {
+  clear: both; }
+
 .first h2 {
   font-style: italic; }
 
@@ -571,7 +574,6 @@ p.enlarge span, .normal {
   .header .info {
     image-rendering: crisp-edges; }
   .header .info .title {
-    clear: both;
     margin: 0;
     font-size: 12px; }
 
