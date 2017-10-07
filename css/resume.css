@@ -329,6 +329,9 @@ p.enlarge span, .normal {
   .screen-only, #detailBtn {
     display: none !important; }
 
+  .header .name {
+    font-size: 36px; }
+
   .job ul {
     display: block;
     margin-top: 10px; }
