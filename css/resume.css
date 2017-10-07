@@ -327,6 +327,8 @@ p.enlarge span, .normal {
   .screen-only, #detailBtn {
     display: none !important; }
 
+  .header .name {
+    font-size: 52px; }
   .header .summary {
     padding: 0 0 0 5px; }
   .header .info .title {
