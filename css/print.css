@@ -18,6 +18,9 @@
   .job .title:after, .skill:before, .school:before, .skill:before {
     content: attr(data-print); }
 
+  .main {
+    width: auto !important; }
+
   .job {
     overflow: auto !important; }
     .job .title {
