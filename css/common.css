@@ -17,11 +17,11 @@
 .label {
   color: #C3C3C3;
   display: inline-block;
-  max-width: 100px;
-  min-width: 100px;
+  max-width: 75px;
+  min-width: 75px;
+  width: 75px;
   overflow: hidden;
-  vertical-align: middle;
-  width: 100px; }
+  vertical-align: middle; }
 
 .group {
   display: flex;
