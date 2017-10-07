@@ -1,6 +1,9 @@
 *[hidden] {
   display: none !important; }
 
+.grayscale {
+  filter: grayscale(100%); }
+
 .pull-right {
   float: right; }
 
