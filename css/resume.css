@@ -327,11 +327,10 @@ p.enlarge span, .normal {
   .screen-only, #detailBtn {
     display: none !important; }
 
-  .header .name {
-    font-size: 36px; }
-
   .header .summary {
     padding: 0 0 0 5px; }
+  .header .info .title {
+    font-size: 14px; }
 
   .job ul {
     display: block;
