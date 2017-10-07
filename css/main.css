@@ -564,7 +564,8 @@ p.enlarge span, .normal {
   .header .name {
     font-size: 52px; }
   .header .summary {
-    padding: 0 0 0 5px; }
+    padding: 0 0 0 5px;
+    text-align: unset; }
   .header .info .title {
     margin: 0;
     font-size: 14px; }
