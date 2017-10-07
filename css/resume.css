@@ -332,6 +332,7 @@ p.enlarge span, .normal {
   .header .summary {
     padding: 0 0 0 5px; }
   .header .info .title {
+    margin: 0;
     font-size: 14px; }
 
   .job ul {
