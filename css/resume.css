@@ -330,7 +330,7 @@ p.enlarge span, .normal {
   .header .name {
     font-size: 52px; }
   .header .summary {
-    padding: 0 0 0 5px;
+    padding: 0 0 0 15px;
     text-align: unset;
     font-size: 15px; }
   .header .info .title {
