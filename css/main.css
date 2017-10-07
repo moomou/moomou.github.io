@@ -84,9 +84,7 @@ ul {
   align-items: center;
   display: flex;
   flex-direction: row;
-  justify-content: center;
-  margin: 0 auto;
-  max-width: 1000px; }
+  justify-content: center; }
   .header div {
     margin: 5px 25px; }
   .header .icon {
