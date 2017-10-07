@@ -7,7 +7,7 @@
     margin-bottom: 0; }
 
   .print-only {
-    display: block !important; }
+    display: block; }
 
   .screen-only, .skill img {
     display: none !important; }

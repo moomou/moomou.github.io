@@ -1,5 +1,5 @@
 *[hidden] {
-  display: none; }
+  display: none !important; }
 
 .pull-right {
   float: right; }
@@ -650,7 +650,7 @@ p.enlarge span, .normal {
     margin-bottom: 0; }
 
   .print-only {
-    display: block !important; }
+    display: block; }
 
   .screen-only, .skill img {
     display: none !important; }
