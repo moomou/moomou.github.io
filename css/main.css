@@ -585,7 +585,7 @@ p.enlarge span, .normal {
     font-size: 17px; }
 
   .talent {
-    margin: 0px; }
+    margin: 3px; }
 
   .talent li {
     padding: 0px; }
@@ -688,11 +688,6 @@ p.enlarge span, .normal {
       padding-right: 25px;
       width: 90%;
       min-height: 12px; }
-
-  .talent {
-    margin: 5px; }
-    .talent li {
-      padding: 2px; }
 
   .group {
     margin: 15px; }
