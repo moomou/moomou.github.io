@@ -594,6 +594,7 @@ p.enlarge span, .normal {
     float: left; }
 
   .job {
+    margin-left: 0;
     margin-bottom: 0;
     padding-bottom: 0; } }
 @media screen and (max-width: 992px) and (min-width: 320px) {

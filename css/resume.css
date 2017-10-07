@@ -360,6 +360,7 @@ p.enlarge span, .normal {
     float: left; }
 
   .job {
+    margin-left: 0;
     margin-bottom: 0;
     padding-bottom: 0; } }
 
