@@ -331,7 +331,8 @@ p.enlarge span, .normal {
     font-size: 52px; }
   .header .summary {
     padding: 0 0 0 5px;
-    text-align: unset; }
+    text-align: unset;
+    font-size: 15px; }
   .header .info .title {
     margin: 0;
     font-size: 14px; }
