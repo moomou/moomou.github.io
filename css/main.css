@@ -1,3 +1,6 @@
+*[hidden] {
+  display: none; }
+
 .pull-right {
   float: right; }
 
@@ -18,7 +21,7 @@
   width: 100px; }
 
 .group {
-  overflow: auto;
+  display: flex;
   margin: 25px; }
   .group .content {
     float: left;
@@ -351,7 +354,6 @@ a#pdf:hover {
 
 .job h4 {
   position: absolute;
-  top: .35em;
   right: 0; }
 
 .job p {
@@ -659,9 +661,6 @@ p.enlarge span, .normal {
   .job .title:after, .skill:before, .school:before, .skill:before {
     content: attr(data-print); }
 
-  .main {
-    width: auto !important; }
-
   .job {
     overflow: auto !important; }
     .job .title {
@@ -671,7 +670,6 @@ p.enlarge span, .normal {
     .job .detail {
       border-right: 2px solid #C3C3C3;
       display: block;
-      margin-top: 10px;
       padding-left: 1.4em;
       padding-right: 25px;
       width: 90%;
@@ -687,6 +685,9 @@ p.enlarge span, .normal {
 
   .skill {
     line-height: normal !important; }
+
+  .project {
+    margin-bottom: 12px; }
 
   .project-icon {
     -webkit-print-color-adjust: exact; }

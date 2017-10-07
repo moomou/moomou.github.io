@@ -18,9 +18,6 @@
   .job .title:after, .skill:before, .school:before, .skill:before {
     content: attr(data-print); }
 
-  .main {
-    width: auto !important; }
-
   .job {
     overflow: auto !important; }
     .job .title {
@@ -30,7 +27,6 @@
     .job .detail {
       border-right: 2px solid #C3C3C3;
       display: block;
-      margin-top: 10px;
       padding-left: 1.4em;
       padding-right: 25px;
       width: 90%;
@@ -46,6 +42,9 @@
 
   .skill {
     line-height: normal !important; }
+
+  .project {
+    margin-bottom: 12px; }
 
   .project-icon {
     -webkit-print-color-adjust: exact; }

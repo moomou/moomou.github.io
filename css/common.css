@@ -1,3 +1,6 @@
+*[hidden] {
+  display: none; }
+
 .pull-right {
   float: right; }
 
@@ -18,7 +21,7 @@
   width: 100px; }
 
 .group {
-  overflow: auto;
+  display: flex;
   margin: 25px; }
   .group .content {
     float: left;
