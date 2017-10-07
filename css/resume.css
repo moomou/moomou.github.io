@@ -334,6 +334,8 @@ p.enlarge span, .normal {
     text-align: unset;
     font-size: 12px;
     margin-left: 40px; }
+  .header .info {
+    image-rendering: crisp-edges; }
   .header .info .title {
     margin: 0;
     font-size: 12px; }
