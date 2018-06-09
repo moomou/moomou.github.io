@@ -42,7 +42,7 @@
       <div class="nav-right">
         <nav class="nav-item level is-mobile">
           
-          <a class="level-item" href="/resume" target="_blank">
+          <a class="level-item" href="/resume.pdf" target="_blank">
             <span class="icon">
               <i class="fa fa-id-card-o"></i>
             </span>
@@ -123,9 +123,13 @@
 
 
 <script>
-window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
-ga('create', 'trackingcode', 'auto');
-ga('send', 'pageview');
+var doNotTrack = false;
+if (!doNotTrack) {
+	window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+	ga('create', 'trackingcode', 'auto');
+	
+	ga('send', 'pageview');
+}
 </script>
 <script async src='//www.google-analytics.com/analytics.js'></script>
 

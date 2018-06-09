@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en-us">
 <head>
-	<meta name="generator" content="Hugo 0.25" />
+	<meta name="generator" content="Hugo 0.41" />
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta content="keyword 1, keyword 2, keyword 3" name="keywords">
@@ -42,7 +42,7 @@
       <div class="nav-right">
         <nav class="nav-item level is-mobile">
           
-          <a class="level-item" href="/resume" target="_blank">
+          <a class="level-item" href="/resume.pdf" target="_blank">
             <span class="icon">
               <i class="fa fa-id-card-o"></i>
             </span>
@@ -152,9 +152,13 @@ https://github.com/ggreer/the_silver_searcher
 
 
 <script>
-window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
-ga('create', 'trackingcode', 'auto');
-ga('send', 'pageview');
+var doNotTrack = false;
+if (!doNotTrack) {
+	window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+	ga('create', 'trackingcode', 'auto');
+	
+	ga('send', 'pageview');
+}
 </script>
 <script async src='//www.google-analytics.com/analytics.js'></script>
 
