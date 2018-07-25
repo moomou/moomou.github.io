@@ -6,11 +6,20 @@
     <description>Recent content on moomou</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <copyright>&amp;copy; 2017 | Follow on &lt;a href=&#34;https://github.com/moomou&#34; target=&#34;_blank&#34;&gt;Github&lt;/a&gt;</copyright>
-    <lastBuildDate>Fri, 01 Sep 2017 23:01:25 -0700</lastBuildDate>
+    <copyright>&amp;copy; 2018 | Follow on &lt;a href=&#34;https://github.com/moomou&#34; target=&#34;_blank&#34;&gt;Github&lt;/a&gt;</copyright>
+    <lastBuildDate>Sat, 05 May 2018 23:01:25 -0700</lastBuildDate>
     
 	<atom:link href="https://moomou.github.io/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>Training a Speaker Embedding from Scratch with Triplet Learning</title>
+      <link>https://blog.goodaudience.com/training-a-speaker-embedding-from-scratch-24baf990ccf</link>
+      <pubDate>Sat, 05 May 2018 23:01:25 -0700</pubDate>
+      
+      <guid>https://blog.goodaudience.com/training-a-speaker-embedding-from-scratch-24baf990ccf</guid>
+      <description>Read on <a href="https://blog.goodaudience.com/training-a-speaker-embedding-from-scratch-24baf990ccf">Medium</a></description>
+    </item>
     
     <item>
       <title>ML paper notes</title>
