@@ -1,53 +1,70 @@
 .print-only {
-  display: none; }
+  display: none;
+}
 
 @media print {
   body {
     padding: 5px !important;
-    margin: 0; }
+    margin: 0;
+  }
 
   .print-only {
-    display: block; }
+    display: block;
+  }
 
   .screen-only, .skill img {
-    display: none !important; }
+    display: none !important;
+  }
 
   .school .degree {
-    padding-left: 0 !important; }
+    padding-left: 0 !important;
+  }
 
   .job .title:after, .skill:before, .school:before, .skill:before {
-    content: attr(data-print); }
+    content: attr(data-print);
+  }
 
   .main {
-    width: auto !important; }
+    width: auto !important;
+  }
 
   .job {
-    overflow: auto !important; }
-    .job .title {
-      font-size: 17px; }
-      .job .title:after {
-        content: attr(data-print); }
-    .job .detail {
-      border-right: 2px solid #C3C3C3;
-      display: block;
-      padding-left: 1.4em;
-      padding-right: 25px;
-      width: 90%;
-      min-height: 12px; }
+    overflow: auto !important;
+  }
+  .job .title {
+    font-size: 17px;
+  }
+  .job .title:after {
+    content: attr(data-print);
+  }
+  .job .detail {
+    border-right: 2px solid #C3C3C3;
+    display: block;
+    padding-left: 1.4em;
+    padding-right: 25px;
+    width: 90%;
+    min-height: 12px;
+  }
 
   .group {
-    margin: 24px 15px; }
+    margin: 24px 15px;
+  }
 
   .skill {
-    line-height: normal !important; }
+    line-height: normal !important;
+  }
 
   .project {
-    margin-bottom: 12px; }
+    margin-bottom: 12px;
+  }
 
   .project-icon {
-    -webkit-print-color-adjust: exact; }
+    -webkit-print-color-adjust: exact;
+  }
 
   .school .class {
-    float: left !important; } }
+    float: left !important;
+  }
+}
 
 /*# sourceMappingURL=print.css.map */
