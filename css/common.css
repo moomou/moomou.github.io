@@ -39,6 +39,10 @@
   margin-left: 40px;
 }
 
+div.title {
+  min-width: 120px;
+}
+
 .title {
   float: left;
   font-size: 17px;
