@@ -148,7 +148,7 @@ a#pdf:hover {
   padding-bottom: 0.5em;
 }
 
-.job h4 {
+.job .period {
   position: absolute;
   right: 0;
 }
