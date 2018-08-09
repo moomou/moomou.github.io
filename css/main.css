@@ -223,7 +223,7 @@ ul {
   padding-bottom: 5px;
   position: relative;
 }
-.job h4 {
+.job .period {
   font-weight: 300;
   margin-top: 5px;
   position: absolute;
