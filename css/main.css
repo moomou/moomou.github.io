@@ -704,9 +704,6 @@ p.enlarge span, .normal {
     font-size: 12px;
     margin-left: 40px;
   }
-  .header .summary:after {
-    top: 20px !important;
-  }
   .header .info {
     image-rendering: crisp-edges;
   }
