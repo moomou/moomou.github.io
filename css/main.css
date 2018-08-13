@@ -694,6 +694,9 @@ p.enlarge span, .normal {
     display: none !important;
   }
 
+  .header div {
+    margin: 5px 20px;
+  }
   .header .name {
     font-size: 52px;
   }
