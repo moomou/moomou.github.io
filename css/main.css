@@ -869,10 +869,6 @@ p.enlarge span, .normal {
     line-height: normal !important;
   }
 
-  .project {
-    margin-bottom: 12px;
-  }
-
   .project-icon {
     -webkit-print-color-adjust: exact;
   }
