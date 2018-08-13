@@ -8,6 +8,10 @@
     margin: 0;
   }
 
+  .summary:after {
+    top: 20px;
+  }
+
   .print-only {
     display: block;
   }
