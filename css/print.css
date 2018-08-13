@@ -9,7 +9,7 @@
   }
 
   .summary:after {
-    top: 20px;
+    top: 20px !important;
   }
 
   .print-only {
