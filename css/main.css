@@ -823,6 +823,10 @@ p.enlarge span, .normal {
     margin: 0;
   }
 
+  .summary:after {
+    top: 20px !important;
+  }
+
   .print-only {
     display: block;
   }
