@@ -133,6 +133,7 @@ ul {
   text-align: justify;
 }
 .header .summary:after {
+  display: none;
   left: -45px;
   top: 35px;
   background-color: #FFF;
