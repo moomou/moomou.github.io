@@ -47,7 +47,7 @@
   }
 
   .group {
-    margin: 20px;
+    margin: 24px 15px;
   }
 
   .skill {
@@ -55,7 +55,7 @@
   }
 
   .project {
-    margin-bottom: 0;
+    margin-bottom: 12px;
   }
 
   .project-icon {
