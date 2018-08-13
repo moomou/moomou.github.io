@@ -134,7 +134,7 @@ ul {
 }
 .header .summary:after {
   left: -45px;
-  top: 25px;
+  top: 35px;
   background-color: #FFF;
   border: 20px solid;
   border-color: rgba(0, 0, 0, 0) #666666 rgba(0, 0, 0, 0) rgba(0, 0, 0, 0);
