@@ -698,7 +698,7 @@ p.enlarge span, .normal {
     font-size: 52px;
   }
   .header .summary {
-    max-width: 360px;
+    max-width: 300px;
     padding: 0 0 0 30px;
     text-align: justify;
     font-size: 12px;
