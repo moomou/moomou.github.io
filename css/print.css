@@ -54,6 +54,10 @@
     line-height: normal !important;
   }
 
+  .project {
+    margin-bottom: 0;
+  }
+
   .project-icon {
     -webkit-print-color-adjust: exact;
   }
