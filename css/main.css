@@ -127,7 +127,7 @@ ul {
 .header .summary {
   border-radius: 25px;
   border: 2px solid #666;
-  max-width: 270px;
+  max-width: 300px;
   padding: 10px 3px 15px 40px;
   position: relative;
   text-align: justify;
