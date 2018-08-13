@@ -819,7 +819,7 @@ p.enlarge span, .normal {
 
 @media print {
   body {
-    padding: -10px !important;
+    padding: 5px !important;
     margin: 0;
   }
 
