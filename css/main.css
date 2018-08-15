@@ -16,7 +16,7 @@
 
 .flex-container {
   display: flex;
-  justify-content: space-around;
+  justify-content: space-between;
 }
 
 .label {
@@ -35,13 +35,17 @@
 }
 .group .content {
   float: left;
-  width: 80%;
-  margin-left: 50px;
+  width: 100%;
+  margin-left: 40px;
+}
+
+div.title {
+  min-width: 90px;
 }
 
 .title {
   float: left;
-  font-size: 20px;
+  font-size: 17px;
   font-style: italic;
   font-weight: 300;
 }
@@ -88,7 +92,7 @@ a {
 }
 
 body {
-  padding: 25px;
+  padding: 15px 20px;
   display: flex;
   min-height: 100vh;
   flex-direction: column;
@@ -116,21 +120,22 @@ ul {
 }
 .header .name {
   font-family: "Nixie One", cursive;
-  font-size: 72px;
+  font-size: 64px;
   line-height: 0.8;
   margin: auto;
 }
 .header .summary {
   border-radius: 25px;
-  border: 2px solid #666;
-  max-width: 250px;
+  border: 1px solid #666;
+  max-width: 300px;
   padding: 10px 3px 15px 40px;
   position: relative;
   text-align: justify;
 }
 .header .summary:after {
+  display: none;
   left: -45px;
-  top: 25px;
+  top: 35px;
   background-color: #FFF;
   border: 20px solid;
   border-color: rgba(0, 0, 0, 0) #666666 rgba(0, 0, 0, 0) rgba(0, 0, 0, 0);
@@ -219,7 +224,7 @@ ul {
   padding-bottom: 5px;
   position: relative;
 }
-.job h4 {
+.job .period {
   font-weight: 300;
   margin-top: 5px;
   position: absolute;
@@ -232,7 +237,7 @@ ul {
   list-style: circle;
 }
 .job .detail li {
-  margin: 10px 0;
+  margin: 5px 0;
 }
 .job .title {
   font-size: 24px;
@@ -438,7 +443,7 @@ a#pdf:hover {
   padding-bottom: 0.5em;
 }
 
-.job h4 {
+.job .period {
   position: absolute;
   right: 0;
 }
@@ -461,7 +466,7 @@ a#pdf:hover {
 }
 
 .job .title {
-  font-size: 24px;
+  font-size: 22px;
 }
 
 .job .title:after {
@@ -689,14 +694,17 @@ p.enlarge span, .normal {
     display: none !important;
   }
 
+  .header div {
+    margin: 5px 20px;
+  }
   .header .name {
     font-size: 52px;
   }
   .header .summary {
-    padding: 0 0 0 50px;
-    text-align: unset;
+    padding: 0 0 0 30px;
+    text-align: justify;
     font-size: 12px;
-    margin-left: 40px;
+    margin-top: -5px;
   }
   .header .info {
     image-rendering: crisp-edges;
@@ -858,7 +866,7 @@ p.enlarge span, .normal {
   }
 
   .group {
-    margin: 24px 15px;
+    margin: 20px;
   }
 
   .skill {
@@ -866,7 +874,7 @@ p.enlarge span, .normal {
   }
 
   .project {
-    margin-bottom: 12px;
+    margin-bottom: 0;
   }
 
   .project-icon {

@@ -16,7 +16,7 @@
 
 .flex-container {
   display: flex;
-  justify-content: space-around;
+  justify-content: space-between;
 }
 
 .label {
@@ -35,13 +35,17 @@
 }
 .group .content {
   float: left;
-  width: 80%;
-  margin-left: 50px;
+  width: 100%;
+  margin-left: 40px;
+}
+
+div.title {
+  min-width: 90px;
 }
 
 .title {
   float: left;
-  font-size: 20px;
+  font-size: 17px;
   font-style: italic;
   font-weight: 300;
 }
