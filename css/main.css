@@ -186,7 +186,7 @@ ul {
 .project:first-child {
   margin-top: 0;
 }
-.project .description {
+.project .project-description {
   list-style: none;
 }
 
