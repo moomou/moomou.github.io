@@ -186,6 +186,9 @@ ul {
 .project:first-child {
   margin-top: 0;
 }
+.project .description {
+  list-style: none;
+}
 
 .description {
   list-style: none;
