@@ -6,7 +6,7 @@
 	<meta property="og:title" content="ML paper notes" />
 <meta property="og:description" content="2017-09 LEARNING FINE-GRAINED IMAGE SIMILARITY WITH DEEP RANKING  describes efficient sampling technique based on reservoir sampling for building triplets; requires an relevance function multi scale CNN   DEEP METRIC LEARNING USING TRIPLET NETWORK  learns a semantic embedding; results show better discrimination vs siamese network (contrastive loss function) MSE softmax shows improved performance rather than simple binary softmax (see paper for def) feed a triplet of x, x1, x2 where x1 is same class as x and x2 is different  DISTILLING THE KNOWLEDGE IN A NEURAL NETWORK  explores compression technique of ensemble model into a single model Distillation  softmax qi = exp(zi/T)/Sigma(j)(exp(zj/T) where z are logits and T is temperature  T is usually 1 increasing T creates softer probability distribution  knowledge is tranferred via training smaller/compressed model by targeting over softer target (ie temperature T &gt; 1) from more cumbersome model small model trained with higher T as well but in prediction mode uses T = 1 tranfer training can be improved by using datasets with true label  demonstrate distillation with minist dataset - tranfer works well even when smaller model trained by omitting certain numbers discusses using soft distribution target technique for training specialists on very large datasets Google internal JFT data of 100M images  Questions  teacher - student model, relation to curriculum learning?" />
 <meta property="og:type" content="article" />
-<meta property="og:url" content="http://localhost:8082/notes/ml_notes/" />
+<meta property="og:url" content="https://paul.mou.dev/notes/ml_notes/" />
 
 
 
@@ -28,20 +28,20 @@
 <meta name="twitter:description" content="2017-09 LEARNING FINE-GRAINED IMAGE SIMILARITY WITH DEEP RANKING  describes efficient sampling technique based on reservoir sampling for building triplets; requires an relevance function multi scale CNN   DEEP METRIC LEARNING USING TRIPLET NETWORK  learns a semantic embedding; results show better discrimination vs siamese network (contrastive loss function) MSE softmax shows improved performance rather than simple binary softmax (see paper for def) feed a triplet of x, x1, x2 where x1 is same class as x and x2 is different  DISTILLING THE KNOWLEDGE IN A NEURAL NETWORK  explores compression technique of ensemble model into a single model Distillation  softmax qi = exp(zi/T)/Sigma(j)(exp(zj/T) where z are logits and T is temperature  T is usually 1 increasing T creates softer probability distribution  knowledge is tranferred via training smaller/compressed model by targeting over softer target (ie temperature T &gt; 1) from more cumbersome model small model trained with higher T as well but in prediction mode uses T = 1 tranfer training can be improved by using datasets with true label  demonstrate distillation with minist dataset - tranfer works well even when smaller model trained by omitting certain numbers discusses using soft distribution target technique for training specialists on very large datasets Google internal JFT data of 100M images  Questions  teacher - student model, relation to curriculum learning?"/>
 <link href="https://fonts.googleapis.com/css?family=Ubuntu:300,400,300italic,400italic|Raleway:200,300" rel="stylesheet">
 
-	<link rel="stylesheet" type="text/css" media="screen" href="http://localhost:8082/css/normalize.css" />
-	<link rel="stylesheet" type="text/css" media="screen" href="http://localhost:8082/css/main.css" /><link rel="stylesheet" type="text/css" href="http://localhost:8082/css/dark.css"  />
+	<link rel="stylesheet" type="text/css" media="screen" href="https://paul.mou.dev/css/normalize.css" />
+	<link rel="stylesheet" type="text/css" media="screen" href="https://paul.mou.dev/css/main.css" /><link rel="stylesheet" type="text/css" href="https://paul.mou.dev/css/dark.css"  />
 
 	<script src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js"></script>
-	<script src="http://localhost:8082/js/main.js"></script>
-	<script src="http://localhost:8082/js/abc.js"></script>
-	<script src="http://localhost:8082/js/xyz.js"></script>
+	<script src="https://paul.mou.dev/js/main.js"></script>
+	<script src="https://paul.mou.dev/js/abc.js"></script>
+	<script src="https://paul.mou.dev/js/xyz.js"></script>
 	<script src="https://code.jquery.com/jquery-3.4.1.js"></script>
 </head>
 
 <body>
 	<div class="container wrapper post">
 		<div class="header">
-	<h1 class="site-title"><a href="http://localhost:8082/">moomou</a></h1>
+	<h1 class="site-title"><a href="https://paul.mou.dev/">moomou</a></h1>
 	<div class="site-description"><h2>(ﾉ≧∇≦)ﾉ ﾐ ┸┸</h2><nav class="nav social">
 			<ul class="flat"><a href="https://github.com/moomou" title="Github"><i data-feather="github"></i></a></ul>
 		</nav>

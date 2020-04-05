@@ -2,41 +2,41 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>Posts on moomou</title>
-    <link>http://localhost:8082/posts/</link>
+    <link>https://paul.mou.dev/posts/</link>
     <description>Recent content in Posts on moomou</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
     <copyright>2020</copyright>
     <lastBuildDate>Sat, 22 Feb 2020 00:00:00 +0000</lastBuildDate>
     
-	<atom:link href="http://localhost:8082/posts/index.xml" rel="self" type="application/rss+xml" />
+	<atom:link href="https://paul.mou.dev/posts/index.xml" rel="self" type="application/rss+xml" />
     
     
     <item>
       <title>Improvements to &#34;m&#34;, a personal command line tool</title>
-      <link>http://localhost:8082/posts/dev-ux2/</link>
+      <link>https://paul.mou.dev/posts/dev-ux2/</link>
       <pubDate>Sat, 22 Feb 2020 00:00:00 +0000</pubDate>
       
-      <guid>http://localhost:8082/posts/dev-ux2/</guid>
+      <guid>https://paul.mou.dev/posts/dev-ux2/</guid>
       <description>From m to m2 Having used m for many years now, I encountered two primary problems.
 The first is startup performance.</description>
     </item>
     
     <item>
       <title>Training a Speaker Embedding from Scratch with Triplet Learning</title>
-      <link>http://localhost:8082/posts/speaker-embedding/</link>
+      <link>https://paul.mou.dev/posts/speaker-embedding/</link>
       <pubDate>Sat, 05 May 2018 23:01:25 -0700</pubDate>
       
-      <guid>http://localhost:8082/posts/speaker-embedding/</guid>
+      <guid>https://paul.mou.dev/posts/speaker-embedding/</guid>
       <description>Posted on go.mou.dev/triplet-embedding-learning</description>
     </item>
     
     <item>
       <title>Developer Experience</title>
-      <link>http://localhost:8082/posts/dev-ux/</link>
+      <link>https://paul.mou.dev/posts/dev-ux/</link>
       <pubDate>Tue, 22 Aug 2017 23:01:25 -0700</pubDate>
       
-      <guid>http://localhost:8082/posts/dev-ux/</guid>
+      <guid>https://paul.mou.dev/posts/dev-ux/</guid>
       <description>Commandline Productivity and Automation (aka make it easy to repeat) Developers tend to repeat themselves. A lot. This can be as innocuous as running a test manually after you update a test file or as insidious as deploying a newly built binary into production manually.</description>
     </item>
     
