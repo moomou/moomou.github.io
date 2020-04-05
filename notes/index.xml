@@ -2,39 +2,33 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>Notes on moomou</title>
-    <link>https://moomou.github.io/notes/</link>
+    <link>http://localhost:8082/notes/</link>
     <description>Recent content in Notes on moomou</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <copyright>&amp;copy; 2018 | Follow on &lt;a href=&#34;https://github.com/moomou&#34; target=&#34;_blank&#34;&gt;Github&lt;/a&gt;</copyright>
+    <copyright>2020</copyright>
     <lastBuildDate>Fri, 01 Sep 2017 23:01:25 -0700</lastBuildDate>
     
-	<atom:link href="https://moomou.github.io/notes/index.xml" rel="self" type="application/rss+xml" />
+	<atom:link href="http://localhost:8082/notes/index.xml" rel="self" type="application/rss+xml" />
     
     
     <item>
       <title>ML paper notes</title>
-      <link>https://moomou.github.io/notes/ml_notes/</link>
+      <link>http://localhost:8082/notes/ml_notes/</link>
       <pubDate>Fri, 01 Sep 2017 23:01:25 -0700</pubDate>
       
-      <guid>https://moomou.github.io/notes/ml_notes/</guid>
+      <guid>http://localhost:8082/notes/ml_notes/</guid>
       <description>2017-09 LEARNING FINE-GRAINED IMAGE SIMILARITY WITH DEEP RANKING  describes efficient sampling technique based on reservoir sampling for building triplets; requires an relevance function multi scale CNN   DEEP METRIC LEARNING USING TRIPLET NETWORK  learns a semantic embedding; results show better discrimination vs siamese network (contrastive loss function) MSE softmax shows improved performance rather than simple binary softmax (see paper for def) feed a triplet of x, x1, x2 where x1 is same class as x and x2 is different  DISTILLING THE KNOWLEDGE IN A NEURAL NETWORK  explores compression technique of ensemble model into a single model Distillation  softmax qi = exp(zi/T)/Sigma(j)(exp(zj/T) where z are logits and T is temperature  T is usually 1 increasing T creates softer probability distribution  knowledge is tranferred via training smaller/compressed model by targeting over softer target (ie temperature T &amp;gt; 1) from more cumbersome model small model trained with higher T as well but in prediction mode uses T = 1 tranfer training can be improved by using datasets with true label  demonstrate distillation with minist dataset - tranfer works well even when smaller model trained by omitting certain numbers discusses using soft distribution target technique for training specialists on very large datasets Google internal JFT data of 100M images  Questions  teacher - student model, relation to curriculum learning?</description>
     </item>
     
     <item>
       <title>Tools</title>
-      <link>https://moomou.github.io/notes/tools/</link>
+      <link>http://localhost:8082/notes/tools/</link>
       <pubDate>Fri, 01 Sep 2017 23:01:25 -0700</pubDate>
       
-      <guid>https://moomou.github.io/notes/tools/</guid>
+      <guid>http://localhost:8082/notes/tools/</guid>
       <description>Fzf Amazing command line tool to fuzzy search for files. Cannot live without this. Also integrates with vim.
-https://github.com/junegunn/fzf
-Jq Swiss army knife for working with JSON on the command line
-https://github.com/stedolan/jq
-Pup Like Jq, but for HTML
-https://github.com/ericchiang/pup
-Silversearcher Like grep, but better
-https://github.com/ggreer/the_silver_searcher</description>
+https://github.com/junegunn/fzf</description>
     </item>
     
   </channel>

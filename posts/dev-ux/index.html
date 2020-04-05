@@ -1,72 +1,82 @@
 <!DOCTYPE html>
-<html lang="en-us">
+<html>
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<meta content="keyword 1, keyword 2, keyword 3" name="keywords">
-<meta content="paul" name="author">
-<meta property="og:title" content="Developer Experience - moomou">
-<meta property="og:url" content="https://moomou.github.io/posts/dev-ux/">
-<meta property="og:description" content="lorem">
-<meta property="og:type" content="website" />
-<title>Developer Experience | moomou</title>
+	<meta charset="utf-8" />
+	<meta http-equiv="X-UA-Compatible" content="IE=edge"><title>Developer Experience - moomou</title><link rel="icon" type="image/png" href=favicon.ico /><meta name="viewport" content="width=device-width, initial-scale=1">
+	<meta property="og:title" content="Developer Experience" />
+<meta property="og:description" content="Commandline Productivity and Automation (aka make it easy to repeat) Developers tend to repeat themselves. A lot. This can be as innocuous as running a test manually after you update a test file or as insidious as deploying a newly built binary into production manually." />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="http://localhost:8082/posts/dev-ux/" />
 
-<script type="text/x-mathjax-config">
-  MathJax.Hub.Config({
-    tex2jax: {
-      inlineMath: [ ['$','$'], ["\\(","\\)"] ],
-      processEscapes: true
-    }
-  });
-</script>
-<link rel="stylesheet" href="https://moomou.github.io/css/style.css">
-<link rel="shortcut icon" href="https://moomou.github.io/wave.ico">
-<link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" integrity="sha256-eZrrJcwDc/3uDhsdt61sL2oOBY362qM3lon1gyExkL0=" crossorigin="anonymous" />
 
-<link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.9.0/styles/github.min.css">
 
+<meta property="article:published_time" content="2017-08-22T23:01:25-07:00"/>
+
+<meta property="article:modified_time" content="2017-08-22T23:01:25-07:00"/>
+
+
+
+
+
+
+
+
+
+
+<meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="Developer Experience"/>
+<meta name="twitter:description" content="Commandline Productivity and Automation (aka make it easy to repeat) Developers tend to repeat themselves. A lot. This can be as innocuous as running a test manually after you update a test file or as insidious as deploying a newly built binary into production manually."/>
+<link href="https://fonts.googleapis.com/css?family=Ubuntu:300,400,300italic,400italic|Raleway:200,300" rel="stylesheet">
+
+	<link rel="stylesheet" type="text/css" media="screen" href="http://localhost:8082/css/normalize.css" />
+	<link rel="stylesheet" type="text/css" media="screen" href="http://localhost:8082/css/main.css" /><link rel="stylesheet" type="text/css" href="http://localhost:8082/css/dark.css"  />
+
+	<script src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js"></script>
+	<script src="http://localhost:8082/js/main.js"></script>
+	<script src="http://localhost:8082/js/abc.js"></script>
+	<script src="http://localhost:8082/js/xyz.js"></script>
+	<script src="https://code.jquery.com/jquery-3.4.1.js"></script>
 </head>
 
 <body>
-<section class="section">
-  <div class="container">
-    <nav class="nav">
-      <div class="nav-left">
-        <a class="nav-item" href="https://moomou.github.io"><h1 class="title is-4">moomou</h1></a>
-        
-          <a class="nav-item" href="/notes/ml_notes"><h1 class="title is-6">ml notes</h1></a>
-        
-          <a class="nav-item" href="/notes/tools"><h1 class="title is-6">tools</h1></a>
-        
-      </div>
-      <div class="nav-right">
-        <nav class="nav-item level is-mobile">
-          
-          <a class="level-item" href="/resume.pdf" target="_blank">
-            <span class="icon">
-              <i class="fa fa-id-card-o"></i>
-            </span>
-          </a>
-          
-          <a class="level-item" href="https://github.com/moomou" target="_blank">
-            <span class="icon">
-              <i class="fa fa-github"></i>
-            </span>
-          </a>
-          
-        </nav>
-      </div>
-    </nav>
-  </div>
-</section>
+	<div class="container wrapper post">
+		<div class="header">
+	<h1 class="site-title"><a href="http://localhost:8082/">moomou</a></h1>
+	<div class="site-description"><h2>(ﾉ≧∇≦)ﾉ ﾐ ┸┸</h2><nav class="nav social">
+			<ul class="flat"><a href="https://github.com/moomou" title="Github"><i data-feather="github"></i></a></ul>
+		</nav>
+	</div>
 
-<section class="section">
-  <div class="container">
-    <h1 class="title">Developer Experience</h1>
-    <h2 class="subtitle is-5">August 22, 2017 by paul</h2>
-    
-    <div class="content">
+	<nav class="nav">
+		<ul class="flat">
+			
+			<li>
+				<a href="/">Home</a>
+			</li>
+			
+			<li>
+				<a href="/posts">All posts</a>
+			</li>
+			
+			<li>
+				<a href="https://go.mou.dev/resume">Resume</a>
+			</li>
+			
+		</ul>
+	</nav>
+</div>
+
+
+		<div class="post-header">
+			<h1 class="title">Developer Experience</h1>
       
+      <div class="meta">Posted at &mdash; Aug 22, 2017</div>
+      
+      
+		</div>
+
+		<div class="markdown">
+			
 
 <h2 id="commandline-productivity-and-automation-aka-make-it-easy-to-repeat">Commandline Productivity and Automation (aka make it easy to repeat)</h2>
 
@@ -81,25 +91,19 @@
 <p>Creating a shell script is the simplest form of automation and arguably also the most effective with immediate productivity gain. After some experimentation, I devised and follow a simple rule: if I need to type more 3 parameters to invoke a complicated command on the shell, I will write a shell script. This simple stratgey saves me time and also gives me a place to document various parameters.</p>
 
 <p>As a concrete example, I have been writing <code>build_container.sh</code> and <code>run_container.sh</code> to help streamline my Docker workflow.</p>
-
-<pre><code># build_container.sh
-#!/bin/sh -xe
-
-docker build -t $1 .
-# removes &lt;none&gt; images
-docker rmi $(docker images --filter &quot;dangling=true&quot; -q --no-trunc)
-</code></pre>
-
-<pre><code># run_container.sh
-#!/bin/sh -xe
-
-docker run \
-    -p 9000:9000 \
-    -v REPO_PATH:/CONTAINER_ROOT/REPO_PATH \
-    sample_image \
-    bash
-</code></pre>
-
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><span style="color:#586e75"># build_container.sh
+</span><span style="color:#586e75"></span><span style="color:#719e07">#!/bin/sh -xe
+</span><span style="color:#719e07"></span>
+docker build -t <span style="color:#268bd2">$1</span> .
+<span style="color:#586e75"># removes &lt;none&gt; images
+</span><span style="color:#586e75"></span>docker rmi <span style="color:#719e07">$(</span>docker images --filter <span style="color:#2aa198">&#34;dangling=true&#34;</span> -q --no-trunc<span style="color:#719e07">)</span></pre></div><div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><span style="color:#586e75"># run_container.sh
+</span><span style="color:#586e75"></span><span style="color:#719e07">#!/bin/sh -xe
+</span><span style="color:#719e07"></span>
+docker run <span style="color:#cb4b16">\
+</span><span style="color:#cb4b16"></span>    -p <span style="color:#2aa198">9000</span>:9000 <span style="color:#cb4b16">\
+</span><span style="color:#cb4b16"></span>    -v REPO_PATH:/CONTAINER_ROOT/REPO_PATH <span style="color:#cb4b16">\
+</span><span style="color:#cb4b16"></span>    sample_image <span style="color:#cb4b16">\
+</span><span style="color:#cb4b16"></span>    bash</pre></div>
 <p>As an added bonus, I have been learning more about shell programming (and all its quirks!) as I am writing more of these scripts.</p>
 
 <h3 id="swiss-army-knife">Swiss army knife</h3>
@@ -109,19 +113,16 @@ docker run \
 <p>To overcome this, I stole the idea of <code>s</code>, a Swiss army knife command line tool, from Smyte. Succinctly, <code>s</code> is a collection of scripts that automates various developer tasks, including deployment, remote server automation, running tests, compilation, and myraids of other things. More than a collection of scripts, <code>s</code> provides a common framework to centralize tool development and minimizes boilerplates.</p>
 
 <p>Some sample <code>s</code> invocation</p>
-
-<pre><code># running tests
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"># running tests
 s test.run ABC
 
 # deploying code
-s deploy.roll --commit ABC
-</code></pre>
-
+s deploy.roll --commit ABC</pre></div>
 <p>Modelling after <code>s</code>, I created a tool called <code>m</code>. To bootstrap <code>m</code>, I use <a href="https://github.com/google/python-fire">python-fire</a> from Google. <code>python-fire</code> is an amazing python library that will turn any python script into a command line program with minimum fuzz and handles command line arguments in an intuitive manner.</p>
 
 <p>One of the major downside of <code>s</code> as implemented at Smyte is speed - importing modules in python is not free and these add up as more and more scripts get added. In <code>m</code>, I address this by loading dependencies only at invocation of each subcommand. Doing this has allowed to me to keep top level <code>m</code> invocation at ~250ms on my 2013 Mac Air.</p>
 
-<p>You can checkout <code>m</code> at <a href="https://github.com/moomou/dotfiles/tree/master/m">https://github.com/moomou/dotfiles/tree/master/m</a>.</p>
+<p>You can checkout <code>m</code> on my github <a href="https://go.mou.dev/m">here</a>.</p>
 
 <h3 id="environment-bootstrapping">Environment bootstrapping</h3>
 
@@ -145,34 +146,20 @@ s deploy.roll --commit ABC
 
 <p>Much to be done.</p>
 
-    </div>
-    
-        <div class="nav-left">
-    <a class="nav-item" href="https://twitter.com/home?status=Developer%20Experience - https%3a%2f%2fmoomou.github.io%2fposts%2fdev-ux%2f" title="Tweet this" target="_blank"><span class="fa fa-twitter fa-2x"></span></a>
-    <a class="nav-item" href="http://www.reddit.com/submit?url=https%3a%2f%2fmoomou.github.io%2fposts%2fdev-ux%2f&title=Developer%20Experience" title="Share on Reddit" target="_blank"><span class="fa fa-reddit-alien fa-2x" aria-hidden="true"></span></a>
-    </div>
+		</div>
 
-    
-  </div>
-</section>
+		<div class="post-tags">
+			
+				
+			
+		</div>
+		</div>
+	<div class="footer wrapper">
+	<nav class="nav">
+		<div> 2020 </div>
+	</nav>
+</div>
 
-
-<section class="section">
-  <div class="container has-text-centered">
-    <p>&copy; 2018 | Follow on <a href="https://github.com/moomou" target="_blank">Github</a></p>
-  </div>
-</section>
-
-
-<script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.11.0/highlight.min.js" integrity="sha256-+bhVTaRmJ/c07eV80nU8gD2cBBF0rYkf1txqXlrbvb0=" crossorigin="anonymous"></script>
-
-<script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.11.0/languages/go.min.js"></script>
-<script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js"></script>
-
-<script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.11.0/languages/dockerfile.min.js"></script>
-<script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js"></script>
-
-<script>hljs.initHighlightingOnLoad();</script>
 
 
 <script>
@@ -186,6 +173,6 @@ if (!doNotTrack) {
 </script>
 <script async src='https://www.google-analytics.com/analytics.js'></script>
 
-
-
+<script>feather.replace()</script>
 </body>
+</html>
