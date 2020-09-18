@@ -12,7 +12,8 @@
     display: block;
   }
 
-  .screen-only, .skill img {
+  .screen-only,
+.skill img {
     display: none !important;
   }
 
@@ -20,7 +21,10 @@
     padding-left: 0 !important;
   }
 
-  .job .title:after, .skill:before, .school:before, .skill:before {
+  .job .title:after,
+.skill:before,
+.school:before,
+.skill:before {
     content: attr(data-print);
   }
 
@@ -38,7 +42,7 @@
     content: attr(data-print);
   }
   .job .detail {
-    border-right: 2px solid #C3C3C3;
+    border-right: 2px solid #c3c3c3;
     display: block;
     padding-left: 1.4em;
     padding-right: 25px;

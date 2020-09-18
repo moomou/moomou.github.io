@@ -23,7 +23,7 @@ modified by: Mou
 .msg a {
   margin-left: 20px;
   background: #408814;
-  color: #FFF;
+  color: #fff;
   text-decoration: none;
   padding: 4px 8px;
 }
@@ -59,7 +59,8 @@ body {
   letter-spacing: 2px;
 }
 
-#bd, #ft {
+#bd,
+#ft {
   margin-bottom: 1em;
 }
 
@@ -73,12 +74,16 @@ h2 {
   font-size: 130%;
 }
 
-h3, h4 {
+h3,
+h4 {
   font-size: 120%;
   margin-bottom: 0.2em;
 }
 
-h1, h2, h3, h4 {
+h1,
+h2,
+h3,
+h4 {
   color: #333;
 }
 
@@ -132,7 +137,7 @@ a#pdf {
   display: block;
   float: left;
   background: #666;
-  color: #FFF;
+  color: #fff;
   margin-bottom: 6px;
   text-decoration: none;
   padding: 6px 50px 6px 12px;
@@ -159,7 +164,7 @@ a#pdf:hover {
 
 .job ul {
   display: none;
-  border-right: 2px solid #C3C3C3;
+  border-right: 2px solid #c3c3c3;
   padding-right: 25px;
   width: 90%;
   list-style-type: circle;
@@ -222,7 +227,8 @@ a#pdf:hover {
   margin-bottom: 6px;
 }
 
-li.cat.grey, .field {
+li.cat.grey,
+.field {
   display: inline-block;
   overflow: hidden;
   min-width: 100px;
@@ -279,7 +285,8 @@ p.bubble {
   margin: auto;
 }
 
-p.bubble:before, p.bubble:after {
+p.bubble:before,
+p.bubble:after {
   content: " ";
   position: absolute;
   width: 0;
@@ -303,7 +310,7 @@ p.speech:after {
 }
 
 .grey {
-  color: #C3C3C3;
+  color: #c3c3c3;
 }
 
 .yui-gf .yui-u {
@@ -343,11 +350,13 @@ h1 {
   font-size: 25px;
 }
 
-strong, .bold {
+strong,
+.bold {
   font-weight: 700;
 }
 
-p.enlarge span, .normal {
+p.enlarge span,
+.normal {
   color: #000;
 }
 
@@ -378,7 +387,10 @@ p.enlarge span, .normal {
   background-repeat: no-repeat;
 }
 
-.logo, .school img, .company img, .skill img {
+.logo,
+.school img,
+.company img,
+.skill img {
   max-width: 80px;
   max-height: 32px;
   width: auto;
@@ -395,7 +407,8 @@ p.enlarge span, .normal {
 }
 
 @media print {
-  .screen-only, #detailBtn {
+  .screen-only,
+#detailBtn {
     display: none !important;
   }
 

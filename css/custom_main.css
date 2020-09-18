@@ -20,7 +20,7 @@
 }
 
 .label {
-  color: #C3C3C3;
+  color: #c3c3c3;
   display: inline-block;
   max-width: 75px;
   min-width: 75px;
@@ -106,6 +106,10 @@ ul {
   width: 42px;
 }
 
+.body {
+  margin: 2em;
+}
+
 .header {
   align-items: center;
   display: flex;
@@ -125,10 +129,12 @@ ul {
   margin: auto;
 }
 .header .summary {
-  border-radius: 25px;
-  border: 1px solid #6666;
+  font-size: 110%;
+  line-height: 18px;
+  border-top: 1px solid #6666;
+  border-bottom: 1px solid #6666;
   max-width: 300px;
-  padding: 10px 3px 15px 40px;
+  padding: 5px 25px;
   position: relative;
   text-align: justify;
 }
@@ -136,7 +142,7 @@ ul {
   display: none;
   left: -45px;
   top: 35px;
-  background-color: #FFF;
+  background-color: #fff;
   border: 20px solid;
   border-color: rgba(0, 0, 0, 0) #666666 rgba(0, 0, 0, 0) rgba(0, 0, 0, 0);
   content: " ";
@@ -296,6 +302,58 @@ ul {
   border-bottom: 2px solid #e74c3c;
 }
 
+@media print {
+  .screen-only,
+#detailBtn {
+    display: none !important;
+  }
+
+  .header div {
+    margin: 5px 20px;
+  }
+  .header .name {
+    font-size: 52px;
+  }
+  .header .summary {
+    text-align: justify;
+    font-size: 12px;
+    margin-top: -5px;
+  }
+  .header .info {
+    image-rendering: crisp-edges;
+  }
+  .header .info .title {
+    margin: 0;
+    font-size: 12px;
+  }
+
+  .job ul {
+    display: block;
+    margin-top: 10px;
+  }
+
+  .job .title {
+    font-size: 17px;
+  }
+
+  .talent {
+    margin: 2px;
+  }
+
+  .talent li {
+    padding: 0px;
+  }
+
+  .class {
+    float: left;
+  }
+
+  .job {
+    margin-left: 0;
+    margin-bottom: 0;
+    padding-bottom: 0;
+  }
+}
 /*
 ---------------------------------------------------------------------------------
 STRIPPED DOWN RESUME TEMPLATE
@@ -321,7 +379,7 @@ modified by: Mou
 .msg a {
   margin-left: 20px;
   background: #408814;
-  color: #FFF;
+  color: #fff;
   text-decoration: none;
   padding: 4px 8px;
 }
@@ -357,7 +415,8 @@ body {
   letter-spacing: 2px;
 }
 
-#bd, #ft {
+#bd,
+#ft {
   margin-bottom: 1em;
 }
 
@@ -371,12 +430,16 @@ h2 {
   font-size: 130%;
 }
 
-h3, h4 {
+h3,
+h4 {
   font-size: 120%;
   margin-bottom: 0.2em;
 }
 
-h1, h2, h3, h4 {
+h1,
+h2,
+h3,
+h4 {
   color: #333;
 }
 
@@ -430,7 +493,7 @@ a#pdf {
   display: block;
   float: left;
   background: #666;
-  color: #FFF;
+  color: #fff;
   margin-bottom: 6px;
   text-decoration: none;
   padding: 6px 50px 6px 12px;
@@ -457,7 +520,7 @@ a#pdf:hover {
 
 .job ul {
   display: none;
-  border-right: 2px solid #C3C3C3;
+  border-right: 2px solid #c3c3c3;
   padding-right: 25px;
   width: 90%;
   list-style-type: circle;
@@ -520,7 +583,8 @@ a#pdf:hover {
   margin-bottom: 6px;
 }
 
-li.cat.grey, .field {
+li.cat.grey,
+.field {
   display: inline-block;
   overflow: hidden;
   min-width: 100px;
@@ -577,7 +641,8 @@ p.bubble {
   margin: auto;
 }
 
-p.bubble:before, p.bubble:after {
+p.bubble:before,
+p.bubble:after {
   content: " ";
   position: absolute;
   width: 0;
@@ -601,7 +666,7 @@ p.speech:after {
 }
 
 .grey {
-  color: #C3C3C3;
+  color: #c3c3c3;
 }
 
 .yui-gf .yui-u {
@@ -641,11 +706,13 @@ h1 {
   font-size: 25px;
 }
 
-strong, .bold {
+strong,
+.bold {
   font-weight: 700;
 }
 
-p.enlarge span, .normal {
+p.enlarge span,
+.normal {
   color: #000;
 }
 
@@ -676,7 +743,10 @@ p.enlarge span, .normal {
   background-repeat: no-repeat;
 }
 
-.logo, .school img, .company img, .skill img {
+.logo,
+.school img,
+.company img,
+.skill img {
   max-width: 80px;
   max-height: 32px;
   width: auto;
@@ -693,7 +763,8 @@ p.enlarge span, .normal {
 }
 
 @media print {
-  .screen-only, #detailBtn {
+  .screen-only,
+#detailBtn {
     display: none !important;
   }
 
@@ -834,7 +905,8 @@ p.enlarge span, .normal {
     display: block;
   }
 
-  .screen-only, .skill img {
+  .screen-only,
+.skill img {
     display: none !important;
   }
 
@@ -842,7 +914,10 @@ p.enlarge span, .normal {
     padding-left: 0 !important;
   }
 
-  .job .title:after, .skill:before, .school:before, .skill:before {
+  .job .title:after,
+.skill:before,
+.school:before,
+.skill:before {
     content: attr(data-print);
   }
 
@@ -860,7 +935,7 @@ p.enlarge span, .normal {
     content: attr(data-print);
   }
   .job .detail {
-    border-right: 2px solid #C3C3C3;
+    border-right: 2px solid #c3c3c3;
     display: block;
     padding-left: 1.4em;
     padding-right: 25px;
