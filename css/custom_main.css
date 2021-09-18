@@ -94,7 +94,6 @@ a {
 body {
   padding: 15px 20px;
   display: flex;
-  min-height: 100vh;
   flex-direction: column;
 }
 
@@ -127,11 +126,11 @@ ul {
 }
 .header .summary {
   font-size: 110%;
-  line-height: 18px;
+  line-height: 20px;
   border-top: 1px solid #6666;
   border-bottom: 1px solid #6666;
   max-width: 300px;
-  padding: 5px 15px;
+  padding: 5px;
   position: relative;
   text-align: justify;
 }
@@ -146,9 +145,6 @@ ul {
   position: absolute;
   width: 0;
   height: 0;
-}
-.header .summary p {
-  font-size: 1em;
 }
 .header .info {
   max-width: 300px;
@@ -177,7 +173,7 @@ ul {
 }
 
 .main {
-  margin: 0 auto;
+  margin: 15px auto;
   display: block;
   width: 70vw;
 }
@@ -314,7 +310,7 @@ ul {
   }
   .header .summary {
     text-align: justify;
-    font-size: 12px;
+    font-size: 15px;
     margin-top: -5px;
   }
   .header .info {
@@ -436,6 +432,7 @@ ul {
   body {
     padding: 4px !important;
     margin: 0;
+    height: 100vh !important;
   }
 
   .print-only {

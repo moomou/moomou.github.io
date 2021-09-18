@@ -6,6 +6,7 @@
   body {
     padding: 4px !important;
     margin: 0;
+    height: 100vh !important;
   }
 
   .print-only {
