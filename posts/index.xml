@@ -7,10 +7,19 @@
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
     <copyright>2020</copyright>
-    <lastBuildDate>Sat, 22 Feb 2020 00:00:00 +0000</lastBuildDate>
+    <lastBuildDate>Wed, 29 Dec 2021 00:00:00 +0000</lastBuildDate>
     
 	<atom:link href="https://paul.mou.dev/posts/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>Messing with Nvidia GPU on Headless Linux</title>
+      <link>https://paul.mou.dev/posts/2021-12-29-nvidia-gpus/</link>
+      <pubDate>Wed, 29 Dec 2021 00:00:00 +0000</pubDate>
+      
+      <guid>https://paul.mou.dev/posts/2021-12-29-nvidia-gpus/</guid>
+      <description>I have a PC with Ubuntu server installed and Nvidia GPUs attached. I have Googled on and off for a while trying to learn how to overclock the GPUs without success.</description>
+    </item>
     
     <item>
       <title>Improvements to &#34;m&#34;, a personal command line tool</title>
