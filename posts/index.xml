@@ -7,10 +7,19 @@
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
     <copyright>since 2017</copyright>
-    <lastBuildDate>Wed, 29 Dec 2021 00:00:00 +0000</lastBuildDate>
+    <lastBuildDate>Sat, 13 Aug 2022 00:00:00 +0000</lastBuildDate>
     
 	<atom:link href="https://paul.mou.dev/posts/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>CORS with Cookie</title>
+      <link>https://paul.mou.dev/posts/2022-08-13-cors-with-cookie/</link>
+      <pubDate>Sat, 13 Aug 2022 00:00:00 +0000</pubDate>
+      
+      <guid>https://paul.mou.dev/posts/2022-08-13-cors-with-cookie/</guid>
+      <description>Introduction CORS stands for Cross-Origin-Resource-Sharing and is the HTTP mechanism to allow servers to accept requests from other host locations other than its own.</description>
+    </item>
     
     <item>
       <title>Messing with Nvidia GPU on Headless Linux</title>
