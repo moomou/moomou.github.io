@@ -38,9 +38,13 @@
   }
   .job .title {
     font-size: 17px;
+    margin-bottom: 8px;
   }
   .job .title:after {
     content: attr(data-print);
+  }
+  .job .period {
+    top: -5px;
   }
   .job .detail {
     border-right: 2px solid #c3c3c3;

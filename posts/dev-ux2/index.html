@@ -7,23 +7,9 @@
 <meta property="og:description" content="From m to m2 Having used m for many years now, I encountered two primary problems.
 The first is startup performance." />
 <meta property="og:type" content="article" />
-<meta property="og:url" content="https://paul.mou.dev/posts/dev-ux2/" />
-
-
-
-<meta property="article:published_time" content="2020-02-22T00:00:00&#43;00:00"/>
-
-<meta property="article:modified_time" content="2020-02-22T00:00:00&#43;00:00"/>
-
-
-
-
-
-
-
-
-
-
+<meta property="og:url" content="https://paul.mou.dev/posts/dev-ux2/" /><meta property="article:section" content="posts" />
+<meta property="article:published_time" content="2020-02-22T00:00:00+00:00" />
+<meta property="article:modified_time" content="2020-02-22T00:00:00+00:00" />
 <meta name="twitter:card" content="summary"/>
 <meta name="twitter:title" content="Improvements to &#34;m&#34;, a personal command line tool"/>
 <meta name="twitter:description" content="From m to m2 Having used m for many years now, I encountered two primary problems.
@@ -78,40 +64,22 @@ The first is startup performance."/>
 		</div>
 
 		<div class="markdown">
-			
-
-<h2 id="from-m-to-m2">From m to m2</h2>
-
+			<h2 id="from-m-to-m2">From m to m2</h2>
 <p>Having used <code>m</code> for many years now, I encountered two primary problems.</p>
-
 <p>The first is startup performance. Even with lazy module loading (see <a href="/posts/dev-ux">here</a>), calling <code>m</code> without any subcommands still took ~250ms on my laptop.</p>
-
 <p>The second problem is code verbosity. To add a new command, one needs to create a new class in a separate file, import it in main, and finally instantiate the new class.</p>
-
 <p>In this short blog post, I am going to share how I tackled these two issues.</p>
-
 <h3 id="removing-python-fire">Removing <code>python-fire</code></h3>
-
 <p>In order to reduce startup time, I first had to profile <code>m</code> startup performance. From <code>python -c 'print(&quot;Hi&quot;)</code>, I know python interpreter program can be fast.</p>
-
 <p>Iteratively removing modules <code>m</code> depends on one by one revealed <a href="https://github.com/google/python-fire"><code>python-fire</code></a> was the biggest contributor to the long startup time. Python-fire is great for easily turning any script into a commandline program, but it became clear it is not a great fit for scripts one invoke dozens of times a day.</p>
-
 <p>Having identified the culprit, I decided to implement my own basic commandline parser. The <a href="https://github.com/moomou/dotfiles/commit/c4ba772cd32e60d9a73a94bfea61ba767ae55cd9#diff-06616f4307b47ace8ecc795828245933"> implementation </a> itself is extremely simple but covers all <code>m</code> needs right now.</p>
-
 <p>Removing <code>python-fire</code> dropped the startup time by almost half to around 130ms.</p>
-
 <h3 id="reducing-boilerplates-with-metaprogramming">Reducing Boilerplates with metaprogramming</h3>
-
 <p>Another problem I wanted to tackle was reducing boilerplates in <code>m</code>. With a bit of research, I learnt about  <code>inspect</code> and <code>importlib</code> modules and converted <code>m</code> to adopt them.</p>
-
 <p>Instead of doing <code>import</code> manually, I leveraged <code>importlib.import_module</code> to import <code>.py</code> files on startup and used <code>inspect.getmembers</code> and <code>inspect.isclass</code> to filter and expose instances of <code>m_base.Base</code>, a special class in <code>m</code> which every commands inherit from.</p>
-
 <p>The change itself was relatively <a href="https://github.com/moomou/dotfiles/commit/c4ba772cd32e60d9a73a94bfea61ba767ae55cd9#diff-4d5225df0a71c68ac298598b5942e4e6"> straightforward </a> and is a big win for maintainability - I can remove a command just by deleting a file now!</p>
-
 <h3 id="summary">Summary</h3>
-
 <p>Not only did I learn about <code>inspect</code> and <code>importlib</code> modules in python, I also saved ~100ms off the <code>m</code> startup time and reduced a bunch of boilerplates.</p>
-
 <p>I use <code>m</code> everyday so I am a bit embarrassed that it took me this long to address two such obvious issues. Better late than never I suppose.</p>
 
 		</div>
@@ -130,7 +98,7 @@ The first is startup performance."/>
 
 
 
-<script>
+<script type="application/javascript">
 var doNotTrack = false;
 if (!doNotTrack) {
 	window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;

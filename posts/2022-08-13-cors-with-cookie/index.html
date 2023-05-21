@@ -6,23 +6,9 @@
 	<meta property="og:title" content="CORS with Cookie" />
 <meta property="og:description" content="Introduction CORS stands for Cross-Origin-Resource-Sharing and is the HTTP mechanism to allow servers to accept requests from other host locations other than its own." />
 <meta property="og:type" content="article" />
-<meta property="og:url" content="https://paul.mou.dev/posts/2022-08-13-cors-with-cookie/" />
-
-
-
-<meta property="article:published_time" content="2022-08-13T00:00:00&#43;00:00"/>
-
-<meta property="article:modified_time" content="2022-08-13T00:00:00&#43;00:00"/>
-
-
-
-
-
-
-
-
-
-
+<meta property="og:url" content="https://paul.mou.dev/posts/2022-08-13-cors-with-cookie/" /><meta property="article:section" content="posts" />
+<meta property="article:published_time" content="2022-08-13T00:00:00+00:00" />
+<meta property="article:modified_time" content="2022-08-13T00:00:00+00:00" />
 <meta name="twitter:card" content="summary"/>
 <meta name="twitter:title" content="CORS with Cookie"/>
 <meta name="twitter:description" content="Introduction CORS stands for Cross-Origin-Resource-Sharing and is the HTTP mechanism to allow servers to accept requests from other host locations other than its own."/>
@@ -76,55 +62,39 @@
 		</div>
 
 		<div class="markdown">
-			
-
-<h1 id="introduction">Introduction</h1>
-
+			<h1 id="introduction">Introduction</h1>
 <p>CORS stands for Cross-Origin-Resource-Sharing and is the HTTP mechanism to
 allow servers to accept requests from other host locations other than its own.</p>
-
 <p>Getting CORS up and running is not difficult. There are plenty of posts online that will
 recommend a starting configuration that looks something like this, in pseudo code</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4">Header().Set(&#34;Access-Control-Allow-Origin&#34;, &#34;*&#34;)
-Header().Set(&#34;Access-Control-Allow-Methods&#34;, &#34;POST, GET, OPTIONS, PUT, DELETE&#34;)
-Header().Set(&#34;Access-Control-Allow-Headers&#34;, &#34;Accept, Content-Type, Content-Length, Authorization&#34;)</pre></div>
+<pre><code>Header().Set(&quot;Access-Control-Allow-Origin&quot;, &quot;*&quot;)
+Header().Set(&quot;Access-Control-Allow-Methods&quot;, &quot;POST, GET, OPTIONS, PUT, DELETE&quot;)
+Header().Set(&quot;Access-Control-Allow-Headers&quot;, &quot;Accept, Content-Type, Content-Length, Authorization&quot;)
+</code></pre>
 <p>This configuration works great and is the default I use; however, it does <em>not</em> work if you need to receive and set cookies in the browser. This short blog post documents what I learnt
 about working with cookies with CORS.</p>
-
 <h1 id="setting-cookies">Setting Cookies</h1>
-
 <p>When I needed to set cookies in a server accessed behind CORS, I didn&rsquo;t think anything special was needed as the CORS requests were completing without errors.</p>
-
 <p>Cookies was not getting set however. It turned that browsers (tested on Chrome and Firefox) <em>SILENTLY</em> ignore cookie headers if CORS is not configured correctly.</p>
-
 <p>Due to the lack of errors from browsers, it was not clear to me at first why cookie headers were not
 taking effect as I could see from <code>curl</code> that the backend was definitely replying with the correct
 cookie headers.</p>
-
 <p>Stumped, I did what every good engineer do at this point, I Googled &ldquo;set cookie header not setting cookie&rdquo; and very quickly CORS came up as a possible culprit.</p>
-
 <p>Turns out, in order for cookie headers to work across origin, the CORS header <code>Access-Control-Allow-Origin</code>
 must <strong>not</strong> specify <code>*</code> and instead needs to specify the requesting origin.</p>
-
 <p>To put it concretely, for cookie header to be accepted by a browser, your server need to write, again in pseudo code</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4">Header().Set(&#34;Access-Control-Allow-Origin&#34;, IncomingRequest.Host)</pre></div>
+<pre><code>Header().Set(&quot;Access-Control-Allow-Origin&quot;, IncomingRequest.Host)
+</code></pre>
 <p>After this configuration change, setting cookie via CORS worked.</p>
-
 <h1 id="receiving-cookies">Receiving Cookies</h1>
-
 <p>Now that we can set cookies, receiving cookies on the server should just work automatically, right?</p>
-
 <p>Almost. Fixing the CORS header <code>Access-Control-Allow-Origin</code> is a pre-requisite to setting and receiving
 cookies but turned out two more configuration updates are required.</p>
-
 <p>First, from your web app, you need to make sure your AJAX request specifies <code>withCredentials</code> equal to true
 to make a request with cookies, which by default is not forwarded (presumably for security reasons).</p>
-
 <p>Second, backend server needs to reply with <code>Access-Control-Allow-Credentials: true</code> or else the response
 will be dropped.</p>
-
 <h1 id="summary">Summary</h1>
-
 <p>Interacting with cookie with CORS now works as expected, after many trials and errors, all of which could have been avoided had I read Mozill&rsquo;s excellent MDN docs <a href="https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS">https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS</a> first. Oh well</p>
 
 		</div>
@@ -143,7 +113,7 @@ will be dropped.</p>
 
 
 
-<script>
+<script type="application/javascript">
 var doNotTrack = false;
 if (!doNotTrack) {
 	window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;

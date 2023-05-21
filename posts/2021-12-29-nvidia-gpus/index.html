@@ -6,23 +6,9 @@
 	<meta property="og:title" content="Messing with Nvidia GPU on Headless Linux" />
 <meta property="og:description" content="I have a PC with Ubuntu server installed and Nvidia GPUs attached. I have Googled on and off for a while trying to learn how to overclock the GPUs without success." />
 <meta property="og:type" content="article" />
-<meta property="og:url" content="https://paul.mou.dev/posts/2021-12-29-nvidia-gpus/" />
-
-
-
-<meta property="article:published_time" content="2021-12-29T00:00:00&#43;00:00"/>
-
-<meta property="article:modified_time" content="2021-12-29T00:00:00&#43;00:00"/>
-
-
-
-
-
-
-
-
-
-
+<meta property="og:url" content="https://paul.mou.dev/posts/2021-12-29-nvidia-gpus/" /><meta property="article:section" content="posts" />
+<meta property="article:published_time" content="2021-12-29T00:00:00+00:00" />
+<meta property="article:modified_time" content="2021-12-29T00:00:00+00:00" />
 <meta name="twitter:card" content="summary"/>
 <meta name="twitter:title" content="Messing with Nvidia GPU on Headless Linux"/>
 <meta name="twitter:description" content="I have a PC with Ubuntu server installed and Nvidia GPUs attached. I have Googled on and off for a while trying to learn how to overclock the GPUs without success."/>
@@ -76,42 +62,34 @@
 		</div>
 
 		<div class="markdown">
-			
-
-<p>I have a PC with Ubuntu server installed and Nvidia GPUs attached. I have Googled on and off for a while trying to learn how to overclock the GPUs without success.</p>
-
+			<p>I have a PC with Ubuntu server installed and Nvidia GPUs attached. I have Googled on and off for a while trying to learn how to overclock the GPUs without success.</p>
 <p>Finally, after gleaning bits and parts from different sources, I got power limit and overclocking working.</p>
-
 <p>Here are the steps required</p>
-
 <h2 id="virtual-monitor">Virtual Monitor</h2>
-
 <p><code>nvidia-settings</code> need a monitor attached in order to work. For headless linux, one needs a virtual monitor. After messing with xorg conf manually for a while, I found and forked <a href="https://github.com/andyljones/coolgpus">andyljones/coolgpus</a> to automatically attach a virtual monitor for each GPU.</p>
-
 <p><code>coolgpu</code> was originally developed to override fan curves but I run it in debug only and rely on the default fan management.</p>
-
 <h2 id="power-limit">Power Limit</h2>
-
 <p>With virtual monitor attached, you can now use <code>nvidia-smi</code> to set power limits</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4">sudo nvidia-smi -i 0 -pl 150</pre></div>
+<pre><code>sudo nvidia-smi -i 0 -pl 150
+</code></pre>
 <p>This command set the power limit to 150 watt for the GPU attached at index 0.</p>
-
 <p>You can verify the power limit is active via</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4">nvidia-smi</pre></div>
+<pre><code>nvidia-smi
+</code></pre>
 <p>Which should display the latest power limit.</p>
-
 <p>Another good command to check is</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4">nvidia-smi -q -d PERFORMANCE</pre></div>
+<pre><code>nvidia-smi -q -d PERFORMANCE
+</code></pre>
 <p>Which not only tells you whether the GPU has a software power limit, but also whether the GPU performance is currently limited by other factors as hardware.</p>
-
 <h2 id="overclocking-memory-transfer-rate">Overclocking Memory Transfer Rate</h2>
-
 <p>Also with virtual monitor attached, you can overclock via <code>nvidia-settings</code> tool</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4">DISPLAY=:0 nvidia-settings -a &#39;[gpu:0]/GPUMemoryTransferRateOffsetAllPerformanceLevels=350</pre></div>
+<pre><code>DISPLAY=:0 nvidia-settings -a '[gpu:0]/GPUMemoryTransferRateOffsetAllPerformanceLevels=350
+</code></pre>
 <p>I tried to set overclock settings for specific performance level without any luck and only <code>GPUMemoryTransferRateOffsetAllPerformanceLevels</code> worked for me. The environment variable <code>Display</code> is used to specify the GPU you want overclock - ie <code>:0</code> for the first GPU, <code>:1</code> for the 2nd etc.</p>
-
 <p>You can verify the settings took effect by querying the setting</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4">DISPLAY=:0 nvidia-settings -q &#39;[gpu:0]/GPUMemoryTransferRateOffset[2]&#39;</pre></div>
+<pre><code>DISPLAY=:0 nvidia-settings -q '[gpu:0]/GPUMemoryTransferRateOffset[2]'
+</code></pre>
+
 		</div>
 
 		<div class="post-tags">
@@ -128,7 +106,7 @@
 
 
 
-<script>
+<script type="application/javascript">
 var doNotTrack = false;
 if (!doNotTrack) {
 	window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;

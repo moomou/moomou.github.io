@@ -6,23 +6,9 @@
 	<meta property="og:title" content="Developer Experience" />
 <meta property="og:description" content="Commandline Productivity and Automation (aka make it easy to repeat) Developers tend to repeat themselves. A lot. This can be as innocuous as running a test manually after you update a test file or as insidious as deploying a newly built binary into production manually." />
 <meta property="og:type" content="article" />
-<meta property="og:url" content="https://paul.mou.dev/posts/dev-ux/" />
-
-
-
-<meta property="article:published_time" content="2017-08-22T23:01:25-07:00"/>
-
-<meta property="article:modified_time" content="2017-08-22T23:01:25-07:00"/>
-
-
-
-
-
-
-
-
-
-
+<meta property="og:url" content="https://paul.mou.dev/posts/dev-ux/" /><meta property="article:section" content="posts" />
+<meta property="article:published_time" content="2017-08-22T23:01:25-07:00" />
+<meta property="article:modified_time" content="2017-08-22T23:01:25-07:00" />
 <meta name="twitter:card" content="summary"/>
 <meta name="twitter:title" content="Developer Experience"/>
 <meta name="twitter:description" content="Commandline Productivity and Automation (aka make it easy to repeat) Developers tend to repeat themselves. A lot. This can be as innocuous as running a test manually after you update a test file or as insidious as deploying a newly built binary into production manually."/>
@@ -76,74 +62,50 @@
 		</div>
 
 		<div class="markdown">
-			
-
-<h2 id="commandline-productivity-and-automation-aka-make-it-easy-to-repeat">Commandline Productivity and Automation (aka make it easy to repeat)</h2>
-
+			<h2 id="commandline-productivity-and-automation-aka-make-it-easy-to-repeat">Commandline Productivity and Automation (aka make it easy to repeat)</h2>
 <p>Developers tend to repeat themselves. A lot. This can be as innocuous as running a test manually after you update a test file or as insidious as deploying a newly built binary into production manually. Nobody likes to repeat themselves over and over again. And for good reasons. Not only does it take time to repeatedly figure out all the parameters in a tricky command line program, it also increases stress when you are trying to fix outages as quickly as possible.</p>
-
 <p>The obvious solution to these problems is of course automation. But more or often than not, I avoid automation thinking whatever I am doing is an one off or does not occurs frequently enough to warrant scripting. Finally sensing this is slowing down my productivity, I decided to start automating as much as possible, no matter how small.</p>
-
 <p>In this post, I will share 3 broad automation strategies I have adopted. First, automating via simple shell scripts when possible. Second, creating a Swiss army knife tool to help make automation easier while keeping boilerplates to a minimum. Finally, using tools such as Docker and Chef to bootstrap cloud VMs with minimal manual configuration.</p>
-
 <h3 id="simple-shell-scripts">Simple shell scripts</h3>
-
 <p>Creating a shell script is the simplest form of automation and arguably also the most effective with immediate productivity gain. After some experimentation, I devised and follow a simple rule: if I need to type more 3 parameters to invoke a complicated command on the shell, I will write a shell script. This simple stratgey saves me time and also gives me a place to document various parameters.</p>
-
 <p>As a concrete example, I have been writing <code>build_container.sh</code> and <code>run_container.sh</code> to help streamline my Docker workflow.</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><span style="color:#586e75"># build_container.sh
-</span><span style="color:#586e75"></span><span style="color:#719e07">#!/bin/sh -xe
-</span><span style="color:#719e07"></span>
-docker build -t <span style="color:#268bd2">$1</span> .
-<span style="color:#586e75"># removes &lt;none&gt; images
-</span><span style="color:#586e75"></span>docker rmi <span style="color:#719e07">$(</span>docker images --filter <span style="color:#2aa198">&#34;dangling=true&#34;</span> -q --no-trunc<span style="color:#719e07">)</span></pre></div><div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><span style="color:#586e75"># run_container.sh
-</span><span style="color:#586e75"></span><span style="color:#719e07">#!/bin/sh -xe
-</span><span style="color:#719e07"></span>
-docker run <span style="color:#cb4b16">\
-</span><span style="color:#cb4b16"></span>    -p <span style="color:#2aa198">9000</span>:9000 <span style="color:#cb4b16">\
-</span><span style="color:#cb4b16"></span>    -v REPO_PATH:/CONTAINER_ROOT/REPO_PATH <span style="color:#cb4b16">\
-</span><span style="color:#cb4b16"></span>    sample_image <span style="color:#cb4b16">\
-</span><span style="color:#cb4b16"></span>    bash</pre></div>
-<p>As an added bonus, I have been learning more about shell programming (and all its quirks!) as I am writing more of these scripts.</p>
-
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span><span style="color:#586e75"># build_container.sh</span>
+</span></span><span style="display:flex;"><span><span style="color:#586e75">#!/bin/sh -xe</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>docker build -t <span style="color:#268bd2">$1</span> .
+</span></span><span style="display:flex;"><span><span style="color:#586e75"># removes &lt;none&gt; images</span>
+</span></span><span style="display:flex;"><span>docker rmi <span style="color:#719e07">$(</span>docker images --filter <span style="color:#2aa198">&#34;dangling=true&#34;</span> -q --no-trunc<span style="color:#719e07">)</span>
+</span></span></code></pre></div><div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span><span style="color:#586e75"># run_container.sh</span>
+</span></span><span style="display:flex;"><span><span style="color:#586e75">#!/bin/sh -xe</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>docker run <span style="color:#cb4b16">\
+</span></span></span><span style="display:flex;"><span><span style="color:#cb4b16"></span>    -p 9000:9000 <span style="color:#cb4b16">\
+</span></span></span><span style="display:flex;"><span><span style="color:#cb4b16"></span>    -v REPO_PATH:/CONTAINER_ROOT/REPO_PATH <span style="color:#cb4b16">\
+</span></span></span><span style="display:flex;"><span><span style="color:#cb4b16"></span>    sample_image <span style="color:#cb4b16">\
+</span></span></span><span style="display:flex;"><span><span style="color:#cb4b16"></span>    bash
+</span></span></code></pre></div><p>As an added bonus, I have been learning more about shell programming (and all its quirks!) as I am writing more of these scripts.</p>
 <h3 id="swiss-army-knife">Swiss army knife</h3>
-
 <p>While automating with one off shell scripts for each specialized task is effective, the effort tend to be duplicated across repos and boilerplates start to add up, leading to increased tech debts and overall increase in complexity.</p>
-
 <p>To overcome this, I stole the idea of <code>s</code>, a Swiss army knife command line tool, from Smyte. Succinctly, <code>s</code> is a collection of scripts that automates various developer tasks, including deployment, remote server automation, running tests, compilation, and myraids of other things. More than a collection of scripts, <code>s</code> provides a common framework to centralize tool development and minimizes boilerplates.</p>
-
 <p>Some sample <code>s</code> invocation</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"># running tests
-s test.run ABC
-
-# deploying code
-s deploy.roll --commit ABC</pre></div>
-<p>Modelling after <code>s</code>, I created a tool called <code>m</code>. To bootstrap <code>m</code>, I use <a href="https://github.com/google/python-fire">python-fire</a> from Google. <code>python-fire</code> is an amazing python library that will turn any python script into a command line program with minimum fuzz and handles command line arguments in an intuitive manner.</p>
-
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-fallback" data-lang="fallback"><span style="display:flex;"><span># running tests
+</span></span><span style="display:flex;"><span>s test.run ABC
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span># deploying code
+</span></span><span style="display:flex;"><span>s deploy.roll --commit ABC
+</span></span></code></pre></div><p>Modelling after <code>s</code>, I created a tool called <code>m</code>. To bootstrap <code>m</code>, I use <a href="https://github.com/google/python-fire">python-fire</a> from Google. <code>python-fire</code> is an amazing python library that will turn any python script into a command line program with minimum fuzz and handles command line arguments in an intuitive manner.</p>
 <p>One of the major downside of <code>s</code> as implemented at Smyte is speed - importing modules in python is not free and these add up as more and more scripts get added. In <code>m</code>, I address this by loading dependencies only at invocation of each subcommand. Doing this has allowed to me to keep top level <code>m</code> invocation at ~250ms on my 2013 Mac Air.</p>
-
 <p>You can checkout <code>m</code> on my github <a href="https://go.mou.dev/m">here</a>.</p>
-
 <h3 id="environment-bootstrapping">Environment bootstrapping</h3>
-
 <p>The last missing automation piece is environment bootstrapping on new machines or vms. With more demanding workload, I started to use AWS and Google Cloud to alleviate the load on my mac air.</p>
-
 <p>For the longest time, I would manually run <code>apt-get install</code> for every single package I use on each newly provisioned VMs. While that was painful, it occurred rarely enough I put up with it. But this has taken an mental toll on my workflow. I would put off tasks because I did not want to repeat the drudgery.</p>
-
 <p>To arrest this mental blockage, I started building docker containers for tricky development environments with all dependencies pre-installed as well as automatting VM bootstrapping with chef. Checkout my chef bootstrap scripts <a href="https://github.com/moomou/dotfiles/tree/master/chef">here</a>.</p>
-
 <h3 id="conclusion">Conclusion</h3>
-
 <p>Developer experience has more often than not been an afterthought for me. Realizing this is slowing down my productivity and hurting my enjoyment of developing, I started addressing these productivity killers by employing more shell scripts, building <code>m</code>, as well as using chef and docker to avoid manual environment setup.</p>
-
 <p>These simple steps have tremendously improved my productivity and gave me the freedom to spend more time building and less time on fighting my toolchains.</p>
-
 <p>Am I done here? Of course not. There are many more impromvents and new tools I plan to look into to further improve and simplify my development workflow. Another closely related topic is deployment, which I have not yet addressed.</p>
-
 <p>For example, chef could be replaced with <a href="https://github.com/hashicorp/packer">packer</a> to avoid costly boostrapping and use a preconfigured machine. A friend has also suggested <a href="https://nixos.org/"> nixos </a> as an interesting option to explore.</p>
-
 <p>As for deployment, I plan to spin up a personal <a href="https://kubernetes.io/docs/concepts/overview/what-is-kubernetes">kubernetes</a> cluster to ease server administrationg and streamline deployment.</p>
-
 <p>Much to be done.</p>
 
 		</div>
@@ -162,7 +124,7 @@ s deploy.roll --commit ABC</pre></div>
 
 
 
-<script>
+<script type="application/javascript">
 var doNotTrack = false;
 if (!doNotTrack) {
 	window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
