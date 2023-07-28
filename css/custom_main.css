@@ -97,6 +97,14 @@ body {
   flex-direction: column;
 }
 
+.flex {
+  display: flex;
+}
+
+.flex-col {
+  flex-direction: column;
+}
+
 ul {
   padding: 0;
 }
@@ -173,9 +181,9 @@ ul {
 }
 
 .main {
-  margin: 15px auto;
+  margin: 0px auto;
+  margin-top: 5px;
   display: block;
-  width: 70vw;
 }
 
 .projects {
@@ -298,7 +306,20 @@ ul {
   border-bottom: 2px solid #e74c3c;
 }
 
+.print-only {
+  display: none;
+}
+
+.version {
+  color: #fcfcfc;
+  font-size: 0.8em;
+}
+
 @media print {
+  .print-only {
+    display: auto !important;
+  }
+
   .screen-only,
 #detailBtn {
     display: none !important;
