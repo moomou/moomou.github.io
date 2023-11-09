@@ -450,7 +450,7 @@ ul {
 
 @media print {
   body {
-    padding: 4px !important;
+    padding: 2px !important;
     margin: 0;
     height: 100vh !important;
   }
