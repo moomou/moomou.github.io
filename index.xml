@@ -7,7 +7,16 @@
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
     <copyright>since 2017</copyright>
-    <lastBuildDate>Sat, 13 Aug 2022 00:00:00 +0000</lastBuildDate><atom:link href="https://paul.mou.dev/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Wed, 27 Dec 2023 00:00:00 +0000</lastBuildDate><atom:link href="https://paul.mou.dev/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Learning to Debug Gibberish</title>
+      <link>https://paul.mou.dev/posts/2023-12-27-ohmy/</link>
+      <pubDate>Wed, 27 Dec 2023 00:00:00 +0000</pubDate>
+      
+      <guid>https://paul.mou.dev/posts/2023-12-27-ohmy/</guid>
+      <description>Overview Recently, I went down a rabbit hole of debugging opensource LLM spewing gibberish on my PC. The investigation was the one of the most difficult (but interesting) debugging experience I have encountered so far.</description>
+    </item>
+    
     <item>
       <title>CORS with Cookie</title>
       <link>https://paul.mou.dev/posts/2022-08-13-cors-with-cookie/</link>
