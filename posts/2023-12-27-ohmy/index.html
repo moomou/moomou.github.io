@@ -61,6 +61,8 @@
       
 		</div>
 
+    
+
 		<div class="markdown">
 			<h2 id="overview">Overview</h2>
 <p>Recently, I went down a rabbit hole of debugging opensource LLM spewing gibberish on my PC.
@@ -83,14 +85,14 @@ The investigation was the one of the most difficult (but interesting) debugging 
 <h2 id="verifying-in-cloud">Verifying in Cloud</h2>
 <p>After trying just about all possible combinations of software dependencies, I decided I needed a working setup to find out what is wrong with my workstation.</p>
 <p>I hopped over to <a href="https://colab.research.google.com">Google Colab</a> and ran <a href="https://huggingface.co/Qwen/Qwen-7B">Qwen-7B</a>&rsquo;s starter template</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#719e07">from</span> transformers <span style="color:#719e07">import</span> AutoModelForCausalLM, AutoTokenizer
-</span></span><span style="display:flex;"><span><span style="color:#719e07">from</span> transformers.generation <span style="color:#719e07">import</span> GenerationConfig
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#f92672">from</span> transformers <span style="color:#f92672">import</span> AutoModelForCausalLM, AutoTokenizer
+</span></span><span style="display:flex;"><span><span style="color:#f92672">from</span> transformers.generation <span style="color:#f92672">import</span> GenerationConfig
 </span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>tokenizer <span style="color:#719e07">=</span> AutoTokenizer<span style="color:#719e07">.</span>from_pretrained(<span style="color:#2aa198">&#34;Qwen/Qwen-7B-Chat&#34;</span>, trust_remote_code<span style="color:#719e07">=</span><span style="color:#cb4b16">True</span>)
-</span></span><span style="display:flex;"><span>model <span style="color:#719e07">=</span> AutoModelForCausalLM<span style="color:#719e07">.</span>from_pretrained(<span style="color:#2aa198">&#34;Qwen/Qwen-7B-Chat&#34;</span>, device_map<span style="color:#719e07">=</span><span style="color:#2aa198">&#34;auto&#34;</span>, trust_remote_code<span style="color:#719e07">=</span><span style="color:#cb4b16">True</span>)<span style="color:#719e07">.</span>eval()
+</span></span><span style="display:flex;"><span>tokenizer <span style="color:#f92672">=</span> AutoTokenizer<span style="color:#f92672">.</span>from_pretrained(<span style="color:#e6db74">&#34;Qwen/Qwen-7B-Chat&#34;</span>, trust_remote_code<span style="color:#f92672">=</span><span style="color:#66d9ef">True</span>)
+</span></span><span style="display:flex;"><span>model <span style="color:#f92672">=</span> AutoModelForCausalLM<span style="color:#f92672">.</span>from_pretrained(<span style="color:#e6db74">&#34;Qwen/Qwen-7B-Chat&#34;</span>, device_map<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;auto&#34;</span>, trust_remote_code<span style="color:#f92672">=</span><span style="color:#66d9ef">True</span>)<span style="color:#f92672">.</span>eval()
 </span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>response, history <span style="color:#719e07">=</span> model<span style="color:#719e07">.</span>chat(tokenizer, <span style="color:#2aa198">&#34;你好&#34;</span>, history<span style="color:#719e07">=</span><span style="color:#cb4b16">None</span>)
-</span></span><span style="display:flex;"><span><span style="color:#b58900">print</span>(response)
+</span></span><span style="display:flex;"><span>response, history <span style="color:#f92672">=</span> model<span style="color:#f92672">.</span>chat(tokenizer, <span style="color:#e6db74">&#34;你好&#34;</span>, history<span style="color:#f92672">=</span><span style="color:#66d9ef">None</span>)
+</span></span><span style="display:flex;"><span>print(response)
 </span></span></code></pre></div><p>and sure enough, it worked on Google cloud!</p>
 <p>I then noted down the Nvidia driver version (<code>!nvidia-smi</code>) and python dependencies (<code>!pip3 freeze</code>) and worked toward replicating that environment locally. Surely if it worked in the cloud it must work on my PC too!</p>
 <p>Except it did not&hellip;</p>
@@ -118,50 +120,50 @@ The investigation was the one of the most difficult (but interesting) debugging 
 <p>I researched on the possibility of identifying the bad memory regions and whether Linux can cope with bad RAM somehow.</p>
 <p>The answere turned out to be YES and it is simple to enable as well.</p>
 <p>All it takes is adding a kernel parameter <code>memtest=N</code> to instruct Linux kernel to perform <code>N</code> memory test before boot to cordon off any identified bad memory regions.</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-fallback" data-lang="fallback"><span style="display:flex;"><span>memtest=        [KNL,X86,ARM] Enable memtest
-</span></span><span style="display:flex;"><span>                        Format: &lt;integer&gt;
-</span></span><span style="display:flex;"><span>                        default : 0 &lt;disable&gt;
-</span></span><span style="display:flex;"><span>                        Specifies the number of memtest passes to be
-</span></span><span style="display:flex;"><span>                        performed. Each pass selects another test
-</span></span><span style="display:flex;"><span>                        pattern from a given set of patterns. Memtest
-</span></span><span style="display:flex;"><span>                        fills the memory with this pattern, validates
-</span></span><span style="display:flex;"><span>                        memory contents and reserves bad memory
-</span></span><span style="display:flex;"><span>                        regions that are detected.
-</span></span></code></pre></div><p>This parameter can be added to <code>/etc/default/grub</code> so Linux boots with memory test.</p>
+<pre tabindex="0"><code>memtest=        [KNL,X86,ARM] Enable memtest
+                        Format: &lt;integer&gt;
+                        default : 0 &lt;disable&gt;
+                        Specifies the number of memtest passes to be
+                        performed. Each pass selects another test
+                        pattern from a given set of patterns. Memtest
+                        fills the memory with this pattern, validates
+                        memory contents and reserves bad memory
+                        regions that are detected.
+</code></pre><p>This parameter can be added to <code>/etc/default/grub</code> so Linux boots with memory test.</p>
 <p>Here is my updated grub file.</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span><span style="color:#586e75"># If you change this file, run &#39;update-grub&#39; afterwards to update</span>
-</span></span><span style="display:flex;"><span><span style="color:#586e75"># /boot/grub/grub.cfg.</span>
-</span></span><span style="display:flex;"><span><span style="color:#586e75"># For full documentation of the options in this file, see:</span>
-</span></span><span style="display:flex;"><span><span style="color:#586e75">#   info -f grub -n &#39;Simple configuration&#39;</span>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span><span style="color:#75715e"># If you change this file, run &#39;update-grub&#39; afterwards to update</span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># /boot/grub/grub.cfg.</span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># For full documentation of the options in this file, see:</span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">#   info -f grub -n &#39;Simple configuration&#39;</span>
 </span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#268bd2">GRUB_DEFAULT</span><span style="color:#719e07">=</span><span style="color:#2aa198">0</span>
-</span></span><span style="display:flex;"><span><span style="color:#268bd2">GRUB_TIMEOUT_STYLE</span><span style="color:#719e07">=</span>menu
-</span></span><span style="display:flex;"><span><span style="color:#268bd2">GRUB_TIMEOUT</span><span style="color:#719e07">=</span><span style="color:#2aa198">10</span>
-</span></span><span style="display:flex;"><span><span style="color:#268bd2">GRUB_DISTRIBUTOR</span><span style="color:#719e07">=</span><span style="color:#586e75">`</span>lsb_release -i -s 2&gt; /dev/null <span style="color:#719e07">||</span> <span style="color:#b58900">echo</span> Debian<span style="color:#586e75">`</span>
-</span></span><span style="display:flex;"><span><span style="color:#268bd2">GRUB_CMDLINE_LINUX_DEFAULT</span><span style="color:#719e07">=</span><span style="color:#2aa198">&#34;memtest=4&#34;</span>
-</span></span><span style="display:flex;"><span><span style="color:#268bd2">GRUB_CMDLINE_LINUX</span><span style="color:#719e07">=</span><span style="color:#2aa198">&#34;&#34;</span>
+</span></span><span style="display:flex;"><span>GRUB_DEFAULT<span style="color:#f92672">=</span><span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>GRUB_TIMEOUT_STYLE<span style="color:#f92672">=</span>menu
+</span></span><span style="display:flex;"><span>GRUB_TIMEOUT<span style="color:#f92672">=</span><span style="color:#ae81ff">10</span>
+</span></span><span style="display:flex;"><span>GRUB_DISTRIBUTOR<span style="color:#f92672">=</span><span style="color:#e6db74">`</span>lsb_release -i -s 2&gt; /dev/null <span style="color:#f92672">||</span> echo Debian<span style="color:#e6db74">`</span>
+</span></span><span style="display:flex;"><span>GRUB_CMDLINE_LINUX_DEFAULT<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;memtest=4&#34;</span>
+</span></span><span style="display:flex;"><span>GRUB_CMDLINE_LINUX<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;&#34;</span>
 </span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#586e75"># Uncomment to enable BadRAM filtering, modify to suit your needs</span>
-</span></span><span style="display:flex;"><span><span style="color:#586e75"># This works with Linux (no patch required) and with any kernel that obtains</span>
-</span></span><span style="display:flex;"><span><span style="color:#586e75"># the memory map information from GRUB (GNU Mach, kernel of FreeBSD ...)</span>
-</span></span><span style="display:flex;"><span><span style="color:#586e75">#GRUB_BADRAM=&#34;0x01234567,0xfefefefe,0x89abcdef,0xefefefef&#34;</span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># Uncomment to enable BadRAM filtering, modify to suit your needs</span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># This works with Linux (no patch required) and with any kernel that obtains</span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># the memory map information from GRUB (GNU Mach, kernel of FreeBSD ...)</span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">#GRUB_BADRAM=&#34;0x01234567,0xfefefefe,0x89abcdef,0xefefefef&#34;</span>
 </span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#586e75"># Uncomment to disable graphical terminal (grub-pc only)</span>
-</span></span><span style="display:flex;"><span><span style="color:#586e75">#GRUB_TERMINAL=console</span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># Uncomment to disable graphical terminal (grub-pc only)</span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">#GRUB_TERMINAL=console</span>
 </span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#586e75"># The resolution used on graphical terminal</span>
-</span></span><span style="display:flex;"><span><span style="color:#586e75"># note that you can use only modes which your graphic card supports via VBE</span>
-</span></span><span style="display:flex;"><span><span style="color:#586e75"># you can see them in real GRUB with the command `vbeinfo&#39;</span>
-</span></span><span style="display:flex;"><span><span style="color:#586e75">#GRUB_GFXMODE=640x480</span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># The resolution used on graphical terminal</span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># note that you can use only modes which your graphic card supports via VBE</span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># you can see them in real GRUB with the command `vbeinfo&#39;</span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">#GRUB_GFXMODE=640x480</span>
 </span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#586e75"># Uncomment if you don&#39;t want GRUB to pass &#34;root=UUID=xxx&#34; parameter to Linux</span>
-</span></span><span style="display:flex;"><span><span style="color:#586e75">#GRUB_DISABLE_LINUX_UUID=true</span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># Uncomment if you don&#39;t want GRUB to pass &#34;root=UUID=xxx&#34; parameter to Linux</span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">#GRUB_DISABLE_LINUX_UUID=true</span>
 </span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#586e75"># Uncomment to disable generation of recovery mode menu entries</span>
-</span></span><span style="display:flex;"><span><span style="color:#586e75">#GRUB_DISABLE_RECOVERY=&#34;true&#34;</span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># Uncomment to disable generation of recovery mode menu entries</span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">#GRUB_DISABLE_RECOVERY=&#34;true&#34;</span>
 </span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#586e75"># Uncomment to get a beep at grub start</span>
-</span></span><span style="display:flex;"><span><span style="color:#586e75">#GRUB_INIT_TUNE=&#34;480 440 1&#34;</span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># Uncomment to get a beep at grub start</span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">#GRUB_INIT_TUNE=&#34;480 440 1&#34;</span>
 </span></span></code></pre></div><p>Notice BadRAM is mentioned as well if you happen to have the bad regions identified via another tool such as MemTest86. I did not pursue this option since running memory test on boot is more dynamic and easier.</p>
 <p>Leveraging <code>memtest</code>, Linux determined 40% of the faulty RAM sticks is still usable!
 I also reran my sha256sum test a good number of times to verify stability.</p>

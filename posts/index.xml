@@ -7,7 +7,16 @@
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
     <copyright>since 2017</copyright>
-    <lastBuildDate>Wed, 27 Dec 2023 00:00:00 +0000</lastBuildDate><atom:link href="https://paul.mou.dev/posts/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Sun, 31 Dec 2023 00:00:00 +0000</lastBuildDate><atom:link href="https://paul.mou.dev/posts/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Listening with LLM</title>
+      <link>https://paul.mou.dev/posts/2023-12-31-listening-with-llm/</link>
+      <pubDate>Sun, 31 Dec 2023 00:00:00 +0000</pubDate>
+      
+      <guid>https://paul.mou.dev/posts/2023-12-31-listening-with-llm/</guid>
+      <description>Overview This is the first part of many posts I am writing to consolidate learnings on how to finetune Large Language Models (LLMs) to process audio, with the eventual goal of being able to build and host a LLM able to describe human voices.</description>
+    </item>
+    
     <item>
       <title>Learning to Debug Gibberish</title>
       <link>https://paul.mou.dev/posts/2023-12-27-ohmy/</link>

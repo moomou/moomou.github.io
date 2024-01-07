@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8" />
+	<meta http-equiv="X-UA-Compatible" content="IE=edge"><title>Listening with LLM - moomou</title><link rel="icon" type="image/png" href=favicon.ico /><meta name="viewport" content="width=device-width, initial-scale=1">
+	<meta property="og:title" content="Listening with LLM" />
+<meta property="og:description" content="Overview This is the first part of many posts I am writing to consolidate learnings on how to finetune Large Language Models (LLMs) to process audio, with the eventual goal of being able to build and host a LLM able to describe human voices." />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://paul.mou.dev/posts/2023-12-31-listening-with-llm/" /><meta property="article:section" content="posts" />
+<meta property="article:published_time" content="2023-12-31T00:00:00+00:00" />
+<meta property="article:modified_time" content="2023-12-31T00:00:00+00:00" />
+<meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="Listening with LLM"/>
+<meta name="twitter:description" content="Overview This is the first part of many posts I am writing to consolidate learnings on how to finetune Large Language Models (LLMs) to process audio, with the eventual goal of being able to build and host a LLM able to describe human voices."/>
+<link href="https://fonts.googleapis.com/css?family=Ubuntu:300,400,300italic,400italic|Raleway:200,300" rel="stylesheet">
+
+	<link rel="stylesheet" type="text/css" media="screen" href="https://paul.mou.dev/css/normalize.css" />
+	<link rel="stylesheet" type="text/css" media="screen" href="https://paul.mou.dev/css/main.css" /><link rel="stylesheet" type="text/css" href="https://paul.mou.dev/css/dark.css"  />
+
+	<script src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js"></script>
+	<script src="https://paul.mou.dev/js/main.js"></script>
+	<script src="https://paul.mou.dev/js/abc.js"></script>
+	<script src="https://paul.mou.dev/js/xyz.js"></script>
+	<script src="https://code.jquery.com/jquery-3.4.1.js"></script>
+</head>
+
+<body>
+	<div class="container wrapper post">
+		<div class="header">
+	<h1 class="site-title"><a href="https://paul.mou.dev/">moomou</a></h1>
+	<div class="site-description"><h2>(ﾉ≧∇≦)ﾉ ﾐ ┸┸</h2><nav class="nav social">
+			<ul class="flat"><a href="https://github.com/moomou" title="Github"><i data-feather="github"></i></a></ul>
+		</nav>
+	</div>
+
+	<nav class="nav">
+		<ul class="flat">
+			
+			<li>
+				<a href="/">Home</a>
+			</li>
+			
+			<li>
+				<a href="/posts">All posts</a>
+			</li>
+			
+			<li>
+				<a href="https://go.mou.dev/resume">Resume</a>
+			</li>
+			
+		</ul>
+	</nav>
+</div>
+
+
+		<div class="post-header">
+			<h1 class="title">Listening with LLM</h1>
+      
+      <div class="meta">Posted at &mdash; Dec 31, 2023</div>
+      
+      
+		</div>
+
+    
+    <div id="table-of-contents">
+        <nav id="TableOfContents">
+  <ul>
+    <li><a href="#overview">Overview</a></li>
+    <li><a href="#background">Background</a></li>
+    <li><a href="#setup">Setup</a></li>
+    <li><a href="#one-mini-step-at-a-time">One Mini Step at a Time</a>
+      <ul>
+        <li><a href="#sampling-from-scratch">Sampling from Scratch</a></li>
+        <li><a href="#debugging-nans-and-infs">Debugging NaNs and Infs</a></li>
+        <li><a href="#adapting-whisper-to-mistral">Adapting Whisper to Mistral</a></li>
+        <li><a href="#sampling-with-audio-from-scratch">Sampling with Audio from Scratch</a></li>
+        <li><a href="#defining-loss-function">Defining Loss Function</a></li>
+        <li><a href="#training-overfitting-and-debugging-gradients">Training, Overfitting and Debugging Gradients</a></li>
+      </ul>
+    </li>
+    <li><a href="#next-steps">Next Steps</a></li>
+    <li><a href="#acknowledgement">Acknowledgement</a></li>
+  </ul>
+</nav>
+    </div>
+    
+
+		<div class="markdown">
+			<h2 id="overview">Overview</h2>
+<p>This is the first part of many posts I am writing to consolidate learnings on how to finetune Large Language Models (LLMs) to process audio, with the eventual goal of being able to build and host a LLM able to describe human voices.</p>
+<p>I am motivated to gain hands-on experience tinkering LLMs so, as much as practical, I tried to recreate utilities and functions with pytorch from scratch rather than rely on 3rd party libraries.</p>
+<blockquote>
+<p><strong>tl;dr</strong> I chronicle and share the steps I took to learn how to finetune (and overfit) a LLM model on Google&rsquo;s MusicCaps dataset</p>
+</blockquote>
+<h2 id="background">Background</h2>
+<p>Recently, I came across two papers</p>
+<ul>
+<li><a href="https://arxiv.org/abs/2310.13289">SALMONN: Towards Generic Hearing Abilities for Large Language Models</a></li>
+<li><a href="https://arxiv.org/abs/2311.07919">Qwen-Audio: Advancing Universal Audio Understanding via Unified Large-Scale Audio-Language Models</a></li>
+</ul>
+<p>to give LLMs audio understanding capabilities.</p>
+<p>Broadly speaking, both papers explored leveraging an audio encoder to transform sound to embeddings that is then fed into LLMs along with text embeddings.</p>
+<p>In SALMONN&rsquo;s case, they combined <a href="https://github.com/openai/whisper">OpenAI&rsquo;s Whisper</a> and <a href="https://arxiv.org/abs/2212.09058">BEATS encoder</a>, performed pretraining on the combined encoder, then leveraged <a href="https://arxiv.org/abs/2106.09685">LoRA</a> for finetuning the LLM. Qwen-Audio bootstrapped its audio encoder from OpenAI&rsquo;s Whisper; after pretraining, Qwen-Audio performs a full finetuning on the LLM.</p>
+<p>These two papers gave me a great overview on how to adapt cross domain encoders and combine them with LLMs.
+Excited by the idea of a LLM with general audio understanding ability and itching to gain hands-on experience, I decided to try and build a minimal viable LLM with audio processing capability.</p>
+<h2 id="setup">Setup</h2>
+<p>To get started, I hopped over to HuggingFace to find a good base LLM and a medium-sized dataset. I wanted to do as much work locally as possible so everythign must run on a local RTX 3090.</p>
+<p>After testing and comparing a few different models, I settled on <a href="https://huggingface.co/Open-Orca/Mistral-7B-OpenOrca">Mistral OpenOrca</a>.</p>
+<p>For audio encoder, I went with <a href="https://github.com/openai/whisper">OpenAI&rsquo;s Whisper</a>.</p>
+<p>For dataset, I chose <a href="https://huggingface.co/datasets/google/MusicCaps">MusicCaps</a>. I did not see any convenient links to download processed/segmented audio files, so I wrote a <a href="https://gist.github.com/moomou/d5ff6af6716d20b33026f53f209502af">small script</a> to download the Youtube videos.</p>
+<h2 id="one-mini-step-at-a-time">One Mini Step at a Time</h2>
+<p>With the basic dependencies out of the way, I fired up my Jupyter notebook and started tinkering.</p>
+<h3 id="sampling-from-scratch">Sampling from Scratch</h3>
+<p>The first step I took is to ensure I can load the base LLM and perform inference correctly. Instead of leveraging transformers library&rsquo;s <a href="https://huggingface.co/docs/transformers/main_classes/text_generation#generation">generation utilities</a>, I implemented my own sampling function to verify my understanding as well as to learn how to sample using embeddings directly, which will come in handy when feeding in audio embeddings.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#a6e22e">@torch.no_grad</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">sampler</span>(input_ids):
+</span></span><span style="display:flex;"><span>    outputs <span style="color:#f92672">=</span> []
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">for</span> _ <span style="color:#f92672">in</span> range(<span style="color:#ae81ff">50</span>):
+</span></span><span style="display:flex;"><span>        inputs_embeds <span style="color:#f92672">=</span> model<span style="color:#f92672">.</span>llm<span style="color:#f92672">.</span>model<span style="color:#f92672">.</span>embed_tokens(input_ids)
+</span></span><span style="display:flex;"><span>        res <span style="color:#f92672">=</span> model<span style="color:#f92672">.</span>llm(inputs_embeds<span style="color:#f92672">=</span>inputs_embeds)
+</span></span><span style="display:flex;"><span>        <span style="color:#75715e"># res.logits shape is (batch, seq_len, logits)</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#75715e"># sample using multinomial using the last logits </span>
+</span></span><span style="display:flex;"><span>        sampled <span style="color:#f92672">=</span> torch<span style="color:#f92672">.</span>multinomial(res<span style="color:#f92672">.</span>logits[:,<span style="color:#f92672">-</span><span style="color:#ae81ff">1</span>,:]<span style="color:#f92672">.</span>softmax(dim<span style="color:#f92672">=-</span><span style="color:#ae81ff">1</span>), <span style="color:#ae81ff">1</span>)
+</span></span><span style="display:flex;"><span>        <span style="color:#75715e"># repeatedly concat the `sampled` to the `input_ids` for next sampling</span>
+</span></span><span style="display:flex;"><span>        input_ids <span style="color:#f92672">=</span> torch<span style="color:#f92672">.</span>cat((input_ids, sampled), dim<span style="color:#f92672">=-</span><span style="color:#ae81ff">1</span>)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> input_ids
+</span></span></code></pre></div><p>Using the <code>tokenizer</code> class obtained from Transformer&rsquo;s <code>AutoTokenizer</code> class, I was able to verify sampling worked as expected! Running</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span>tokenizer<span style="color:#f92672">.</span>decode(sampler(tokenizer(<span style="color:#e6db74">&#34;tell me a story&#34;</span>, return_tensors<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;pt&#34;</span>)<span style="color:#f92672">.</span>input_ids<span style="color:#f92672">.</span>to(<span style="color:#e6db74">&#34;cuda:0&#34;</span>))[<span style="color:#ae81ff">0</span>])
+</span></span></code></pre></div><p>yields (as an example output)</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>&#39;&lt;s&gt;tell me a story is a film and video production company, tell me a story is a concept that was created to allow people to come together through the power of storytelling.\n and so, with this massive power in storytelling, the founders and creat&#39;
+</span></span></code></pre></div><h3 id="debugging-nans-and-infs">Debugging NaNs and Infs</h3>
+<p>So far so good. However, I soon noticed that, occasionally, the sampling function would fail by complaining that softmax function encountered an <code>inf</code> or <code>NaN</code>. I followed this <a href="https://github.com/TimDettmers/bitsandbytes/issues/165#issuecomment-1560496240">insightful thread</a> and learnt to identify the source of <code>NaN</code> by using the following adapted Pytorch hooks</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#f92672">import</span> torch
+</span></span><span style="display:flex;"><span><span style="color:#f92672">from</span> functools <span style="color:#f92672">import</span> partial
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>__registered_hook_refs <span style="color:#f92672">=</span> []
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">for</span> h <span style="color:#f92672">in</span> __registered_hook_refs:
+</span></span><span style="display:flex;"><span>    h<span style="color:#f92672">.</span>remove()
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>__global <span style="color:#f92672">=</span> []
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">nan_hook</span>(module, args, output, name<span style="color:#f92672">=</span><span style="color:#66d9ef">None</span>):
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">if</span> <span style="color:#f92672">not</span> isinstance(output, tuple):
+</span></span><span style="display:flex;"><span>        outputs <span style="color:#f92672">=</span> [output]
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">else</span>:
+</span></span><span style="display:flex;"><span>        outputs <span style="color:#f92672">=</span> output
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">for</span> i, out <span style="color:#f92672">in</span> enumerate(outputs):
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">if</span> out <span style="color:#f92672">is</span> <span style="color:#66d9ef">None</span>:
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">continue</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">if</span> isinstance(out, tuple):
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">for</span> j, out2 <span style="color:#f92672">in</span> enumerate(out):
+</span></span><span style="display:flex;"><span>                nan_mask <span style="color:#f92672">=</span> torch<span style="color:#f92672">.</span>isnan(out2)
+</span></span><span style="display:flex;"><span>                <span style="color:#66d9ef">if</span> nan_mask<span style="color:#f92672">.</span>any():
+</span></span><span style="display:flex;"><span>                    __global<span style="color:#f92672">.</span>append((module, args, output))
+</span></span><span style="display:flex;"><span>                    <span style="color:#66d9ef">raise</span> <span style="color:#a6e22e">RuntimeError</span>(<span style="color:#e6db74">f</span><span style="color:#e6db74">&#34;In module </span><span style="color:#e6db74">{</span>name<span style="color:#e6db74">}</span><span style="color:#e6db74"> of name </span><span style="color:#e6db74">{</span>module<span style="color:#f92672">.</span>__class__<span style="color:#f92672">.</span>__name__<span style="color:#e6db74">}</span><span style="color:#e6db74">, Found NAN in output </span><span style="color:#e6db74">{</span>j<span style="color:#e6db74">}</span><span style="color:#e6db74"> at indices: &#34;</span>, nan_mask<span style="color:#f92672">.</span>nonzero(), <span style="color:#e6db74">&#34;where:&#34;</span>,
+</span></span><span style="display:flex;"><span>                               out[nan_mask<span style="color:#f92672">.</span>nonzero()[:, <span style="color:#ae81ff">0</span>]<span style="color:#f92672">.</span>unique(sorted<span style="color:#f92672">=</span><span style="color:#66d9ef">True</span>)])
+</span></span><span style="display:flex;"><span>                               
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">elif</span> torch<span style="color:#f92672">.</span>is_tensor(out):
+</span></span><span style="display:flex;"><span>            nan_mask <span style="color:#f92672">=</span> torch<span style="color:#f92672">.</span>isnan(out)
+</span></span><span style="display:flex;"><span>            
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">if</span> nan_mask<span style="color:#f92672">.</span>any():
+</span></span><span style="display:flex;"><span>                __global<span style="color:#f92672">.</span>append((module, args, output))
+</span></span><span style="display:flex;"><span>                <span style="color:#66d9ef">raise</span> <span style="color:#a6e22e">RuntimeError</span>(<span style="color:#e6db74">f</span><span style="color:#e6db74">&#34;In module </span><span style="color:#e6db74">{</span>name<span style="color:#e6db74">}</span><span style="color:#e6db74"> of name </span><span style="color:#e6db74">{</span>module<span style="color:#f92672">.</span>__class__<span style="color:#f92672">.</span>__name__<span style="color:#e6db74">}</span><span style="color:#e6db74">, Found NAN in output </span><span style="color:#e6db74">{</span>i<span style="color:#e6db74">}</span><span style="color:#e6db74"> at indices: &#34;</span>, nan_mask<span style="color:#f92672">.</span>nonzero(), <span style="color:#e6db74">&#34;where:&#34;</span>,
+</span></span><span style="display:flex;"><span>                                   out[nan_mask<span style="color:#f92672">.</span>nonzero()[:, <span style="color:#ae81ff">0</span>]<span style="color:#f92672">.</span>unique(sorted<span style="color:#f92672">=</span><span style="color:#66d9ef">True</span>)])
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">register_nan_hook</span>(model: torch<span style="color:#f92672">.</span>nn<span style="color:#f92672">.</span>Module):
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">for</span> name, submodule <span style="color:#f92672">in</span> model<span style="color:#f92672">.</span>named_modules():
+</span></span><span style="display:flex;"><span>        new_hook <span style="color:#f92672">=</span> partial(nan_hook, name<span style="color:#f92672">=</span>name<span style="color:#f92672">+</span><span style="color:#e6db74">&#39;.back&#39;</span>)
+</span></span><span style="display:flex;"><span>        hook_ref <span style="color:#f92672">=</span> submodule<span style="color:#f92672">.</span>register_full_backward_hook(new_hook)
+</span></span><span style="display:flex;"><span>        __registered_hook_refs<span style="color:#f92672">.</span>append(hook_ref)
+</span></span><span style="display:flex;"><span>        new_hook <span style="color:#f92672">=</span> partial(nan_hook, name<span style="color:#f92672">=</span>name<span style="color:#f92672">+</span><span style="color:#e6db74">&#39;.fwd&#39;</span>)
+</span></span><span style="display:flex;"><span>        hook_ref <span style="color:#f92672">=</span> submodule<span style="color:#f92672">.</span>register_forward_hook(new_hook)
+</span></span><span style="display:flex;"><span>        __registered_hook_refs<span style="color:#f92672">.</span>append(hook_ref)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>debug <span style="color:#f92672">=</span> <span style="color:#66d9ef">True</span>
+</span></span><span style="display:flex;"><span>register_nan_hook(model) <span style="color:#66d9ef">if</span> debug <span style="color:#66d9ef">else</span> <span style="color:#66d9ef">None</span>
+</span></span></code></pre></div><p>Leveraging these hooks narrowed down the source of issue to a particular layer and from there I was able to trace the problem to an <code>inf</code> value in the model weights. Digging further, I traced the source of <code>inf</code> to <a href="https://paul.mou.dev/posts/2023-12-27-ohmy">bad RAM sticks</a>! After mitigation, I wrote a small script to verify the model weights and confirmed sampling function worked as expected.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#75715e"># verify model weight</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">from</span> collections <span style="color:#f92672">import</span> Counter
+</span></span><span style="display:flex;"><span>pbytype <span style="color:#f92672">=</span> Counter()
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">for</span> name, p <span style="color:#f92672">in</span> (model<span style="color:#f92672">.</span>named_parameters()):
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">if</span> torch<span style="color:#f92672">.</span>isinf(p)<span style="color:#f92672">.</span>any() <span style="color:#f92672">or</span> torch<span style="color:#f92672">.</span>isnan(p)<span style="color:#f92672">.</span>any():
+</span></span><span style="display:flex;"><span>        print(name, p)
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">raise</span> <span style="color:#a6e22e">ValueError</span>(<span style="color:#e6db74">&#34;invalid weight&#34;</span>)
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">else</span>:
+</span></span><span style="display:flex;"><span>        pbytype[p<span style="color:#f92672">.</span>dtype] <span style="color:#f92672">+=</span> <span style="color:#ae81ff">1</span>
+</span></span><span style="display:flex;"><span>print(<span style="color:#e6db74">&#34;OK&#34;</span>, pbytype)
+</span></span></code></pre></div><h3 id="adapting-whisper-to-mistral">Adapting Whisper to Mistral</h3>
+<p>After gaining confidence with debugging Pytorch modules, I focused on adapting Whisper model so audio files can be transformed into an embedding that can then be fed into Mistral.</p>
+<p>OpenAI&rsquo;s Whisper <a href="https://github.com/openai/whisper/blob/ba3f3cd54b0e5b8ce1ab3de13e32122d0d5f98ab/whisper/model.py#L225-L238">model</a> is composed of two major components, an <code>AudioEncoder</code> and a <code>TextDecoder</code>.
+For the purpose of translating audio into embeddings, I only need the <code>AudioEncoder</code> component.</p>
+<p>Therefore, I loaded up a full Whisper model and extracted the <code>AudioEncoder</code> weights using the following snippets</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#f92672">import</span> whisper
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>model <span style="color:#f92672">=</span> whisper<span style="color:#f92672">.</span>load_model(<span style="color:#e6db74">&#34;large-v3&#34;</span>)
+</span></span><span style="display:flex;"><span>audio_encoder <span style="color:#f92672">=</span> model<span style="color:#f92672">.</span>encoder
+</span></span><span style="display:flex;"><span>torch<span style="color:#f92672">.</span>save(
+</span></span><span style="display:flex;"><span>    audio_encoder<span style="color:#f92672">.</span>state_dict(),
+</span></span><span style="display:flex;"><span>    <span style="color:#e6db74">&#34;&lt;output_location&gt;&#34;</span>,
+</span></span><span style="display:flex;"><span>)
+</span></span></code></pre></div><p>I adapted the Whisper AudioEncoder into a <code>TunableWhisperAudioEncoder</code> with an extra projection layer to map from Whisper&rsquo;s audio embedding (size 1280) to mistral&rsquo;s token embedding (size 4096).</p>
+<p>I ensured <code>proj</code> is the only trainable network by explicitly freezing the audio encoder&rsquo;s parameters. Note that <code>TrainableSubmodule</code> is a hyperparameter and any model that maps the output embedding to size 4096 will work. Later in the post, I will describe what I found to work for me.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">TunableWhisperAudioEncoder</span>(nn<span style="color:#f92672">.</span>Module):
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> __init__(self, <span style="color:#f92672">*</span>, output_embedding_size<span style="color:#f92672">=</span><span style="color:#ae81ff">4096</span>):
+</span></span><span style="display:flex;"><span>        <span style="color:#e6db74">&#34;&#34;&#34;
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">        args
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">            output_embedding_size: int = 4096 / mistral default embedding size
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">        &#34;&#34;&#34;</span>
+</span></span><span style="display:flex;"><span>        super()<span style="color:#f92672">.</span>__init__()
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        self<span style="color:#f92672">.</span>audio_encoder <span style="color:#f92672">=</span> load_whisper_v3_audio_encoder()
+</span></span><span style="display:flex;"><span>        self<span style="color:#f92672">.</span>proj <span style="color:#f92672">=</span> TrainableSubmodule(output_embedding_size<span style="color:#f92672">=</span>output_embedding_size)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        <span style="color:#75715e"># # Freeze all parameters</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">for</span> param <span style="color:#f92672">in</span> audio_encoder<span style="color:#f92672">.</span>parameters():
+</span></span><span style="display:flex;"><span>            param<span style="color:#f92672">.</span>requires_grad <span style="color:#f92672">=</span> <span style="color:#66d9ef">False</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">forward</span>(self, mels):
+</span></span><span style="display:flex;"><span>        res <span style="color:#f92672">=</span> self<span style="color:#f92672">.</span>audio_encoder(mels)
+</span></span><span style="display:flex;"><span>        res <span style="color:#f92672">=</span> self<span style="color:#f92672">.</span>proj(res)
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> res
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">load_whisper_v3_audio_encoder</span>(
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">*</span>,
+</span></span><span style="display:flex;"><span>    n_mels<span style="color:#f92672">=</span><span style="color:#ae81ff">128</span>,
+</span></span><span style="display:flex;"><span>    n_audio_ctx<span style="color:#f92672">=</span><span style="color:#ae81ff">1500</span>,
+</span></span><span style="display:flex;"><span>    n_audio_state<span style="color:#f92672">=</span><span style="color:#ae81ff">1280</span>,
+</span></span><span style="display:flex;"><span>    n_audio_head<span style="color:#f92672">=</span><span style="color:#ae81ff">20</span>,
+</span></span><span style="display:flex;"><span>    n_audio_layer<span style="color:#f92672">=</span><span style="color:#ae81ff">32</span>,
+</span></span><span style="display:flex;"><span>):
+</span></span><span style="display:flex;"><span>    m <span style="color:#f92672">=</span> whisper<span style="color:#f92672">.</span>model<span style="color:#f92672">.</span>AudioEncoder(
+</span></span><span style="display:flex;"><span>        n_mels, n_audio_ctx, n_audio_state, n_audio_head, n_audio_layer
+</span></span><span style="display:flex;"><span>    )
+</span></span><span style="display:flex;"><span>    m<span style="color:#f92672">.</span>load_state_dict(torch<span style="color:#f92672">.</span>load(WHISPER_AUDIO_BIN))
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> m
+</span></span></code></pre></div><p>Finally, I build up the model I am going to use for training as follows</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">Model</span>(nn<span style="color:#f92672">.</span>Module):
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> __init__(self, audio_encoder: <span style="color:#e6db74">&#34;Whisper.AudioEncoder&#34;</span>, llm: <span style="color:#e6db74">&#34;Mistral&#34;</span>):
+</span></span><span style="display:flex;"><span>        super()<span style="color:#f92672">.</span>__init__()
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        self<span style="color:#f92672">.</span>audio_encoder <span style="color:#f92672">=</span> audio_encoder
+</span></span><span style="display:flex;"><span>        self<span style="color:#f92672">.</span>llm <span style="color:#f92672">=</span> llm
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        <span style="color:#75715e"># freeze the LLM weights</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">for</span> p <span style="color:#f92672">in</span> self<span style="color:#f92672">.</span>llm<span style="color:#f92672">.</span>parameters():
+</span></span><span style="display:flex;"><span>            p<span style="color:#f92672">.</span>requires_grad <span style="color:#f92672">=</span> <span style="color:#66d9ef">False</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">forward</span>(self, batch):
+</span></span><span style="display:flex;"><span>        audio_mels <span style="color:#f92672">=</span> batch[<span style="color:#e6db74">&#34;audio_mels&#34;</span>]
+</span></span><span style="display:flex;"><span>        <span style="color:#75715e"># caption token ids</span>
+</span></span><span style="display:flex;"><span>        cap_ids <span style="color:#f92672">=</span> batch[<span style="color:#e6db74">&#34;cap_ids&#34;</span>]
+</span></span><span style="display:flex;"><span>        <span style="color:#75715e"># caption attention mask</span>
+</span></span><span style="display:flex;"><span>        cap_ids_attention_mask <span style="color:#f92672">=</span> batch[<span style="color:#e6db74">&#34;cap_attention_mask&#34;</span>]
+</span></span><span style="display:flex;"><span>        prompt_ids <span style="color:#f92672">=</span> batch[<span style="color:#e6db74">&#34;prompt_ids&#34;</span>]
+</span></span><span style="display:flex;"><span>        prompt_ids_attention_mask <span style="color:#f92672">=</span> batch[<span style="color:#e6db74">&#34;prompt_attention_mask&#34;</span>]
+</span></span><span style="display:flex;"><span>        end_prompt_ids <span style="color:#f92672">=</span> batch[<span style="color:#e6db74">&#34;end_prompt_ids&#34;</span>]
+</span></span><span style="display:flex;"><span>        end_prompt_ids_attention_mask <span style="color:#f92672">=</span> batch[<span style="color:#e6db74">&#34;end_prompt_attention_mask&#34;</span>]
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        audio_embeds <span style="color:#f92672">=</span> self<span style="color:#f92672">.</span>audio_encoder(audio_mels)
+</span></span><span style="display:flex;"><span>        <span style="color:#75715e"># audio_embeds: (batch, audio_seq_len, audio_embedding_size)</span>
+</span></span><span style="display:flex;"><span>        bs, audio_seq <span style="color:#f92672">=</span> audio_embeds<span style="color:#f92672">.</span>shape[:<span style="color:#ae81ff">2</span>]
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        attention_mask <span style="color:#f92672">=</span> torch<span style="color:#f92672">.</span>concat(
+</span></span><span style="display:flex;"><span>            (
+</span></span><span style="display:flex;"><span>                prompt_ids_attention_mask,
+</span></span><span style="display:flex;"><span>                torch<span style="color:#f92672">.</span>ones(bs, audio_seq)<span style="color:#f92672">.</span>to(cap_ids<span style="color:#f92672">.</span>device),
+</span></span><span style="display:flex;"><span>                end_prompt_ids_attention_mask,
+</span></span><span style="display:flex;"><span>                cap_ids_attention_mask,
+</span></span><span style="display:flex;"><span>            ),
+</span></span><span style="display:flex;"><span>            dim<span style="color:#f92672">=</span><span style="color:#ae81ff">1</span>,
+</span></span><span style="display:flex;"><span>        )
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        cap_embeds <span style="color:#f92672">=</span> self<span style="color:#f92672">.</span>llm<span style="color:#f92672">.</span>model<span style="color:#f92672">.</span>embed_tokens(cap_ids)
+</span></span><span style="display:flex;"><span>        prompt_embeds <span style="color:#f92672">=</span> self<span style="color:#f92672">.</span>llm<span style="color:#f92672">.</span>model<span style="color:#f92672">.</span>embed_tokens(prompt_ids)
+</span></span><span style="display:flex;"><span>        end_prompt_embeds <span style="color:#f92672">=</span> self<span style="color:#f92672">.</span>llm<span style="color:#f92672">.</span>model<span style="color:#f92672">.</span>embed_tokens(end_prompt_ids)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        <span style="color:#75715e"># build the inputs_embeds by concating all the token embeddings</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#75715e"># with audio_embeddings</span>
+</span></span><span style="display:flex;"><span>        inputs_embeds <span style="color:#f92672">=</span> torch<span style="color:#f92672">.</span>concat(
+</span></span><span style="display:flex;"><span>            (
+</span></span><span style="display:flex;"><span>                prompt_embeds,
+</span></span><span style="display:flex;"><span>                audio_embeds<span style="color:#f92672">.</span>to(cap_embeds<span style="color:#f92672">.</span>dtype),
+</span></span><span style="display:flex;"><span>                end_prompt_embeds,
+</span></span><span style="display:flex;"><span>                cap_embeds,
+</span></span><span style="display:flex;"><span>            ),
+</span></span><span style="display:flex;"><span>            dim<span style="color:#f92672">=</span><span style="color:#ae81ff">1</span>,
+</span></span><span style="display:flex;"><span>        )
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        mout <span style="color:#f92672">=</span> self<span style="color:#f92672">.</span>llm(
+</span></span><span style="display:flex;"><span>            inputs_embeds<span style="color:#f92672">=</span>inputs_embeds,
+</span></span><span style="display:flex;"><span>            attention_mask<span style="color:#f92672">=</span>attention_mask,
+</span></span><span style="display:flex;"><span>        )
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> mout, audio_embeds<span style="color:#f92672">.</span>shape[<span style="color:#ae81ff">1</span>]
+</span></span></code></pre></div><p>The model itself is quite simple in that it simply holds reference to the Mistral LLM and <code>TunableWhisperAudioEncoder</code>. The <code>forward</code> method encapsulates the logic of converting audio mel-spectrogram into audio embeddings, then concatenating the audio embeddings with text/token embeddings to feeding those into Mistral LLM.</p>
+<h3 id="sampling-with-audio-from-scratch">Sampling with Audio from Scratch</h3>
+<p>With the basic model in place, the next step is to try and sample from this model with audio inputs. Here is the audio sampling function I came up with.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#75715e"># note, full gist is available at https://gist.github.com/moomou/7df8345d79a0063d67d1fa2b4cf55db8</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">@torch.no_grad</span>()
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">sample_with_audio</span>(model, tokenizer, prompt, audio_file, device<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;cuda:0&#34;</span>, iteration<span style="color:#f92672">=</span><span style="color:#ae81ff">50</span>):
+</span></span><span style="display:flex;"><span>    audio_mels <span style="color:#f92672">=</span> load_audio_mels(audio_file)<span style="color:#f92672">.</span>to(device)<span style="color:#f92672">.</span>half()
+</span></span><span style="display:flex;"><span>    end_prompt_ids, end_prompt_attention_mask <span style="color:#f92672">=</span> text_2_ids_and_attention_mask(
+</span></span><span style="display:flex;"><span>        tokenizer,
+</span></span><span style="display:flex;"><span>        end_template(),
+</span></span><span style="display:flex;"><span>        truncate<span style="color:#f92672">=</span><span style="color:#66d9ef">True</span>,
+</span></span><span style="display:flex;"><span>    )
+</span></span><span style="display:flex;"><span>    prompt_ids, prompt_attention_mask <span style="color:#f92672">=</span> text_2_ids_and_attention_mask(
+</span></span><span style="display:flex;"><span>        tokenizer,
+</span></span><span style="display:flex;"><span>        prompt,
+</span></span><span style="display:flex;"><span>    )
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    prompt_ids <span style="color:#f92672">=</span> prompt_ids<span style="color:#f92672">.</span>to(device)
+</span></span><span style="display:flex;"><span>    prompt_attention_mask <span style="color:#f92672">=</span> prompt_attention_mask<span style="color:#f92672">.</span>to(device)
+</span></span><span style="display:flex;"><span>    end_prompt_attention_mask <span style="color:#f92672">=</span> end_prompt_attention_mask<span style="color:#f92672">.</span>to(device)
+</span></span><span style="display:flex;"><span>    end_prompt_ids <span style="color:#f92672">=</span> end_prompt_ids<span style="color:#f92672">.</span>to(device)
+</span></span><span style="display:flex;"><span>    sampled_ids <span style="color:#f92672">=</span> <span style="color:#66d9ef">None</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    prompt_embeds <span style="color:#f92672">=</span> <span style="color:#66d9ef">None</span>
+</span></span><span style="display:flex;"><span>    end_prompt_embeds <span style="color:#f92672">=</span> <span style="color:#66d9ef">None</span>
+</span></span><span style="display:flex;"><span>    audio_embeds <span style="color:#f92672">=</span> <span style="color:#66d9ef">None</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">with</span> torch<span style="color:#f92672">.</span>amp<span style="color:#f92672">.</span>autocast(device_type<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;cuda&#34;</span>, dtype<span style="color:#f92672">=</span>torch<span style="color:#f92672">.</span>float16): <span style="color:#75715e"># use float16 to reduce GPU memory</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">if</span> audio_embeds <span style="color:#f92672">is</span> <span style="color:#66d9ef">None</span>:
+</span></span><span style="display:flex;"><span>            audio_embeds <span style="color:#f92672">=</span> model<span style="color:#f92672">.</span>audio_encoder(audio_mels)
+</span></span><span style="display:flex;"><span>        bs, audio_seq <span style="color:#f92672">=</span> audio_embeds<span style="color:#f92672">.</span>shape[:<span style="color:#ae81ff">2</span>]
+</span></span><span style="display:flex;"><span>        
+</span></span><span style="display:flex;"><span>        mask_concat_args <span style="color:#f92672">=</span> [
+</span></span><span style="display:flex;"><span>            prompt_attention_mask,
+</span></span><span style="display:flex;"><span>            torch<span style="color:#f92672">.</span>ones(bs, audio_seq)<span style="color:#f92672">.</span>to(audio_embeds<span style="color:#f92672">.</span>device),
+</span></span><span style="display:flex;"><span>            end_prompt_attention_mask,
+</span></span><span style="display:flex;"><span>        ]
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">for</span> _ <span style="color:#f92672">in</span> range(iteration):
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">if</span> sampled_ids <span style="color:#f92672">is</span> <span style="color:#f92672">not</span> <span style="color:#66d9ef">None</span>:
+</span></span><span style="display:flex;"><span>                mask_concat_args<span style="color:#f92672">.</span>append(torch<span style="color:#f92672">.</span>ones(bs, sampled_ids<span style="color:#f92672">.</span>shape[<span style="color:#ae81ff">1</span>])<span style="color:#f92672">.</span>to(audio_embeds<span style="color:#f92672">.</span>device))
+</span></span><span style="display:flex;"><span>                
+</span></span><span style="display:flex;"><span>            attention_mask <span style="color:#f92672">=</span> torch<span style="color:#f92672">.</span>concat(
+</span></span><span style="display:flex;"><span>                tuple(mask_concat_args),
+</span></span><span style="display:flex;"><span>                dim<span style="color:#f92672">=</span><span style="color:#ae81ff">1</span>,
+</span></span><span style="display:flex;"><span>            )
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">if</span> prompt_embeds <span style="color:#f92672">is</span> <span style="color:#66d9ef">None</span>:
+</span></span><span style="display:flex;"><span>                prompt_embeds <span style="color:#f92672">=</span> model<span style="color:#f92672">.</span>llm<span style="color:#f92672">.</span>model<span style="color:#f92672">.</span>embed_tokens(prompt_ids)
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">if</span> end_prompt_embeds <span style="color:#f92672">is</span> <span style="color:#66d9ef">None</span>:
+</span></span><span style="display:flex;"><span>                end_prompt_embeds <span style="color:#f92672">=</span> model<span style="color:#f92672">.</span>llm<span style="color:#f92672">.</span>model<span style="color:#f92672">.</span>embed_tokens(end_prompt_ids)
+</span></span><span style="display:flex;"><span>                
+</span></span><span style="display:flex;"><span>            sampled_ids_embeds <span style="color:#f92672">=</span> <span style="color:#66d9ef">None</span>
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">if</span> sampled_ids <span style="color:#f92672">is</span> <span style="color:#f92672">not</span> <span style="color:#66d9ef">None</span>:
+</span></span><span style="display:flex;"><span>                sampled_ids_embeds <span style="color:#f92672">=</span> model<span style="color:#f92672">.</span>llm<span style="color:#f92672">.</span>model<span style="color:#f92672">.</span>embed_tokens(sampled_ids)
+</span></span><span style="display:flex;"><span>                
+</span></span><span style="display:flex;"><span>            embeds_concat_args <span style="color:#f92672">=</span> [
+</span></span><span style="display:flex;"><span>                prompt_embeds,
+</span></span><span style="display:flex;"><span>                audio_embeds<span style="color:#f92672">.</span>to(prompt_embeds<span style="color:#f92672">.</span>dtype),
+</span></span><span style="display:flex;"><span>                end_prompt_embeds,
+</span></span><span style="display:flex;"><span>            ]
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">if</span> sampled_ids_embeds <span style="color:#f92672">is</span> <span style="color:#f92672">not</span> <span style="color:#66d9ef">None</span>:
+</span></span><span style="display:flex;"><span>                embeds_concat_args<span style="color:#f92672">.</span>append(sampled_ids_embeds)
+</span></span><span style="display:flex;"><span>                
+</span></span><span style="display:flex;"><span>            inputs_embeds <span style="color:#f92672">=</span> torch<span style="color:#f92672">.</span>concat(
+</span></span><span style="display:flex;"><span>                tuple(embeds_concat_args),
+</span></span><span style="display:flex;"><span>                dim<span style="color:#f92672">=</span><span style="color:#ae81ff">1</span>,
+</span></span><span style="display:flex;"><span>            )
+</span></span><span style="display:flex;"><span>    
+</span></span><span style="display:flex;"><span>            mout <span style="color:#f92672">=</span> model<span style="color:#f92672">.</span>llm(
+</span></span><span style="display:flex;"><span>                inputs_embeds<span style="color:#f92672">=</span>inputs_embeds,
+</span></span><span style="display:flex;"><span>                attention_mask<span style="color:#f92672">=</span>attention_mask,
+</span></span><span style="display:flex;"><span>            )
+</span></span><span style="display:flex;"><span>    
+</span></span><span style="display:flex;"><span>            logits <span style="color:#f92672">=</span> mout<span style="color:#f92672">.</span>logits
+</span></span><span style="display:flex;"><span>            sampled <span style="color:#f92672">=</span> torch<span style="color:#f92672">.</span>multinomial(logits[:, <span style="color:#f92672">-</span><span style="color:#ae81ff">1</span>, :]<span style="color:#f92672">.</span>softmax(dim<span style="color:#f92672">=-</span><span style="color:#ae81ff">1</span>), <span style="color:#ae81ff">1</span>)
+</span></span><span style="display:flex;"><span>            
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">if</span> sampled_ids <span style="color:#f92672">is</span> <span style="color:#66d9ef">None</span>:
+</span></span><span style="display:flex;"><span>                sampled_ids <span style="color:#f92672">=</span> sampled
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">else</span>:
+</span></span><span style="display:flex;"><span>                sampled_ids <span style="color:#f92672">=</span> torch<span style="color:#f92672">.</span>cat((sampled_ids, sampled), dim<span style="color:#f92672">=-</span><span style="color:#ae81ff">1</span>)<span style="color:#f92672">.</span>to(device)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> torch<span style="color:#f92672">.</span>concat((
+</span></span><span style="display:flex;"><span>        prompt_ids, 
+</span></span><span style="display:flex;"><span>        end_prompt_ids,
+</span></span><span style="display:flex;"><span>        sampled_ids,
+</span></span><span style="display:flex;"><span>    ),dim<span style="color:#f92672">=-</span><span style="color:#ae81ff">1</span>)
+</span></span></code></pre></div><p>Putting the function to use via</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span>dataloader <span style="color:#f92672">=</span> <span style="color:#f92672">...</span> <span style="color:#75715e"># standard pytorch dataloader</span>
+</span></span><span style="display:flex;"><span>local_batch <span style="color:#f92672">=</span> next(iter(dataloader))
+</span></span><span style="display:flex;"><span>tokenizer<span style="color:#f92672">.</span>decode(sample_with_audio(model, tokenizer, prompt_template_fn(), audio_file, iteration<span style="color:#f92672">=</span><span style="color:#ae81ff">60</span>)[<span style="color:#ae81ff">0</span>])
+</span></span></code></pre></div><p>produces gibberish as expected since <code>TunableWhisperAudioEncoder</code> projection layer is untrained.</p>
+<pre style="white-space : pre-wrap !important;">
+'&lt;s&gt; &lt;|im_start|&gt;  system\n    You are a helpful AI who follows instruction carefully&lt;|im_end|&gt; &lt;|im_start|&gt;  user\n    Describe the sound of the given file \n    &lt;|im_end|&gt; &lt;|im_start|&gt;  assistant\n     war&lt;|im_end|&gt; clockunits ]andfirst4Iftektime爆R Cur&lt;|im_end|&gt; United&lt;|im_end|&gt; ’daysIn“Never&lt;|im_end|&gt; thenAnd,and VI&lt;|im_end|&gt; Islo&lt;|im_end|&gt; GOkaydown&lt;|im_end|&gt; JainteYoulfailedLabelsEvenfacevC,rest&lt;|im_end|&gt;&lt;|im_end|&gt;&lt;|im_end|&gt;&lt;|im_end|&gt; q&lt;|im_end|&gt; Xs&lt;|im_end|&gt; h&lt;|im_end|&gt;&lt;|im_end|&gt;'
+</pre>
+<h3 id="defining-loss-function">Defining Loss Function</h3>
+<p>The loss function here is the standard cross entropy loss on the logits output; the only trick is that the loss should only be calculated on the caption portion. Specifically,</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#75715e"># calculate loss</span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># local_batch: (b, seq, C)</span>
+</span></span><span style="display:flex;"><span>prompt_ids_seq <span style="color:#f92672">=</span> local_batch[<span style="color:#e6db74">&#34;prompt_ids&#34;</span>]<span style="color:#f92672">.</span>shape[<span style="color:#ae81ff">1</span>]
+</span></span><span style="display:flex;"><span>end_prompt_ids_seq <span style="color:#f92672">=</span> local_batch[<span style="color:#e6db74">&#34;end_prompt_ids&#34;</span>]<span style="color:#f92672">.</span>shape[<span style="color:#ae81ff">1</span>]
+</span></span><span style="display:flex;"><span>logits_start <span style="color:#f92672">=</span> prompt_ids_seq <span style="color:#f92672">+</span> audio_seq <span style="color:#f92672">+</span> end_prompt_ids_seq
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># remove the last output</span>
+</span></span><span style="display:flex;"><span>logits <span style="color:#f92672">=</span> <span style="color:#f92672">...</span> <span style="color:#75715e"># model output</span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># remove the prompt and audio seq from logits</span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># calculation; additionally, remove the final item</span>
+</span></span><span style="display:flex;"><span>logits <span style="color:#f92672">=</span> logits[:, logits_start:<span style="color:#f92672">-</span><span style="color:#ae81ff">1</span>, :]<span style="color:#f92672">.</span>contiguous()
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># calculate target using only `cap_ids`</span>
+</span></span><span style="display:flex;"><span>targets <span style="color:#f92672">=</span> batch[<span style="color:#e6db74">&#34;cap_ids&#34;</span>][:]
+</span></span><span style="display:flex;"><span>targets <span style="color:#f92672">=</span> targets[:, <span style="color:#ae81ff">1</span>:]
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>loss <span style="color:#f92672">=</span> nn<span style="color:#f92672">.</span>functional<span style="color:#f92672">.</span>cross_entropy(
+</span></span><span style="display:flex;"><span>    logits<span style="color:#f92672">.</span>view(<span style="color:#f92672">-</span><span style="color:#ae81ff">1</span>, logits<span style="color:#f92672">.</span>shape[<span style="color:#f92672">-</span><span style="color:#ae81ff">1</span>]), targets<span style="color:#f92672">.</span>view(<span style="color:#f92672">-</span><span style="color:#ae81ff">1</span>)
+</span></span><span style="display:flex;"><span>)
+</span></span></code></pre></div><h3 id="training-overfitting-and-debugging-gradients">Training, Overfitting and Debugging Gradients</h3>
+<p>Finally, all the pieces are in place for training the model. The objective I had in mind is to make the frozen LLM describe a given audio file by training only <code>TunableWhisperAudioEncoder</code>; achieving this will not give LLM general audio understanding ability since the training data is small but will give me great confidence that I performed all the basic steps right.</p>
+<p>In order to ensure training is setup correctly, I started small and one step at a time. Specifically, I interactively stepped through the training steps manually, recorded and plotted the weight update relative to weight data in <code>TunableWhisperAudioEncoder</code>, and ensured there is no <code>inf</code> or <code>NaN</code> using the Pytorch hooks described previously. These steps were repeated for varous combination of learning rate, model architecture, and optimizer.</p>
+<img src="/weight_update.png" alt="Weight Update"/>
+<p>Keeping the setup as simple as possible, I found Adam (without momentum), a constant learning rate of 1.5e-3, and using the following simple <code>TrainableSubmodule</code>, I achieved stable training.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">TrainableSubmodule</span>(nn<span style="color:#f92672">.</span>Module):
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> __init__(self, output_embedding_size<span style="color:#f92672">=</span><span style="color:#ae81ff">4096</span>):
+</span></span><span style="display:flex;"><span>        super()<span style="color:#f92672">.</span>__init__()
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        self<span style="color:#f92672">.</span>pool <span style="color:#f92672">=</span> nn<span style="color:#f92672">.</span>AdaptiveAvgPool1d(<span style="color:#ae81ff">250</span>)
+</span></span><span style="display:flex;"><span>        self<span style="color:#f92672">.</span>proj <span style="color:#f92672">=</span> nn<span style="color:#f92672">.</span>Linear(<span style="color:#ae81ff">1280</span>, output_embedding_size, bias<span style="color:#f92672">=</span><span style="color:#66d9ef">False</span>)
+</span></span><span style="display:flex;"><span>        self<span style="color:#f92672">.</span>ln1 <span style="color:#f92672">=</span> nn<span style="color:#f92672">.</span>LayerNorm(<span style="color:#ae81ff">1280</span>)
+</span></span></code></pre></div><p>I ran training over the course of ~4days and by the time I stopped training, the loss was still going down. By the time I stopped, I achieved ~0.46 loss, which translates to approximately 66% probability for the correct token!</p>
+<img src="/avg_loss.png" alt="Average Loss"/>
+<p>Rerunning the <code>sample_with_audio</code> with the same audio file that produced gibberish pretraining, I now obtain</p>
+<pre style="white-space : pre-wrap !important;">
+"&lt;s&gt; &lt;|im_start|&gt;  system\n    You are a helpful AI who follows instruction carefully&lt;|im_end|&gt; &lt;|im_start|&gt;  user\n    Describe the sound of the given file \n    &lt;|im_end|&gt; &lt;|im_start|&gt; assistant\n     The electronica song features a crisp acoustic kick, snap snare and hat along with a deep bass. The male vocal is rapping syncopated along with a male background vocal. The song is fast paced and there is a limited frequency range of the synths. The song"
+</pre>
+<p>Compare this against the ground truth</p>
+<pre style="white-space : pre-wrap !important;">
+"This is a K-pop music piece performed by a boy band. Initially, a male vocalist is singing in a rap-like manner. Then, it switches to another male vocal that is singing more melodically. The melody is being played by a crisp synth sound. The rhythmic background consists of an energetic electronic drum beat. There is a danceable feel to it. This piece could be playing at Korean nightclubs and dance clubs."
+</pre>
+<p>The result is <em>pretty</em> good!</p>
+<p>It&rsquo;s worth repeating this is achieved by only training on the audio encoder projection without modifying the LLM weights or the Whisper AudioEncoder weights.</p>
+<h2 id="next-steps">Next Steps</h2>
+<p>With the fundamentals in place, I am planning to scale up training by incorporating more audio tasks such as transcription, speaker identification, etc. as well as apply finetuning to LLM to work my way toward replicating &ldquo;emergent&rdquo; behaviors described in the referenced papers.</p>
+<p>Assuming sufficient data and with a proper training regime, LLM should be able to perform original audio tasks such as say identify the speaker age or gender without having been explicitly trained on such task.</p>
+<p>More work to be done!</p>
+<h2 id="acknowledgement">Acknowledgement</h2>
+<p>I would not been able to do any of this without learning from the <a href="https://github.com/karpathy/nn-zero-to-hero/">excellent lectures by Karpathy</a>.</p>
+
+		</div>
+
+		<div class="post-tags">
+			
+				
+			
+		</div>
+		</div>
+	<div class="footer wrapper">
+	<nav class="nav">
+		<div> since 2017 </div>
+	</nav>
+</div>
+
+
+
+<script type="application/javascript">
+var doNotTrack = false;
+if (!doNotTrack) {
+	window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+	ga('create', 'trackingcode', 'auto');
+	
+	ga('send', 'pageview');
+}
+</script>
+<script async src='https://www.google-analytics.com/analytics.js'></script>
+
+<script>feather.replace()</script>
+</body>
+</html>

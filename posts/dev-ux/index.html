@@ -61,6 +61,8 @@
       
 		</div>
 
+    
+
 		<div class="markdown">
 			<h2 id="commandline-productivity-and-automation-aka-make-it-easy-to-repeat">Commandline Productivity and Automation (aka make it easy to repeat)</h2>
 <p>Developers tend to repeat themselves. A lot. This can be as innocuous as running a test manually after you update a test file or as insidious as deploying a newly built binary into production manually. Nobody likes to repeat themselves over and over again. And for good reasons. Not only does it take time to repeatedly figure out all the parameters in a tricky command line program, it also increases stress when you are trying to fix outages as quickly as possible.</p>
@@ -69,31 +71,31 @@
 <h3 id="simple-shell-scripts">Simple shell scripts</h3>
 <p>Creating a shell script is the simplest form of automation and arguably also the most effective with immediate productivity gain. After some experimentation, I devised and follow a simple rule: if I need to type more 3 parameters to invoke a complicated command on the shell, I will write a shell script. This simple stratgey saves me time and also gives me a place to document various parameters.</p>
 <p>As a concrete example, I have been writing <code>build_container.sh</code> and <code>run_container.sh</code> to help streamline my Docker workflow.</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span><span style="color:#586e75"># build_container.sh</span>
-</span></span><span style="display:flex;"><span><span style="color:#586e75">#!/bin/sh -xe</span>
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>docker build -t <span style="color:#268bd2">$1</span> .
-</span></span><span style="display:flex;"><span><span style="color:#586e75"># removes &lt;none&gt; images</span>
-</span></span><span style="display:flex;"><span>docker rmi <span style="color:#719e07">$(</span>docker images --filter <span style="color:#2aa198">&#34;dangling=true&#34;</span> -q --no-trunc<span style="color:#719e07">)</span>
-</span></span></code></pre></div><div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span><span style="color:#586e75"># run_container.sh</span>
-</span></span><span style="display:flex;"><span><span style="color:#586e75">#!/bin/sh -xe</span>
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>docker run <span style="color:#cb4b16">\
-</span></span></span><span style="display:flex;"><span><span style="color:#cb4b16"></span>    -p 9000:9000 <span style="color:#cb4b16">\
-</span></span></span><span style="display:flex;"><span><span style="color:#cb4b16"></span>    -v REPO_PATH:/CONTAINER_ROOT/REPO_PATH <span style="color:#cb4b16">\
-</span></span></span><span style="display:flex;"><span><span style="color:#cb4b16"></span>    sample_image <span style="color:#cb4b16">\
-</span></span></span><span style="display:flex;"><span><span style="color:#cb4b16"></span>    bash
-</span></span></code></pre></div><p>As an added bonus, I have been learning more about shell programming (and all its quirks!) as I am writing more of these scripts.</p>
+<pre tabindex="0"><code># build_container.sh
+#!/bin/sh -xe
+
+docker build -t $1 .
+# removes &lt;none&gt; images
+docker rmi $(docker images --filter &#34;dangling=true&#34; -q --no-trunc)
+</code></pre><pre tabindex="0"><code># run_container.sh
+#!/bin/sh -xe
+
+docker run \
+    -p 9000:9000 \
+    -v REPO_PATH:/CONTAINER_ROOT/REPO_PATH \
+    sample_image \
+    bash
+</code></pre><p>As an added bonus, I have been learning more about shell programming (and all its quirks!) as I am writing more of these scripts.</p>
 <h3 id="swiss-army-knife">Swiss army knife</h3>
 <p>While automating with one off shell scripts for each specialized task is effective, the effort tend to be duplicated across repos and boilerplates start to add up, leading to increased tech debts and overall increase in complexity.</p>
 <p>To overcome this, I stole the idea of <code>s</code>, a Swiss army knife command line tool, from Smyte. Succinctly, <code>s</code> is a collection of scripts that automates various developer tasks, including deployment, remote server automation, running tests, compilation, and myraids of other things. More than a collection of scripts, <code>s</code> provides a common framework to centralize tool development and minimizes boilerplates.</p>
 <p>Some sample <code>s</code> invocation</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-fallback" data-lang="fallback"><span style="display:flex;"><span># running tests
-</span></span><span style="display:flex;"><span>s test.run ABC
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span># deploying code
-</span></span><span style="display:flex;"><span>s deploy.roll --commit ABC
-</span></span></code></pre></div><p>Modelling after <code>s</code>, I created a tool called <code>m</code>. To bootstrap <code>m</code>, I use <a href="https://github.com/google/python-fire">python-fire</a> from Google. <code>python-fire</code> is an amazing python library that will turn any python script into a command line program with minimum fuzz and handles command line arguments in an intuitive manner.</p>
+<pre tabindex="0"><code># running tests
+s test.run ABC
+
+# deploying code
+s deploy.roll --commit ABC
+</code></pre><p>Modelling after <code>s</code>, I created a tool called <code>m</code>. To bootstrap <code>m</code>, I use <a href="https://github.com/google/python-fire">python-fire</a> from Google. <code>python-fire</code> is an amazing python library that will turn any python script into a command line program with minimum fuzz and handles command line arguments in an intuitive manner.</p>
 <p>One of the major downside of <code>s</code> as implemented at Smyte is speed - importing modules in python is not free and these add up as more and more scripts get added. In <code>m</code>, I address this by loading dependencies only at invocation of each subcommand. Doing this has allowed to me to keep top level <code>m</code> invocation at ~250ms on my 2013 Mac Air.</p>
 <p>You can checkout <code>m</code> on my github <a href="https://go.mou.dev/m">here</a>.</p>
 <h3 id="environment-bootstrapping">Environment bootstrapping</h3>
