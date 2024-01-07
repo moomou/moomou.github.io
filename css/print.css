@@ -74,6 +74,11 @@
   .school .class {
     float: left !important;
   }
+
+  .summary p {
+    margin-top: 8px;
+    margin-bottom: 8px;
+  }
 }
 
 /*# sourceMappingURL=print.css.map */
