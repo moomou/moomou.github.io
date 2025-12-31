@@ -2,95 +2,82 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>moomou</title>
-    <link>https://paul.mou.dev/</link>
+    <link>/</link>
     <description>Recent content on moomou</description>
-    <generator>Hugo -- gohugo.io</generator>
+    <generator>Hugo</generator>
     <language>en-us</language>
     <copyright>since 2017</copyright>
-    <lastBuildDate>Sun, 31 Dec 2023 00:00:00 +0000</lastBuildDate><atom:link href="https://paul.mou.dev/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Mon, 29 Dec 2025 00:00:00 +0000</lastBuildDate>
+    <atom:link href="/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Navigating within a Mono Repo</title>
+      <link>/posts/2024-06-01-gd/</link>
+      <pubDate>Mon, 29 Dec 2025 00:00:00 +0000</pubDate>
+      <guid>/posts/2024-06-01-gd/</guid>
+      <description>&lt;h1 id=&#34;groot-and-friends&#34;&gt;Groot and Friends&lt;/h1&gt;&#xA;&lt;p&gt;Navigating within a mono repo can be tedious.&lt;/p&gt;&#xA;&lt;p&gt;I frequently find myself doing &lt;code&gt;cd ../..&lt;/code&gt; to navigate to sibling folders or jumping to the root of the git directory to navigate and inspect other part of the code base.&lt;/p&gt;&#xA;&lt;p&gt;To navigate to the root of the Git repository, I use an alias &lt;code&gt;groot&lt;/code&gt; defined as&lt;/p&gt;&#xA;&lt;pre tabindex=&#34;0&#34;&gt;&lt;code&gt;    alias groot=&amp;#39;cd $(git rev-parse --show-toplevel)&amp;#39;&#xA;&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Excellent tools such as &lt;code&gt;fd&lt;/code&gt; and &lt;code&gt;fzf&lt;/code&gt; help a lot but I want to be able to jump to different part of the repo with a few keystrokes. For example, in a mono repo, I want to be quickly jump from go/src/mou.dev/cmd to schema/proto.&lt;/p&gt;</description>
+    </item>
     <item>
       <title>Listening with LLM</title>
-      <link>https://paul.mou.dev/posts/2023-12-31-listening-with-llm/</link>
+      <link>/posts/2023-12-31-listening-with-llm/</link>
       <pubDate>Sun, 31 Dec 2023 00:00:00 +0000</pubDate>
-      
-      <guid>https://paul.mou.dev/posts/2023-12-31-listening-with-llm/</guid>
-      <description>Overview This is the first part of many posts I am writing to consolidate learnings on how to finetune Large Language Models (LLMs) to process audio, with the eventual goal of being able to build and host a LLM able to describe human voices.</description>
+      <guid>/posts/2023-12-31-listening-with-llm/</guid>
+      <description>&lt;h2 id=&#34;overview&#34;&gt;Overview&lt;/h2&gt;&#xA;&lt;p&gt;This is the first part of many posts I am writing to consolidate learnings on how to finetune Large Language Models (LLMs) to process audio, with the eventual goal of being able to build and host a LLM able to describe human voices.&lt;/p&gt;&#xA;&lt;p&gt;I am motivated to gain hands-on experience tinkering LLMs so, as much as practical, I tried to recreate utilities and functions with pytorch from scratch rather than rely on 3rd party libraries.&lt;/p&gt;</description>
     </item>
-    
     <item>
       <title>Learning to Debug Gibberish</title>
-      <link>https://paul.mou.dev/posts/2023-12-27-ohmy/</link>
+      <link>/posts/2023-12-27-ohmy/</link>
       <pubDate>Wed, 27 Dec 2023 00:00:00 +0000</pubDate>
-      
-      <guid>https://paul.mou.dev/posts/2023-12-27-ohmy/</guid>
-      <description>Overview Recently, I went down a rabbit hole of debugging opensource LLM spewing gibberish on my PC. The investigation was the one of the most difficult (but interesting) debugging experience I have encountered so far.</description>
+      <guid>/posts/2023-12-27-ohmy/</guid>
+      <description>&lt;h2 id=&#34;overview&#34;&gt;Overview&lt;/h2&gt;&#xA;&lt;p&gt;Recently, I went down a rabbit hole of debugging opensource LLM spewing gibberish on my PC.&#xA;The investigation was the one of the most difficult (but interesting) debugging experience I have encountered so far.&lt;/p&gt;&#xA;&lt;p&gt;This blog will chronicle the problem I encountered, debugging steps I took, and finally, the resolution and workaround I adopted.&lt;/p&gt;&#xA;&lt;blockquote&gt;&#xA;&lt;p&gt;&lt;strong&gt;tl;dr&lt;/strong&gt; I traced down the source of LLM spewing gibberish to faulty RAM sticks after getting different sha256 checksums on a static file on different runs. I was then able to salvage ~40% of the faulty RAM stick capacity after discovering Linux kernl parameter &lt;code&gt;memtest=&lt;/code&gt;.&lt;/p&gt;</description>
     </item>
-    
     <item>
       <title>CORS with Cookie</title>
-      <link>https://paul.mou.dev/posts/2022-08-13-cors-with-cookie/</link>
+      <link>/posts/2022-08-13-cors-with-cookie/</link>
       <pubDate>Sat, 13 Aug 2022 00:00:00 +0000</pubDate>
-      
-      <guid>https://paul.mou.dev/posts/2022-08-13-cors-with-cookie/</guid>
-      <description>Introduction CORS stands for Cross-Origin-Resource-Sharing and is the HTTP mechanism to allow servers to accept requests from other host locations other than its own.</description>
+      <guid>/posts/2022-08-13-cors-with-cookie/</guid>
+      <description>&lt;h1 id=&#34;introduction&#34;&gt;Introduction&lt;/h1&gt;&#xA;&lt;p&gt;CORS stands for Cross-Origin-Resource-Sharing and is the HTTP mechanism to&#xA;allow servers to accept requests from other host locations other than its own.&lt;/p&gt;&#xA;&lt;p&gt;Getting CORS up and running is not difficult. There are plenty of posts online that will&#xA;recommend a starting configuration that looks something like this, in pseudo code&lt;/p&gt;&#xA;&lt;pre&gt;&lt;code&gt;Header().Set(&amp;quot;Access-Control-Allow-Origin&amp;quot;, &amp;quot;*&amp;quot;)&#xA;Header().Set(&amp;quot;Access-Control-Allow-Methods&amp;quot;, &amp;quot;POST, GET, OPTIONS, PUT, DELETE&amp;quot;)&#xA;Header().Set(&amp;quot;Access-Control-Allow-Headers&amp;quot;, &amp;quot;Accept, Content-Type, Content-Length, Authorization&amp;quot;)&#xA;&lt;/code&gt;&lt;/pre&gt;&#xA;&lt;p&gt;This configuration works great and is the default I use; however, it does &lt;em&gt;not&lt;/em&gt; work if you need to receive and set cookies in the browser. This short blog post documents what I learnt&#xA;about working with cookies with CORS.&lt;/p&gt;</description>
     </item>
-    
     <item>
       <title>Messing with Nvidia GPU on Headless Linux</title>
-      <link>https://paul.mou.dev/posts/2021-12-29-nvidia-gpus/</link>
+      <link>/posts/2021-12-29-nvidia-gpus/</link>
       <pubDate>Wed, 29 Dec 2021 00:00:00 +0000</pubDate>
-      
-      <guid>https://paul.mou.dev/posts/2021-12-29-nvidia-gpus/</guid>
-      <description>I have a PC with Ubuntu server installed and Nvidia GPUs attached. I have Googled on and off for a while trying to learn how to overclock the GPUs without success.</description>
+      <guid>/posts/2021-12-29-nvidia-gpus/</guid>
+      <description>&lt;p&gt;I have a PC with Ubuntu server installed and Nvidia GPUs attached. I have Googled on and off for a while trying to learn how to overclock the GPUs without success.&lt;/p&gt;&#xA;&lt;p&gt;Finally, after gleaning bits and parts from different sources, I got power limit and overclocking working.&lt;/p&gt;&#xA;&lt;p&gt;Here are the steps required&lt;/p&gt;&#xA;&lt;h2 id=&#34;virtual-monitor&#34;&gt;Virtual Monitor&lt;/h2&gt;&#xA;&lt;p&gt;&lt;code&gt;nvidia-settings&lt;/code&gt; need a monitor attached in order to work. For headless linux, one needs a virtual monitor. After messing with xorg conf manually for a while, I found and forked &lt;a href=&#34;https://github.com/andyljones/coolgpus&#34;&gt;andyljones/coolgpus&lt;/a&gt; to automatically attach a virtual monitor for each GPU.&lt;/p&gt;</description>
     </item>
-    
     <item>
       <title>Improvements to &#34;m&#34;, a personal command line tool</title>
-      <link>https://paul.mou.dev/posts/dev-ux2/</link>
+      <link>/posts/dev-ux2/</link>
       <pubDate>Sat, 22 Feb 2020 00:00:00 +0000</pubDate>
-      
-      <guid>https://paul.mou.dev/posts/dev-ux2/</guid>
-      <description>From m to m2 Having used m for many years now, I encountered two primary problems.
-The first is startup performance.</description>
+      <guid>/posts/dev-ux2/</guid>
+      <description>&lt;h2 id=&#34;from-m-to-m2&#34;&gt;From m to m2&lt;/h2&gt;&#xA;&lt;p&gt;Having used &lt;code&gt;m&lt;/code&gt; for many years now, I encountered two primary problems.&lt;/p&gt;&#xA;&lt;p&gt;The first is startup performance. Even with lazy module loading (see &lt;a href=&#34;/posts/dev-ux&#34;&gt;here&lt;/a&gt;), calling &lt;code&gt;m&lt;/code&gt; without any subcommands still took ~250ms on my laptop.&lt;/p&gt;&#xA;&lt;p&gt;The second problem is code verbosity. To add a new command, one needs to create a new class in a separate file, import it in main, and finally instantiate the new class.&lt;/p&gt;</description>
     </item>
-    
     <item>
       <title>Training a Speaker Embedding from Scratch with Triplet Learning</title>
-      <link>https://paul.mou.dev/posts/speaker-embedding/</link>
+      <link>/posts/speaker-embedding/</link>
       <pubDate>Sat, 05 May 2018 23:01:25 -0700</pubDate>
-      
-      <guid>https://paul.mou.dev/posts/speaker-embedding/</guid>
-      <description>Posted on go.mou.dev/triplet-embedding-learning</description>
+      <guid>/posts/speaker-embedding/</guid>
+      <description>&lt;p&gt;Posted on &lt;a href=&#34;https://go.mou.dev/triplet-embedding-learning&#34;&gt;go.mou.dev/triplet-embedding-learning&lt;/a&gt;&lt;/p&gt;</description>
     </item>
-    
     <item>
       <title>ML paper notes</title>
-      <link>https://paul.mou.dev/notes/ml_notes/</link>
+      <link>/notes/ml_notes/</link>
       <pubDate>Fri, 01 Sep 2017 23:01:25 -0700</pubDate>
-      
-      <guid>https://paul.mou.dev/notes/ml_notes/</guid>
-      <description>2017-09 LEARNING FINE-GRAINED IMAGE SIMILARITY WITH DEEP RANKING describes efficient sampling technique based on reservoir sampling for building triplets; requires an relevance function multi scale CNN DEEP METRIC LEARNING USING TRIPLET NETWORK learns a semantic embedding; results show better discrimination vs siamese network (contrastive loss function) MSE softmax shows improved performance rather than simple binary softmax (see paper for def) feed a triplet of x, x1, x2 where x1 is same class as x and x2 is different DISTILLING THE KNOWLEDGE IN A NEURAL NETWORK explores compression technique of ensemble model into a single model Distillation softmax qi = exp(zi/T)/Sigma(j)(exp(zj/T) where z are logits and T is temperature T is usually 1 increasing T creates softer probability distribution knowledge is tranferred via training smaller/compressed model by targeting over softer target (ie temperature T &amp;gt; 1) from more cumbersome model small model trained with higher T as well but in prediction mode uses T = 1 tranfer training can be improved by using datasets with true label demonstrate distillation with minist dataset - tranfer works well even when smaller model trained by omitting certain numbers discusses using soft distribution target technique for training specialists on very large datasets Google internal JFT data of 100M images Questions teacher - student model, relation to curriculum learning?</description>
+      <guid>/notes/ml_notes/</guid>
+      <description>&lt;h3 id=&#34;2017-09&#34;&gt;2017-09&lt;/h3&gt;&#xA;&lt;h2 id=&#34;learning-fine-grained-image-similarity-with-deep-ranking&#34;&gt;LEARNING FINE-GRAINED IMAGE SIMILARITY WITH DEEP RANKING&lt;/h2&gt;&#xA;&lt;ul&gt;&#xA;&lt;li&gt;describes efficient sampling technique based on reservoir sampling for building triplets; requires an relevance function&lt;/li&gt;&#xA;&lt;li&gt;multi scale CNN&lt;/li&gt;&#xA;&lt;/ul&gt;&#xA;&lt;hr&gt;&#xA;&lt;h2 id=&#34;deep-metric-learning-using-triplet-network&#34;&gt;DEEP METRIC LEARNING USING TRIPLET NETWORK&lt;/h2&gt;&#xA;&lt;ul&gt;&#xA;&lt;li&gt;learns a semantic embedding; results show better discrimination vs siamese network (contrastive loss function)&lt;/li&gt;&#xA;&lt;li&gt;MSE softmax shows improved performance rather than simple binary softmax (see paper for def)&lt;/li&gt;&#xA;&lt;li&gt;feed a triplet of x, x1, x2 where x1 is same class as x and x2 is different&lt;/li&gt;&#xA;&lt;/ul&gt;&#xA;&lt;h2 id=&#34;distilling-the-knowledge-in-a-neural-network&#34;&gt;DISTILLING THE KNOWLEDGE IN A NEURAL NETWORK&lt;/h2&gt;&#xA;&lt;ul&gt;&#xA;&lt;li&gt;explores compression technique of ensemble model into a single model&lt;/li&gt;&#xA;&lt;li&gt;Distillation&#xA;&lt;ul&gt;&#xA;&lt;li&gt;softmax qi = exp(zi/T)/Sigma(j)(exp(zj/T) where z are logits and T is temperature&lt;/li&gt;&#xA;&lt;/ul&gt;&#xA;&lt;ul&gt;&#xA;&lt;li&gt;T is usually 1&lt;/li&gt;&#xA;&lt;li&gt;increasing T creates softer probability distribution&lt;/li&gt;&#xA;&lt;/ul&gt;&#xA;&lt;ul&gt;&#xA;&lt;li&gt;knowledge is tranferred via training smaller/compressed model by targeting over softer target (ie temperature T &amp;gt; 1) from more cumbersome model&lt;/li&gt;&#xA;&lt;li&gt;small model trained with higher T as well but in prediction mode uses T = 1&lt;/li&gt;&#xA;&lt;li&gt;tranfer training can be improved by using datasets with true label&lt;/li&gt;&#xA;&lt;/ul&gt;&#xA;&lt;/li&gt;&#xA;&lt;li&gt;demonstrate distillation with minist dataset - tranfer works well even when smaller model trained by omitting certain numbers&lt;/li&gt;&#xA;&lt;li&gt;discusses using soft distribution target technique for training specialists on very large datasets&lt;/li&gt;&#xA;&lt;li&gt;Google internal JFT data of 100M images&lt;/li&gt;&#xA;&lt;/ul&gt;&#xA;&lt;h4 id=&#34;questions&#34;&gt;Questions&lt;/h4&gt;&#xA;&lt;ul&gt;&#xA;&lt;li&gt;&#xA;&lt;p&gt;teacher - student model, relation to curriculum learning?&lt;/p&gt;</description>
     </item>
-    
     <item>
       <title>Tools</title>
-      <link>https://paul.mou.dev/notes/tools/</link>
+      <link>/notes/tools/</link>
       <pubDate>Fri, 01 Sep 2017 23:01:25 -0700</pubDate>
-      
-      <guid>https://paul.mou.dev/notes/tools/</guid>
-      <description>Fzf Amazing command line tool to fuzzy search for files. Cannot live without this. Also integrates with vim.
-https://github.com/junegunn/fzf
-Jq Swiss army knife for working with JSON on the command line</description>
+      <guid>/notes/tools/</guid>
+      <description>&lt;h2 id=&#34;fzf&#34;&gt;Fzf&lt;/h2&gt;&#xA;&lt;p&gt;Amazing command line tool to fuzzy search for files. Cannot live without this. Also integrates with vim.&lt;/p&gt;&#xA;&lt;p&gt;&lt;a href=&#34;https://github.com/junegunn/fzf&#34;&gt;https://github.com/junegunn/fzf&lt;/a&gt;&lt;/p&gt;&#xA;&lt;h2 id=&#34;jq&#34;&gt;Jq&lt;/h2&gt;&#xA;&lt;p&gt;Swiss army knife for working with JSON on the command line&lt;/p&gt;&#xA;&lt;p&gt;&lt;a href=&#34;https://github.com/stedolan/jq&#34;&gt;https://github.com/stedolan/jq&lt;/a&gt;&lt;/p&gt;&#xA;&lt;h2 id=&#34;pup&#34;&gt;Pup&lt;/h2&gt;&#xA;&lt;p&gt;Like Jq, but for HTML&lt;/p&gt;&#xA;&lt;p&gt;&lt;a href=&#34;https://github.com/ericchiang/pup&#34;&gt;https://github.com/ericchiang/pup&lt;/a&gt;&lt;/p&gt;&#xA;&lt;h2 id=&#34;silversearcher&#34;&gt;Silversearcher&lt;/h2&gt;&#xA;&lt;p&gt;Like grep, but better&lt;/p&gt;&#xA;&lt;p&gt;&lt;a href=&#34;https://github.com/ggreer/the_silver_searcher&#34;&gt;https://github.com/ggreer/the_silver_searcher&lt;/a&gt;&lt;/p&gt;</description>
     </item>
-    
     <item>
       <title>Developer Experience</title>
-      <link>https://paul.mou.dev/posts/dev-ux/</link>
+      <link>/posts/dev-ux/</link>
       <pubDate>Tue, 22 Aug 2017 23:01:25 -0700</pubDate>
-      
-      <guid>https://paul.mou.dev/posts/dev-ux/</guid>
-      <description>Commandline Productivity and Automation (aka make it easy to repeat) Developers tend to repeat themselves. A lot. This can be as innocuous as running a test manually after you update a test file or as insidious as deploying a newly built binary into production manually.</description>
+      <guid>/posts/dev-ux/</guid>
+      <description>&lt;h2 id=&#34;commandline-productivity-and-automation-aka-make-it-easy-to-repeat&#34;&gt;Commandline Productivity and Automation (aka make it easy to repeat)&lt;/h2&gt;&#xA;&lt;p&gt;Developers tend to repeat themselves. A lot. This can be as innocuous as running a test manually after you update a test file or as insidious as deploying a newly built binary into production manually. Nobody likes to repeat themselves over and over again. And for good reasons. Not only does it take time to repeatedly figure out all the parameters in a tricky command line program, it also increases stress when you are trying to fix outages as quickly as possible.&lt;/p&gt;</description>
     </item>
-    
   </channel>
 </rss>

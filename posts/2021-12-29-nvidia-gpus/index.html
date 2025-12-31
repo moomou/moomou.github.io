@@ -3,31 +3,44 @@
 <head>
 	<meta charset="utf-8" />
 	<meta http-equiv="X-UA-Compatible" content="IE=edge"><title>Messing with Nvidia GPU on Headless Linux - moomou</title><link rel="icon" type="image/png" href=favicon.ico /><meta name="viewport" content="width=device-width, initial-scale=1">
-	<meta property="og:title" content="Messing with Nvidia GPU on Headless Linux" />
-<meta property="og:description" content="I have a PC with Ubuntu server installed and Nvidia GPUs attached. I have Googled on and off for a while trying to learn how to overclock the GPUs without success." />
-<meta property="og:type" content="article" />
-<meta property="og:url" content="https://paul.mou.dev/posts/2021-12-29-nvidia-gpus/" /><meta property="article:section" content="posts" />
-<meta property="article:published_time" content="2021-12-29T00:00:00+00:00" />
-<meta property="article:modified_time" content="2021-12-29T00:00:00+00:00" />
-<meta name="twitter:card" content="summary"/>
-<meta name="twitter:title" content="Messing with Nvidia GPU on Headless Linux"/>
-<meta name="twitter:description" content="I have a PC with Ubuntu server installed and Nvidia GPUs attached. I have Googled on and off for a while trying to learn how to overclock the GPUs without success."/>
+	<meta property="og:url" content="/posts/2021-12-29-nvidia-gpus/">
+  <meta property="og:site_name" content="moomou">
+  <meta property="og:title" content="Messing with Nvidia GPU on Headless Linux">
+  <meta property="og:description" content="I have a PC with Ubuntu server installed and Nvidia GPUs attached. I have Googled on and off for a while trying to learn how to overclock the GPUs without success.
+Finally, after gleaning bits and parts from different sources, I got power limit and overclocking working.
+Here are the steps required
+Virtual Monitor nvidia-settings need a monitor attached in order to work. For headless linux, one needs a virtual monitor. After messing with xorg conf manually for a while, I found and forked andyljones/coolgpus to automatically attach a virtual monitor for each GPU.">
+  <meta property="og:locale" content="en_us">
+  <meta property="og:type" content="article">
+    <meta property="article:section" content="posts">
+    <meta property="article:published_time" content="2021-12-29T00:00:00+00:00">
+    <meta property="article:modified_time" content="2021-12-29T00:00:00+00:00">
+
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="Messing with Nvidia GPU on Headless Linux">
+  <meta name="twitter:description" content="I have a PC with Ubuntu server installed and Nvidia GPUs attached. I have Googled on and off for a while trying to learn how to overclock the GPUs without success.
+Finally, after gleaning bits and parts from different sources, I got power limit and overclocking working.
+Here are the steps required
+Virtual Monitor nvidia-settings need a monitor attached in order to work. For headless linux, one needs a virtual monitor. After messing with xorg conf manually for a while, I found and forked andyljones/coolgpus to automatically attach a virtual monitor for each GPU.">
 <link href="https://fonts.googleapis.com/css?family=Ubuntu:300,400,300italic,400italic|Raleway:200,300" rel="stylesheet">
 
-	<link rel="stylesheet" type="text/css" media="screen" href="https://paul.mou.dev/css/normalize.css" />
-	<link rel="stylesheet" type="text/css" media="screen" href="https://paul.mou.dev/css/main.css" /><link rel="stylesheet" type="text/css" href="https://paul.mou.dev/css/dark.css"  />
+	<link rel="stylesheet" type="text/css" media="screen" href="/css/normalize.css" />
+	<link rel="stylesheet" type="text/css" media="screen" href="/css/main.css" /><link rel="stylesheet" type="text/css" href="/css/dark.css"  />
 
 	<script src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js"></script>
-	<script src="https://paul.mou.dev/js/main.js"></script>
-	<script src="https://paul.mou.dev/js/abc.js"></script>
-	<script src="https://paul.mou.dev/js/xyz.js"></script>
+	<script src="/js/main.js"></script>
+	<script src="/js/abc.js"></script>
+	<script src="/js/xyz.js"></script>
 	<script src="https://code.jquery.com/jquery-3.4.1.js"></script>
+	
+	<link rel="stylesheet" type="text/css" href="/css/hugo_override_theme.css" />
+
 </head>
 
 <body>
 	<div class="container wrapper post">
 		<div class="header">
-	<h1 class="site-title"><a href="https://paul.mou.dev/">moomou</a></h1>
+	<h1 class="site-title"><a href="/">moomou</a></h1>
 	<div class="site-description"><h2>(ﾉ≧∇≦)ﾉ ﾐ ┸┸</h2><nav class="nav social">
 			<ul class="flat"><a href="https://github.com/moomou" title="Github"><i data-feather="github"></i></a></ul>
 		</nav>
@@ -35,10 +48,6 @@
 
 	<nav class="nav">
 		<ul class="flat">
-			
-			<li>
-				<a href="/">Home</a>
-			</li>
 			
 			<li>
 				<a href="/posts">All posts</a>
@@ -107,18 +116,12 @@
 </div>
 
 
-
-<script type="application/javascript">
-var doNotTrack = false;
-if (!doNotTrack) {
-	window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
-	ga('create', 'trackingcode', 'auto');
-	
-	ga('send', 'pageview');
-}
-</script>
-<script async src='https://www.google-analytics.com/analytics.js'></script>
-
-<script>feather.replace()</script>
+<script async src="https://www.googletagmanager.com/gtag/js?id=trackingcode"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'trackingcode');
+</script><script>feather.replace()</script>
 </body>
 </html>

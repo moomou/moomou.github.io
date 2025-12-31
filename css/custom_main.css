@@ -135,8 +135,8 @@ ul {
 .header .summary {
   font-size: 110%;
   line-height: 20px;
-  border-top: 1px solid #6666;
-  border-bottom: 1px solid #6666;
+  border-top: 1px solid rgba(102, 102, 102, 0.4);
+  border-bottom: 1px solid rgba(102, 102, 102, 0.4);
   max-width: 300px;
   padding: 5px;
   position: relative;
@@ -311,20 +311,18 @@ ul {
 }
 
 .version {
-  color: #fcfcfc;
+  color: rgb(252, 252, 252);
   font-size: 0.8em;
 }
 
 @media print {
   .print-only {
-    display: auto !important;
+    display: block !important;
   }
-
   .screen-only,
-#detailBtn {
+  #detailBtn {
     display: none !important;
   }
-
   .header .name {
     font-size: 52px;
   }
@@ -340,28 +338,22 @@ ul {
     margin: 0;
     font-size: 12px;
   }
-
   .job ul {
     display: block;
     margin-top: 10px;
   }
-
   .job .title {
     font-size: 17px;
   }
-
   .talent {
     margin: 2px 0;
   }
-
   .talent li {
     padding: 0px;
   }
-
   .class {
     float: left;
   }
-
   .job {
     margin-left: 0;
     margin-bottom: 0;
@@ -386,15 +378,12 @@ ul {
   .main {
     width: 85vw;
   }
-
   *[data-maingo] img {
     width: 32px;
   }
-
   .flex-container {
     flex-direction: column;
   }
-
   .header {
     flex-direction: column;
     flex-wrap: wrap;
@@ -408,22 +397,18 @@ ul {
   .header .summary {
     display: none;
   }
-
   .talent li.label {
     margin: 10px 0;
     padding-right: 100%;
   }
-
   .group .content {
     float: none;
     width: 100%;
     margin-left: 0;
   }
-
   .title {
     margin-bottom: 10px;
   }
-
   .group > .title {
     float: none;
     text-decoration: underline;
@@ -431,7 +416,6 @@ ul {
   .group > .title span {
     max-width: 100%;
   }
-
   .school {
     margin: 10px;
   }
@@ -454,31 +438,25 @@ ul {
     margin: 0;
     height: 100vh !important;
   }
-
   .print-only {
     display: block;
   }
-
   .screen-only,
-.skill img {
+  .skill img {
     display: none !important;
   }
-
   .school .degree {
     padding-left: 0 !important;
   }
-
   .job .title:after,
-.skill:before,
-.school:before,
-.skill:before {
+  .skill:before,
+  .school:before,
+  .skill:before {
     content: attr(data-print);
   }
-
   .main {
     width: auto !important;
   }
-
   .job {
     overflow: auto !important;
   }
@@ -500,27 +478,21 @@ ul {
     width: 90%;
     min-height: 12px;
   }
-
   .group {
     margin: 15px;
   }
-
   .skill {
     line-height: normal !important;
   }
-
   .project {
     margin-bottom: 0;
   }
-
   .project-icon {
     -webkit-print-color-adjust: exact;
   }
-
   .school .class {
     float: left !important;
   }
-
   .summary p {
     margin-top: 8px;
     margin-bottom: 8px;

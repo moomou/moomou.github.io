@@ -16,15 +16,12 @@
   .main {
     width: 85vw;
   }
-
   *[data-maingo] img {
     width: 32px;
   }
-
   .flex-container {
     flex-direction: column;
   }
-
   .header {
     flex-direction: column;
     flex-wrap: wrap;
@@ -38,22 +35,18 @@
   .header .summary {
     display: none;
   }
-
   .talent li.label {
     margin: 10px 0;
     padding-right: 100%;
   }
-
   .group .content {
     float: none;
     width: 100%;
     margin-left: 0;
   }
-
   .title {
     margin-bottom: 10px;
   }
-
   .group > .title {
     float: none;
     text-decoration: underline;
@@ -61,7 +54,6 @@
   .group > .title span {
     max-width: 100%;
   }
-
   .school {
     margin: 10px;
   }

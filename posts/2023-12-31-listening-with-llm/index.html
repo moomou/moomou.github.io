@@ -3,31 +3,40 @@
 <head>
 	<meta charset="utf-8" />
 	<meta http-equiv="X-UA-Compatible" content="IE=edge"><title>Listening with LLM - moomou</title><link rel="icon" type="image/png" href=favicon.ico /><meta name="viewport" content="width=device-width, initial-scale=1">
-	<meta property="og:title" content="Listening with LLM" />
-<meta property="og:description" content="Overview This is the first part of many posts I am writing to consolidate learnings on how to finetune Large Language Models (LLMs) to process audio, with the eventual goal of being able to build and host a LLM able to describe human voices." />
-<meta property="og:type" content="article" />
-<meta property="og:url" content="https://paul.mou.dev/posts/2023-12-31-listening-with-llm/" /><meta property="article:section" content="posts" />
-<meta property="article:published_time" content="2023-12-31T00:00:00+00:00" />
-<meta property="article:modified_time" content="2023-12-31T00:00:00+00:00" />
-<meta name="twitter:card" content="summary"/>
-<meta name="twitter:title" content="Listening with LLM"/>
-<meta name="twitter:description" content="Overview This is the first part of many posts I am writing to consolidate learnings on how to finetune Large Language Models (LLMs) to process audio, with the eventual goal of being able to build and host a LLM able to describe human voices."/>
+	<meta property="og:url" content="/posts/2023-12-31-listening-with-llm/">
+  <meta property="og:site_name" content="moomou">
+  <meta property="og:title" content="Listening with LLM">
+  <meta property="og:description" content="Overview This is the first part of many posts I am writing to consolidate learnings on how to finetune Large Language Models (LLMs) to process audio, with the eventual goal of being able to build and host a LLM able to describe human voices.
+I am motivated to gain hands-on experience tinkering LLMs so, as much as practical, I tried to recreate utilities and functions with pytorch from scratch rather than rely on 3rd party libraries.">
+  <meta property="og:locale" content="en_us">
+  <meta property="og:type" content="article">
+    <meta property="article:section" content="posts">
+    <meta property="article:published_time" content="2023-12-31T00:00:00+00:00">
+    <meta property="article:modified_time" content="2023-12-31T00:00:00+00:00">
+
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="Listening with LLM">
+  <meta name="twitter:description" content="Overview This is the first part of many posts I am writing to consolidate learnings on how to finetune Large Language Models (LLMs) to process audio, with the eventual goal of being able to build and host a LLM able to describe human voices.
+I am motivated to gain hands-on experience tinkering LLMs so, as much as practical, I tried to recreate utilities and functions with pytorch from scratch rather than rely on 3rd party libraries.">
 <link href="https://fonts.googleapis.com/css?family=Ubuntu:300,400,300italic,400italic|Raleway:200,300" rel="stylesheet">
 
-	<link rel="stylesheet" type="text/css" media="screen" href="https://paul.mou.dev/css/normalize.css" />
-	<link rel="stylesheet" type="text/css" media="screen" href="https://paul.mou.dev/css/main.css" /><link rel="stylesheet" type="text/css" href="https://paul.mou.dev/css/dark.css"  />
+	<link rel="stylesheet" type="text/css" media="screen" href="/css/normalize.css" />
+	<link rel="stylesheet" type="text/css" media="screen" href="/css/main.css" /><link rel="stylesheet" type="text/css" href="/css/dark.css"  />
 
 	<script src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js"></script>
-	<script src="https://paul.mou.dev/js/main.js"></script>
-	<script src="https://paul.mou.dev/js/abc.js"></script>
-	<script src="https://paul.mou.dev/js/xyz.js"></script>
+	<script src="/js/main.js"></script>
+	<script src="/js/abc.js"></script>
+	<script src="/js/xyz.js"></script>
 	<script src="https://code.jquery.com/jquery-3.4.1.js"></script>
+	
+	<link rel="stylesheet" type="text/css" href="/css/hugo_override_theme.css" />
+
 </head>
 
 <body>
 	<div class="container wrapper post">
 		<div class="header">
-	<h1 class="site-title"><a href="https://paul.mou.dev/">moomou</a></h1>
+	<h1 class="site-title"><a href="/">moomou</a></h1>
 	<div class="site-description"><h2>(ﾉ≧∇≦)ﾉ ﾐ ┸┸</h2><nav class="nav social">
 			<ul class="flat"><a href="https://github.com/moomou" title="Github"><i data-feather="github"></i></a></ul>
 		</nav>
@@ -35,10 +44,6 @@
 
 	<nav class="nav">
 		<ul class="flat">
-			
-			<li>
-				<a href="/">Home</a>
-			</li>
 			
 			<li>
 				<a href="/posts">All posts</a>
@@ -205,12 +210,12 @@ For the purpose of translating audio into embeddings, I only need the <code>Audi
 </span></span></code></pre></div><p>I adapted the Whisper AudioEncoder into a <code>TunableWhisperAudioEncoder</code> with an extra projection layer to map from Whisper&rsquo;s audio embedding (size 1280) to mistral&rsquo;s token embedding (size 4096).</p>
 <p>I ensured <code>proj</code> is the only trainable network by explicitly freezing the audio encoder&rsquo;s parameters. Note that <code>TrainableSubmodule</code> is a hyperparameter and any model that maps the output embedding to size 4096 will work. Later in the post, I will describe what I found to work for me.</p>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">TunableWhisperAudioEncoder</span>(nn<span style="color:#f92672">.</span>Module):
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> __init__(self, <span style="color:#f92672">*</span>, output_embedding_size<span style="color:#f92672">=</span><span style="color:#ae81ff">4096</span>):
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">__init__</span>(self, <span style="color:#f92672">*</span>, output_embedding_size<span style="color:#f92672">=</span><span style="color:#ae81ff">4096</span>):
 </span></span><span style="display:flex;"><span>        <span style="color:#e6db74">&#34;&#34;&#34;
 </span></span></span><span style="display:flex;"><span><span style="color:#e6db74">        args
 </span></span></span><span style="display:flex;"><span><span style="color:#e6db74">            output_embedding_size: int = 4096 / mistral default embedding size
 </span></span></span><span style="display:flex;"><span><span style="color:#e6db74">        &#34;&#34;&#34;</span>
-</span></span><span style="display:flex;"><span>        super()<span style="color:#f92672">.</span>__init__()
+</span></span><span style="display:flex;"><span>        super()<span style="color:#f92672">.</span><span style="color:#a6e22e">__init__</span>()
 </span></span><span style="display:flex;"><span>
 </span></span><span style="display:flex;"><span>        self<span style="color:#f92672">.</span>audio_encoder <span style="color:#f92672">=</span> load_whisper_v3_audio_encoder()
 </span></span><span style="display:flex;"><span>        self<span style="color:#f92672">.</span>proj <span style="color:#f92672">=</span> TrainableSubmodule(output_embedding_size<span style="color:#f92672">=</span>output_embedding_size)
@@ -239,8 +244,8 @@ For the purpose of translating audio into embeddings, I only need the <code>Audi
 </span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> m
 </span></span></code></pre></div><p>Finally, I build up the model I am going to use for training as follows</p>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">Model</span>(nn<span style="color:#f92672">.</span>Module):
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> __init__(self, audio_encoder: <span style="color:#e6db74">&#34;Whisper.AudioEncoder&#34;</span>, llm: <span style="color:#e6db74">&#34;Mistral&#34;</span>):
-</span></span><span style="display:flex;"><span>        super()<span style="color:#f92672">.</span>__init__()
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">__init__</span>(self, audio_encoder: <span style="color:#e6db74">&#34;Whisper.AudioEncoder&#34;</span>, llm: <span style="color:#e6db74">&#34;Mistral&#34;</span>):
+</span></span><span style="display:flex;"><span>        super()<span style="color:#f92672">.</span><span style="color:#a6e22e">__init__</span>()
 </span></span><span style="display:flex;"><span>
 </span></span><span style="display:flex;"><span>        self<span style="color:#f92672">.</span>audio_encoder <span style="color:#f92672">=</span> audio_encoder
 </span></span><span style="display:flex;"><span>        self<span style="color:#f92672">.</span>llm <span style="color:#f92672">=</span> llm
@@ -419,8 +424,8 @@ For the purpose of translating audio into embeddings, I only need the <code>Audi
 <img src="/weight_update.png" alt="Weight Update"/>
 <p>Keeping the setup as simple as possible, I found Adam (without momentum), a constant learning rate of 1.5e-3, and using the following simple <code>TrainableSubmodule</code>, I achieved stable training.</p>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">TrainableSubmodule</span>(nn<span style="color:#f92672">.</span>Module):
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> __init__(self, output_embedding_size<span style="color:#f92672">=</span><span style="color:#ae81ff">4096</span>):
-</span></span><span style="display:flex;"><span>        super()<span style="color:#f92672">.</span>__init__()
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">__init__</span>(self, output_embedding_size<span style="color:#f92672">=</span><span style="color:#ae81ff">4096</span>):
+</span></span><span style="display:flex;"><span>        super()<span style="color:#f92672">.</span><span style="color:#a6e22e">__init__</span>()
 </span></span><span style="display:flex;"><span>
 </span></span><span style="display:flex;"><span>        self<span style="color:#f92672">.</span>pool <span style="color:#f92672">=</span> nn<span style="color:#f92672">.</span>AdaptiveAvgPool1d(<span style="color:#ae81ff">250</span>)
 </span></span><span style="display:flex;"><span>        self<span style="color:#f92672">.</span>proj <span style="color:#f92672">=</span> nn<span style="color:#f92672">.</span>Linear(<span style="color:#ae81ff">1280</span>, output_embedding_size, bias<span style="color:#f92672">=</span><span style="color:#66d9ef">False</span>)
@@ -459,18 +464,12 @@ For the purpose of translating audio into embeddings, I only need the <code>Audi
 </div>
 
 
-
-<script type="application/javascript">
-var doNotTrack = false;
-if (!doNotTrack) {
-	window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
-	ga('create', 'trackingcode', 'auto');
-	
-	ga('send', 'pageview');
-}
-</script>
-<script async src='https://www.google-analytics.com/analytics.js'></script>
-
-<script>feather.replace()</script>
+<script async src="https://www.googletagmanager.com/gtag/js?id=trackingcode"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'trackingcode');
+</script><script>feather.replace()</script>
 </body>
 </html>

@@ -2,42 +2,45 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
   <url>
-    <loc>https://paul.mou.dev/posts/2023-12-31-listening-with-llm/</loc>
+    <loc>/</loc>
+    <lastmod>2025-12-29T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>/posts/2024-06-01-gd/</loc>
+    <lastmod>2025-12-29T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>/posts/</loc>
+    <lastmod>2025-12-29T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>/posts/2023-12-31-listening-with-llm/</loc>
     <lastmod>2023-12-31T00:00:00+00:00</lastmod>
   </url><url>
-    <loc>https://paul.mou.dev/</loc>
-    <lastmod>2023-12-31T00:00:00+00:00</lastmod>
-  </url><url>
-    <loc>https://paul.mou.dev/posts/</loc>
-    <lastmod>2023-12-31T00:00:00+00:00</lastmod>
-  </url><url>
-    <loc>https://paul.mou.dev/posts/2023-12-27-ohmy/</loc>
+    <loc>/posts/2023-12-27-ohmy/</loc>
     <lastmod>2023-12-27T00:00:00+00:00</lastmod>
   </url><url>
-    <loc>https://paul.mou.dev/posts/2022-08-13-cors-with-cookie/</loc>
+    <loc>/posts/2022-08-13-cors-with-cookie/</loc>
     <lastmod>2022-08-13T00:00:00+00:00</lastmod>
   </url><url>
-    <loc>https://paul.mou.dev/posts/2021-12-29-nvidia-gpus/</loc>
+    <loc>/posts/2021-12-29-nvidia-gpus/</loc>
     <lastmod>2021-12-29T00:00:00+00:00</lastmod>
   </url><url>
-    <loc>https://paul.mou.dev/posts/dev-ux2/</loc>
+    <loc>/posts/dev-ux2/</loc>
     <lastmod>2020-02-22T00:00:00+00:00</lastmod>
   </url><url>
-    <loc>https://paul.mou.dev/posts/speaker-embedding/</loc>
+    <loc>/posts/speaker-embedding/</loc>
     <lastmod>2018-05-05T23:01:25-07:00</lastmod>
   </url><url>
-    <loc>https://paul.mou.dev/notes/ml_notes/</loc>
+    <loc>/notes/ml_notes/</loc>
     <lastmod>2017-09-01T23:01:25-07:00</lastmod>
   </url><url>
-    <loc>https://paul.mou.dev/notes/</loc>
+    <loc>/notes/</loc>
     <lastmod>2017-09-01T23:01:25-07:00</lastmod>
   </url><url>
-    <loc>https://paul.mou.dev/notes/tools/</loc>
+    <loc>/notes/tools/</loc>
     <lastmod>2017-09-01T23:01:25-07:00</lastmod>
   </url><url>
-    <loc>https://paul.mou.dev/posts/dev-ux/</loc>
+    <loc>/posts/dev-ux/</loc>
     <lastmod>2017-08-22T23:01:25-07:00</lastmod>
   </url><url>
-    <loc>https://paul.mou.dev/tags/</loc>
+    <loc>/tags/</loc>
   </url>
 </urlset>

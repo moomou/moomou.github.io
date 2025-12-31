@@ -8,31 +8,25 @@
     margin: 0;
     height: 100vh !important;
   }
-
   .print-only {
     display: block;
   }
-
   .screen-only,
-.skill img {
+  .skill img {
     display: none !important;
   }
-
   .school .degree {
     padding-left: 0 !important;
   }
-
   .job .title:after,
-.skill:before,
-.school:before,
-.skill:before {
+  .skill:before,
+  .school:before,
+  .skill:before {
     content: attr(data-print);
   }
-
   .main {
     width: auto !important;
   }
-
   .job {
     overflow: auto !important;
   }
@@ -54,27 +48,21 @@
     width: 90%;
     min-height: 12px;
   }
-
   .group {
     margin: 15px;
   }
-
   .skill {
     line-height: normal !important;
   }
-
   .project {
     margin-bottom: 0;
   }
-
   .project-icon {
     -webkit-print-color-adjust: exact;
   }
-
   .school .class {
     float: left !important;
   }
-
   .summary p {
     margin-top: 8px;
     margin-bottom: 8px;
