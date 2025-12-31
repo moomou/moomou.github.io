@@ -10,6 +10,13 @@
     <lastBuildDate>Mon, 29 Dec 2025 00:00:00 +0000</lastBuildDate>
     <atom:link href="/posts/index.xml" rel="self" type="application/rss+xml" />
     <item>
+      <title>Learning about CT with Gemini</title>
+      <link>/posts/2025-12-29-learning-ct-with-gemini/</link>
+      <pubDate>Mon, 29 Dec 2025 00:00:00 +0000</pubDate>
+      <guid>/posts/2025-12-29-learning-ct-with-gemini/</guid>
+      <description>&lt;h2 id=&#34;overview&#34;&gt;Overview&lt;/h2&gt;&#xA;&lt;p&gt;Over the winter break, I was reviewing Fourier Transform and its various applications.&#xA;Fundamentally, Fourier Transform is about a shift in perspective - viewing the same data with a different lens makes some operations easier or faster. This piqued my curiosity about what other fundamental data transformations that I should be aware of. Like everyone since 2023, I jumped to my current preferred chatbot Gemini to learn more.&lt;/p&gt;&#xA;&lt;p&gt;There are a many! Gemini shared some common ones such as Principal Component Analysis (PCA), Log Transform, some I learnt briefly in school such as Laplace Transforms and Z-Transforms, but also some I know nothing about such as Radon Transform and Wavelet Transform.&lt;/p&gt;</description>
+    </item>
+    <item>
       <title>Navigating within a Mono Repo</title>
       <link>/posts/2024-06-01-gd/</link>
       <pubDate>Mon, 29 Dec 2025 00:00:00 +0000</pubDate>
