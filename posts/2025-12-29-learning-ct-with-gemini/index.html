@@ -6,7 +6,8 @@
 	<meta property="og:url" content="/posts/2025-12-29-learning-ct-with-gemini/">
   <meta property="og:site_name" content="moomou">
   <meta property="og:title" content="Learning about CT with Gemini">
-  <meta property="og:description" content="Overview # Over the winter break, I was reviewing Fourier Transform and its various applications. Fundamentally, Fourier Transform is about a shift in perspective - viewing the same data with a different lens makes some operations easier or faster. This piqued my curiosity about what other fundamental data transformations that I should be aware of. Like everyone since 2023, I jumped to my current preferred chatbot Gemini to learn more.">
+  <meta property="og:description" content="Overview Over the winter break, I was reviewing Fourier Transform and its various applications. Fundamentally, Fourier Transform is about a shift in perspective - viewing the same data with a different lens makes some operations easier or faster. This piqued my curiosity about what other fundamental data transformations that I should be aware of. Like everyone since 2023, I jumped to my current preferred chatbot Gemini to learn more.
+There are a many! Gemini shared some common ones such as Principal Component Analysis (PCA), Log Transform, some I learnt briefly in school such as Laplace Transforms and Z-Transforms, but also some I know nothing about such as Radon Transform and Wavelet Transform.">
   <meta property="og:locale" content="en_us">
   <meta property="og:type" content="article">
     <meta property="article:section" content="posts">
@@ -15,7 +16,8 @@
 
   <meta name="twitter:card" content="summary">
   <meta name="twitter:title" content="Learning about CT with Gemini">
-  <meta name="twitter:description" content="Overview # Over the winter break, I was reviewing Fourier Transform and its various applications. Fundamentally, Fourier Transform is about a shift in perspective - viewing the same data with a different lens makes some operations easier or faster. This piqued my curiosity about what other fundamental data transformations that I should be aware of. Like everyone since 2023, I jumped to my current preferred chatbot Gemini to learn more.">
+  <meta name="twitter:description" content="Overview Over the winter break, I was reviewing Fourier Transform and its various applications. Fundamentally, Fourier Transform is about a shift in perspective - viewing the same data with a different lens makes some operations easier or faster. This piqued my curiosity about what other fundamental data transformations that I should be aware of. Like everyone since 2023, I jumped to my current preferred chatbot Gemini to learn more.
+There are a many! Gemini shared some common ones such as Principal Component Analysis (PCA), Log Transform, some I learnt briefly in school such as Laplace Transforms and Z-Transforms, but also some I know nothing about such as Radon Transform and Wavelet Transform.">
 <link href="https://fonts.googleapis.com/css?family=Ubuntu:300,400,300italic,400italic|Raleway:200,300" rel="stylesheet">
 
 	<link rel="stylesheet" type="text/css" media="screen" href="/css/normalize.css" />
@@ -27,7 +29,7 @@
 	<script src="/js/xyz.js"></script>
 	<script src="https://code.jquery.com/jquery-3.4.1.js"></script>
 	
-	<link rel="stylesheet" type="text/css" href="/css/anchors.css" />
+	<link rel="stylesheet" type="text/css" href="/css/hugo_override_theme.css" />
 
 </head>
 
@@ -44,7 +46,7 @@
 		<ul class="flat">
 			
 			<li>
-				<a href="/">All posts</a>
+				<a href="/posts">All posts</a>
 			</li>
 			
 			<li>
@@ -69,7 +71,14 @@
         <nav id="TableOfContents">
   <ul>
     <li><a href="#overview">Overview</a></li>
-    <li><a href="#what-is-computed-tomography-ct-scan">What is Computed Tomography (CT) scan</a></li>
+    <li><a href="#radon-transform-sinograms-back-projections">Radon Transform, Sinograms, Back Projections</a>
+      <ul>
+        <li><a href="#what-is-radon-transform">What is Radon Transform</a></li>
+        <li><a href="#x-ray-physics">X Ray Physics</a></li>
+        <li><a href="#sinograms">Sinograms</a></li>
+        <li><a href="#back-projections">Back Projections</a></li>
+      </ul>
+    </li>
     <li><a href="#building-a-voxel-ct-scanner">Building a Voxel CT Scanner</a></li>
     <li><a href="#reflection">Reflection</a></li>
     <li><a href="#references">References</a></li>
@@ -79,122 +88,30 @@
     
 
 		<div class="markdown">
-			<h2 id="overview">
-  Overview
-  <a href="#overview" class="heading-anchor">#</a>
-</h2>
+			<h2 id="overview">Overview</h2>
 <p>Over the winter break, I was reviewing Fourier Transform and its various applications.
 Fundamentally, Fourier Transform is about a shift in perspective - viewing the same data with a different lens makes some operations easier or faster. This piqued my curiosity about what other fundamental data transformations that I should be aware of. Like everyone since 2023, I jumped to my current preferred chatbot Gemini to learn more.</p>
 <p>There are a many! Gemini shared some common ones such as Principal Component Analysis (PCA), Log Transform, some I learnt briefly in school such as Laplace Transforms and Z-Transforms, but also some I know nothing about such as Radon Transform and Wavelet Transform.</p>
 <p>This blog post is about my experience learning about Radon Transform and its application to computed tomography (CT) scan.</p>
 <blockquote>
-<p><strong>tl;dr</strong> I share the steps I took to learn about Radon Transform and CT scan to build a toy X ray in Threejs. I also share some reflections on process of learning and writing with LLM. You can find the Threejs app here: TODO</p>
+<p><strong>tl;dr</strong> I share the steps I took to learn about Radon Transform and CT scan and building a toy X ray in Threejs. I also share some reflections on process of learning and writing with LLM. You can find the Threejs app here: TODO</p>
 </blockquote>
 <details> **tl;dr** I chronicle and share the steps I took to learn how to finetune a LLM model to describe a given audio file on Google's MusicCaps dataset; you can also find the raw jupyter notebook [here](https://github.com/moomou/listening-with-llm/blob/master/voixdb_train_dev.ipynb) </details>
-<h2 id="what-is-computed-tomography-ct-scan">
-  What is Computed Tomography (CT) scan
-  <a href="#what-is-computed-tomography-ct-scan" class="heading-anchor">#</a>
-</h2>
-<p>Computed tomography (CT) scan is the application of shining X-rays through an object, recording the X-rays original and final energy level, rotated over the object 180 degrees to build a 3D scan of the invisible innards. Why X-ray? In short, X-ray have higher energy and smaller wavelength than normal, visible lights that allow X-ray to penetrat materials that normal lights cannot (<a href="https://en.wikipedia.org/wiki/Electromagnetic_spectrum#:~:text=Gamma%20rays%2C%20X%2Drays%2C,sufficient%20energy%20to%20ionize%20atoms.">ref</a>).</p>
-<p>Imagine shining an ideal, infinitesimally, all-penetrating ray (aka a line in Euclidean space) through human body at different angles, as shown in the image below.</p>
-<img src="/xray.svg" alt="X-ray through different angles"/>
-<p>As the ray penetrates different part of the objects (imagine X-ray hitting human skin, soft tissues, bones, etc), the intensity of the ray changes as some energy gets absorbed. If we know the exact intensity of the ray at each point of interest, we can then use that information to build a density image along the ray path. However, we can only measure ray&rsquo;s source intensity (I<sub>0</sub>) and final intensity (I<sub>1</sub>) at the detector.</p>
-<p><a href="https://en.wikipedia.org/wiki/Beer%E2%80%93Lambert_law">Beer–Lambert law</a> is the empirical relationship that describes the attentuation of radiation through a medium that relates these 2 quantities via</p>
-<math display="block">
-  <msub><mi>I</mi><mn>1</mn></msub>
-  <mo>=</mo>
-  <msub><mi>I</mi><mn>0</mn></msub>
-  <mo>·</mo>
-  <msup>
-    <mi>e</mi>
-    <mrow><mo>-</mo><mi>μ</mi><mi>d</mi></mrow>
-  </msup>
-</math>
-<br/>
-<p>where <code>d</code> is the distance traveled and <code>μ</code> is constant optical density of the body. However, for a human body, the density <code>μ</code> is not going to be a constant. Different body parts have different density. So the actual equation is more complicated</p>
-<math display="block">
-  <mrow>
-    <msub>
-      <mi>I</mi>
-      <mn>1</mn>
-    </msub>
-    <mo>=</mo>
-    <msub>
-      <mi>I</mi>
-      <mn>0</mn>
-    </msub>
-    <mo>⋅</mo>
-    <msup>
-      <mi>e</mi>
-      <mrow>
-        <mo>-</mo>
-        <msub>
-          <mo>∫</mo>
-          <mi>L</mi>
-        </msub>
-        <mi>μ</mi>
-        <mo>(</mo>
-        <mi>x</mi>
-        <mo>,</mo>
-        <mi>y</mi>
-        <mo>)</mo>
-        <mi>d</mi>
-        <mi>l</mi>
-      </mrow>
-    </msup>
-  </mrow>
-</math>
-<p>Move I<sub>0</sub> to the left side, take the natural log of both side, and handling the negative sign, we get</p>
-<math display="block">
-  <mrow>
-    <mi>ln</mi>
-    <mfenced>
-      <mfrac>
-        <msub>
-          <mi>I</mi>
-          <mn>0</mn>
-        </msub>
-        <msub>
-          <mi>I</mi>
-          <mn>1</mn>
-        </msub>
-      </mfrac>
-    </mfenced>
-    <mo>=</mo>
-    <msub>
-      <mo>∫</mo>
-      <mi>L</mi>
-    </msub>
-    <mi>μ</mi>
-    <mo>(</mo>
-    <mi>x</mi>
-    <mo>,</mo>
-    <mi>y</mi>
-    <mo>)</mo>
-    <mi>d</mi>
-    <mi>l</mi>
-  </mrow>
-</math>
-<p>If we can somehow solve for <code>μ</code>, we can then obtain the density at each X and Y coordinate. As it turns out, the right hand side is the Radon transform of a line (aka the ray projection) in the X and Y plane. Briefly, radon tranform is an integral transform that sums up the values along a line - ie it maps a line to a point in 2D. Because the cartesian equation of a line <code>y = mx + b</code> cannot deal with vertical lines, Radon transform describes a line using the angle from the origin (θ) and perpendicular distance from origin to the line (ρ). As always, the actual math is more complicated so interested readers should consult their favorite Chatbot or Wikipedia for more information.</p>
-<p>The key takeaway here is armed with ray intensities I<sub>0</sub> and I<sub>1</sub>, applying Beer-Lambert law results in Radon transforms of the density function traced by X rays in coordinates (θ, ρ) - &ldquo;the sinograms&rdquo;. This means we can apply the inverse Radon transform to solve <code>μ</code>.</p>
-<p>The classic inverse Radon projection is the Filtered Back Projection (FBP), which relies on the <a href="https://en.wikipedia.org/wiki/Projection-slice_theorem">Central Slice Theorem</a> to relate the 1D Fourier Transform of a Radon Transformed function with the 2D Fourier Transform for applying the ramp filter to fix blurring when projecting from Radon</p>
-<h2 id="building-a-voxel-ct-scanner">
-  Building a Voxel CT Scanner
-  <a href="#building-a-voxel-ct-scanner" class="heading-anchor">#</a>
-</h2>
+<h2 id="radon-transform-sinograms-back-projections">Radon Transform, Sinograms, Back Projections</h2>
+<p>// link references</p>
+<h3 id="what-is-radon-transform">What is Radon Transform</h3>
+<h3 id="x-ray-physics">X Ray Physics</h3>
+<h3 id="sinograms">Sinograms</h3>
+<h3 id="back-projections">Back Projections</h3>
+<h2 id="building-a-voxel-ct-scanner">Building a Voxel CT Scanner</h2>
 <p>// App here</p>
 <p>// Discuss tricky implementations</p>
-<h2 id="reflection">
-  Reflection
-  <a href="#reflection" class="heading-anchor">#</a>
-</h2>
+<h2 id="reflection">Reflection</h2>
 <p>I am amazed at what I was able to build over a weekend with an interactive teacher like Gemini, having no prior knowledge about CT scan and Threejs. Almost felt like that I had superpower! However, such superpower is not without its downsides. During the course of my learning, I constantly asked myself what&rsquo;s the point of building the Threejs app? Was I actually learning? Or was I simply reaping dopamine rewards without increasing my skills? Gemini generated a lot of code and definitely could have built the whole thing in one minute.</p>
 <p>I was only able to alleviate some of that anxiety by deliberately avoiding some of Gemini&rsquo;s eager help. Forcing myself to write the 2D X ray projection function allowed me to build a mental model for sinograms and ray projections. Only then was I able to onvince myself that I was learning. I am not envious of today&rsquo;s students - it&rsquo;s all too easy to cheat and avoid the hardwork.</p>
 <aside>Using Geminit to generate boilerplates such as setting Threejs scene and plotting on HTML canvas is great accelerator that I have no qualms about using!</aside>
-<h2 id="references">
-  References
-  <a href="#references" class="heading-anchor">#</a>
-</h2>
+<h2 id="references">References</h2>
+<p>[1]</p>
 
 		</div>
 

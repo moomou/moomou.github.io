@@ -6,7 +6,7 @@
 	<meta property="og:url" content="/posts/2022-08-13-cors-with-cookie/">
   <meta property="og:site_name" content="moomou">
   <meta property="og:title" content="CORS with Cookie">
-  <meta property="og:description" content="Introduction # CORS stands for Cross-Origin-Resource-Sharing and is the HTTP mechanism to allow servers to accept requests from other host locations other than its own.
+  <meta property="og:description" content="Introduction CORS stands for Cross-Origin-Resource-Sharing and is the HTTP mechanism to allow servers to accept requests from other host locations other than its own.
 Getting CORS up and running is not difficult. There are plenty of posts online that will recommend a starting configuration that looks something like this, in pseudo code
 Header().Set(&#34;Access-Control-Allow-Origin&#34;, &#34;*&#34;) Header().Set(&#34;Access-Control-Allow-Methods&#34;, &#34;POST, GET, OPTIONS, PUT, DELETE&#34;) Header().Set(&#34;Access-Control-Allow-Headers&#34;, &#34;Accept, Content-Type, Content-Length, Authorization&#34;) This configuration works great and is the default I use; however, it does not work if you need to receive and set cookies in the browser. This short blog post documents what I learnt about working with cookies with CORS.">
   <meta property="og:locale" content="en_us">
@@ -17,7 +17,7 @@ Header().Set(&#34;Access-Control-Allow-Origin&#34;, &#34;*&#34;) Header().Set(&#
 
   <meta name="twitter:card" content="summary">
   <meta name="twitter:title" content="CORS with Cookie">
-  <meta name="twitter:description" content="Introduction # CORS stands for Cross-Origin-Resource-Sharing and is the HTTP mechanism to allow servers to accept requests from other host locations other than its own.
+  <meta name="twitter:description" content="Introduction CORS stands for Cross-Origin-Resource-Sharing and is the HTTP mechanism to allow servers to accept requests from other host locations other than its own.
 Getting CORS up and running is not difficult. There are plenty of posts online that will recommend a starting configuration that looks something like this, in pseudo code
 Header().Set(&#34;Access-Control-Allow-Origin&#34;, &#34;*&#34;) Header().Set(&#34;Access-Control-Allow-Methods&#34;, &#34;POST, GET, OPTIONS, PUT, DELETE&#34;) Header().Set(&#34;Access-Control-Allow-Headers&#34;, &#34;Accept, Content-Type, Content-Length, Authorization&#34;) This configuration works great and is the default I use; however, it does not work if you need to receive and set cookies in the browser. This short blog post documents what I learnt about working with cookies with CORS.">
 <link href="https://fonts.googleapis.com/css?family=Ubuntu:300,400,300italic,400italic|Raleway:200,300" rel="stylesheet">
@@ -31,7 +31,7 @@ Header().Set(&#34;Access-Control-Allow-Origin&#34;, &#34;*&#34;) Header().Set(&#
 	<script src="/js/xyz.js"></script>
 	<script src="https://code.jquery.com/jquery-3.4.1.js"></script>
 	
-	<link rel="stylesheet" type="text/css" href="/css/anchors.css" />
+	<link rel="stylesheet" type="text/css" href="/css/hugo_override_theme.css" />
 
 </head>
 
@@ -71,10 +71,7 @@ Header().Set(&#34;Access-Control-Allow-Origin&#34;, &#34;*&#34;) Header().Set(&#
     
 
 		<div class="markdown">
-			<h1 id="introduction">
-  Introduction
-  <a href="#introduction" class="heading-anchor">#</a>
-</h1>
+			<h1 id="introduction">Introduction</h1>
 <p>CORS stands for Cross-Origin-Resource-Sharing and is the HTTP mechanism to
 allow servers to accept requests from other host locations other than its own.</p>
 <p>Getting CORS up and running is not difficult. There are plenty of posts online that will
@@ -85,10 +82,7 @@ Header().Set(&quot;Access-Control-Allow-Headers&quot;, &quot;Accept, Content-Typ
 </code></pre>
 <p>This configuration works great and is the default I use; however, it does <em>not</em> work if you need to receive and set cookies in the browser. This short blog post documents what I learnt
 about working with cookies with CORS.</p>
-<h1 id="setting-cookies">
-  Setting Cookies
-  <a href="#setting-cookies" class="heading-anchor">#</a>
-</h1>
+<h1 id="setting-cookies">Setting Cookies</h1>
 <p>When I needed to set cookies in a server accessed behind CORS, I didn&rsquo;t think anything special was needed as the CORS requests were completing without errors.</p>
 <p>Cookies was not getting set however. It turned that browsers (tested on Chrome and Firefox) <em>SILENTLY</em> ignore cookie headers if CORS is not configured correctly.</p>
 <p>Due to the lack of errors from browsers, it was not clear to me at first why cookie headers were not
@@ -101,10 +95,7 @@ must <strong>not</strong> specify <code>*</code> and instead needs to specify th
 <pre><code>Header().Set(&quot;Access-Control-Allow-Origin&quot;, IncomingRequest.Host)
 </code></pre>
 <p>After this configuration change, setting cookie via CORS worked.</p>
-<h1 id="receiving-cookies">
-  Receiving Cookies
-  <a href="#receiving-cookies" class="heading-anchor">#</a>
-</h1>
+<h1 id="receiving-cookies">Receiving Cookies</h1>
 <p>Now that we can set cookies, receiving cookies on the server should just work automatically, right?</p>
 <p>Almost. Fixing the CORS header <code>Access-Control-Allow-Origin</code> is a pre-requisite to setting and receiving
 cookies but turned out two more configuration updates are required.</p>
@@ -112,10 +103,7 @@ cookies but turned out two more configuration updates are required.</p>
 to make a request with cookies, which by default is not forwarded (presumably for security reasons).</p>
 <p>Second, backend server needs to reply with <code>Access-Control-Allow-Credentials: true</code> or else the response
 will be dropped.</p>
-<h1 id="summary">
-  Summary
-  <a href="#summary" class="heading-anchor">#</a>
-</h1>
+<h1 id="summary">Summary</h1>
 <p>Interacting with cookie with CORS now works as expected, after many trials and errors, all of which could have been avoided had I read Mozill&rsquo;s excellent MDN docs <a href="https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS">https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS</a> first. Oh well</p>
 
 		</div>

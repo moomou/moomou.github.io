@@ -6,7 +6,7 @@
 	<meta property="og:url" content="/posts/2023-12-31-listening-with-llm/">
   <meta property="og:site_name" content="moomou">
   <meta property="og:title" content="Listening with LLM">
-  <meta property="og:description" content="Overview # This is the first part of many posts I am writing to consolidate learnings on how to finetune Large Language Models (LLMs) to process audio, with the eventual goal of being able to build and host a LLM able to describe human voices.
+  <meta property="og:description" content="Overview This is the first part of many posts I am writing to consolidate learnings on how to finetune Large Language Models (LLMs) to process audio, with the eventual goal of being able to build and host a LLM able to describe human voices.
 I am motivated to gain hands-on experience tinkering LLMs so, as much as practical, I tried to recreate utilities and functions with pytorch from scratch rather than rely on 3rd party libraries.">
   <meta property="og:locale" content="en_us">
   <meta property="og:type" content="article">
@@ -16,7 +16,7 @@ I am motivated to gain hands-on experience tinkering LLMs so, as much as practic
 
   <meta name="twitter:card" content="summary">
   <meta name="twitter:title" content="Listening with LLM">
-  <meta name="twitter:description" content="Overview # This is the first part of many posts I am writing to consolidate learnings on how to finetune Large Language Models (LLMs) to process audio, with the eventual goal of being able to build and host a LLM able to describe human voices.
+  <meta name="twitter:description" content="Overview This is the first part of many posts I am writing to consolidate learnings on how to finetune Large Language Models (LLMs) to process audio, with the eventual goal of being able to build and host a LLM able to describe human voices.
 I am motivated to gain hands-on experience tinkering LLMs so, as much as practical, I tried to recreate utilities and functions with pytorch from scratch rather than rely on 3rd party libraries.">
 <link href="https://fonts.googleapis.com/css?family=Ubuntu:300,400,300italic,400italic|Raleway:200,300" rel="stylesheet">
 
@@ -29,7 +29,7 @@ I am motivated to gain hands-on experience tinkering LLMs so, as much as practic
 	<script src="/js/xyz.js"></script>
 	<script src="https://code.jquery.com/jquery-3.4.1.js"></script>
 	
-	<link rel="stylesheet" type="text/css" href="/css/anchors.css" />
+	<link rel="stylesheet" type="text/css" href="/css/hugo_override_theme.css" />
 
 </head>
 
@@ -91,19 +91,13 @@ I am motivated to gain hands-on experience tinkering LLMs so, as much as practic
     
 
 		<div class="markdown">
-			<h2 id="overview">
-  Overview
-  <a href="#overview" class="heading-anchor">#</a>
-</h2>
+			<h2 id="overview">Overview</h2>
 <p>This is the first part of many posts I am writing to consolidate learnings on how to finetune Large Language Models (LLMs) to process audio, with the eventual goal of being able to build and host a LLM able to describe human voices.</p>
 <p>I am motivated to gain hands-on experience tinkering LLMs so, as much as practical, I tried to recreate utilities and functions with pytorch from scratch rather than rely on 3rd party libraries.</p>
 <blockquote>
 <p><strong>tl;dr</strong> I chronicle and share the steps I took to learn how to finetune a LLM model to describe a given audio file on Google&rsquo;s MusicCaps dataset; you can also find the raw jupyter notebook <a href="https://github.com/moomou/listening-with-llm/blob/master/voixdb_train_dev.ipynb">here</a></p>
 </blockquote>
-<h2 id="background">
-  Background
-  <a href="#background" class="heading-anchor">#</a>
-</h2>
+<h2 id="background">Background</h2>
 <p>Recently, I came across two papers</p>
 <ul>
 <li><a href="https://arxiv.org/abs/2310.13289">SALMONN: Towards Generic Hearing Abilities for Large Language Models</a></li>
@@ -114,23 +108,14 @@ I am motivated to gain hands-on experience tinkering LLMs so, as much as practic
 <p>In SALMONN&rsquo;s case, they combined <a href="https://github.com/openai/whisper">OpenAI&rsquo;s Whisper</a> and <a href="https://arxiv.org/abs/2212.09058">BEATS encoder</a>, performed pretraining on the combined encoder, then leveraged <a href="https://arxiv.org/abs/2106.09685">LoRA</a> for finetuning the LLM. Qwen-Audio bootstrapped its audio encoder from OpenAI&rsquo;s Whisper; after pretraining, Qwen-Audio performs a full finetuning on the LLM.</p>
 <p>These two papers gave me a great overview on how to adapt cross domain encoders and combine them with LLMs.
 Excited by the idea of a LLM with general audio understanding ability and itching to gain hands-on experience, I decided to try and build a minimal viable LLM with audio processing capability.</p>
-<h2 id="setup">
-  Setup
-  <a href="#setup" class="heading-anchor">#</a>
-</h2>
+<h2 id="setup">Setup</h2>
 <p>To get started, I hopped over to HuggingFace to find a good base LLM and a medium-sized dataset. I wanted to do as much work locally as possible so everythign must run on a local RTX 3090.</p>
 <p>After testing and comparing a few different models, I settled on <a href="https://huggingface.co/Open-Orca/Mistral-7B-OpenOrca">Mistral OpenOrca</a>.</p>
 <p>For audio encoder, I went with <a href="https://github.com/openai/whisper">OpenAI&rsquo;s Whisper</a>.</p>
 <p>For dataset, I chose <a href="https://huggingface.co/datasets/google/MusicCaps">MusicCaps</a>. I did not see any convenient links to download processed/segmented audio files, so I wrote a <a href="https://gist.github.com/moomou/d5ff6af6716d20b33026f53f209502af">small script</a> to download the Youtube videos.</p>
-<h2 id="one-mini-step-at-a-time">
-  One Mini Step at a Time
-  <a href="#one-mini-step-at-a-time" class="heading-anchor">#</a>
-</h2>
+<h2 id="one-mini-step-at-a-time">One Mini Step at a Time</h2>
 <p>With the basic dependencies out of the way, I fired up my Jupyter notebook and started tinkering.</p>
-<h3 id="sampling-from-scratch">
-  Sampling from Scratch
-  <a href="#sampling-from-scratch" class="heading-anchor">#</a>
-</h3>
+<h3 id="sampling-from-scratch">Sampling from Scratch</h3>
 <p>The first step I took is to ensure I can load the base LLM and perform inference correctly. Instead of leveraging transformers library&rsquo;s <a href="https://huggingface.co/docs/transformers/main_classes/text_generation#generation">generation utilities</a>, I implemented my own sampling function to verify my understanding as well as to learn how to sample using embeddings directly, which will come in handy when feeding in audio embeddings.</p>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#a6e22e">@torch.no_grad</span>
 </span></span><span style="display:flex;"><span><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">sampler</span>(input_ids):
@@ -150,10 +135,7 @@ Excited by the idea of a LLM with general audio understanding ability and itchin
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span>tokenizer<span style="color:#f92672">.</span>decode(sampler(tokenizer(<span style="color:#e6db74">&#34;tell me a story&#34;</span>, return_tensors<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;pt&#34;</span>)<span style="color:#f92672">.</span>input_ids<span style="color:#f92672">.</span>to(<span style="color:#e6db74">&#34;cuda:0&#34;</span>))[<span style="color:#ae81ff">0</span>])
 </span></span></code></pre></div><p>yields (as an example output)</p>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>&#39;&lt;s&gt;tell me a story is a film and video production company, tell me a story is a concept that was created to allow people to come together through the power of storytelling.\n and so, with this massive power in storytelling, the founders and creat&#39;
-</span></span></code></pre></div><h3 id="debugging-nans-and-infs">
-  Debugging NaNs and Infs
-  <a href="#debugging-nans-and-infs" class="heading-anchor">#</a>
-</h3>
+</span></span></code></pre></div><h3 id="debugging-nans-and-infs">Debugging NaNs and Infs</h3>
 <p>So far so good. However, I soon noticed that, occasionally, the sampling function would fail by complaining that softmax function encountered an <code>inf</code> or <code>NaN</code>. I followed this <a href="https://github.com/TimDettmers/bitsandbytes/issues/165#issuecomment-1560496240">insightful thread</a> and learnt to identify the source of <code>NaN</code> by using the following adapted Pytorch hooks</p>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#f92672">import</span> torch
 </span></span><span style="display:flex;"><span><span style="color:#f92672">from</span> functools <span style="color:#f92672">import</span> partial
@@ -212,10 +194,7 @@ Excited by the idea of a LLM with general audio understanding ability and itchin
 </span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">else</span>:
 </span></span><span style="display:flex;"><span>        pbytype[p<span style="color:#f92672">.</span>dtype] <span style="color:#f92672">+=</span> <span style="color:#ae81ff">1</span>
 </span></span><span style="display:flex;"><span>print(<span style="color:#e6db74">&#34;OK&#34;</span>, pbytype)
-</span></span></code></pre></div><h3 id="adapting-whisper-to-mistral">
-  Adapting Whisper to Mistral
-  <a href="#adapting-whisper-to-mistral" class="heading-anchor">#</a>
-</h3>
+</span></span></code></pre></div><h3 id="adapting-whisper-to-mistral">Adapting Whisper to Mistral</h3>
 <p>After gaining confidence with debugging Pytorch modules, I focused on adapting Whisper model so audio files can be transformed into an embedding that can then be fed into Mistral.</p>
 <p>OpenAI&rsquo;s Whisper <a href="https://github.com/openai/whisper/blob/ba3f3cd54b0e5b8ce1ab3de13e32122d0d5f98ab/whisper/model.py#L225-L238">model</a> is composed of two major components, an <code>AudioEncoder</code> and a <code>TextDecoder</code>.
 For the purpose of translating audio into embeddings, I only need the <code>AudioEncoder</code> component.</p>
@@ -323,10 +302,7 @@ For the purpose of translating audio into embeddings, I only need the <code>Audi
 </span></span><span style="display:flex;"><span>
 </span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> mout, audio_embeds<span style="color:#f92672">.</span>shape[<span style="color:#ae81ff">1</span>]
 </span></span></code></pre></div><p>The model itself is quite simple in that it simply holds reference to the Mistral LLM and <code>TunableWhisperAudioEncoder</code>. The <code>forward</code> method encapsulates the logic of converting audio mel-spectrogram into audio embeddings, then concatenating the audio embeddings with text/token embeddings to feeding those into Mistral LLM.</p>
-<h3 id="sampling-with-audio-from-scratch">
-  Sampling with Audio from Scratch
-  <a href="#sampling-with-audio-from-scratch" class="heading-anchor">#</a>
-</h3>
+<h3 id="sampling-with-audio-from-scratch">Sampling with Audio from Scratch</h3>
 <p>With the basic model in place, the next step is to try and sample from this model with audio inputs. Here is the audio sampling function I came up with.</p>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#75715e"># note, full gist is available at https://gist.github.com/moomou/7df8345d79a0063d67d1fa2b4cf55db8</span>
 </span></span><span style="display:flex;"><span>
@@ -421,10 +397,7 @@ For the purpose of translating audio into embeddings, I only need the <code>Audi
 <pre style="white-space : pre-wrap !important;">
 '&lt;s&gt; &lt;|im_start|&gt;  system\n    You are a helpful AI who follows instruction carefully&lt;|im_end|&gt; &lt;|im_start|&gt;  user\n    Describe the sound of the given file \n    &lt;|im_end|&gt; &lt;|im_start|&gt;  assistant\n     war&lt;|im_end|&gt; clockunits ]andfirst4Iftektime爆R Cur&lt;|im_end|&gt; United&lt;|im_end|&gt; ’daysIn“Never&lt;|im_end|&gt; thenAnd,and VI&lt;|im_end|&gt; Islo&lt;|im_end|&gt; GOkaydown&lt;|im_end|&gt; JainteYoulfailedLabelsEvenfacevC,rest&lt;|im_end|&gt;&lt;|im_end|&gt;&lt;|im_end|&gt;&lt;|im_end|&gt; q&lt;|im_end|&gt; Xs&lt;|im_end|&gt; h&lt;|im_end|&gt;&lt;|im_end|&gt;'
 </pre>
-<h3 id="defining-loss-function">
-  Defining Loss Function
-  <a href="#defining-loss-function" class="heading-anchor">#</a>
-</h3>
+<h3 id="defining-loss-function">Defining Loss Function</h3>
 <p>The loss function here is the standard cross entropy loss on the logits output; the only trick is that the loss should only be calculated on the caption portion. Specifically,</p>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#75715e"># calculate loss</span>
 </span></span><span style="display:flex;"><span><span style="color:#75715e"># local_batch: (b, seq, C)</span>
@@ -445,10 +418,7 @@ For the purpose of translating audio into embeddings, I only need the <code>Audi
 </span></span><span style="display:flex;"><span>loss <span style="color:#f92672">=</span> nn<span style="color:#f92672">.</span>functional<span style="color:#f92672">.</span>cross_entropy(
 </span></span><span style="display:flex;"><span>    logits<span style="color:#f92672">.</span>view(<span style="color:#f92672">-</span><span style="color:#ae81ff">1</span>, logits<span style="color:#f92672">.</span>shape[<span style="color:#f92672">-</span><span style="color:#ae81ff">1</span>]), targets<span style="color:#f92672">.</span>view(<span style="color:#f92672">-</span><span style="color:#ae81ff">1</span>)
 </span></span><span style="display:flex;"><span>)
-</span></span></code></pre></div><h3 id="training-overfitting-and-debugging-gradients">
-  Training, Overfitting and Debugging Gradients
-  <a href="#training-overfitting-and-debugging-gradients" class="heading-anchor">#</a>
-</h3>
+</span></span></code></pre></div><h3 id="training-overfitting-and-debugging-gradients">Training, Overfitting and Debugging Gradients</h3>
 <p>Finally, all the pieces are in place for training the model. The objective I had in mind is to make the frozen LLM describe a given audio file by training only <code>TunableWhisperAudioEncoder</code>; achieving this will not give LLM general audio understanding ability since the training data is small but will give me great confidence that I performed all the basic steps right.</p>
 <p>In order to ensure training is setup correctly, I started small and one step at a time. Specifically, I interactively stepped through the training steps manually, recorded and plotted the weight update relative to weight data in <code>TunableWhisperAudioEncoder</code>, and ensured there is no <code>inf</code> or <code>NaN</code> using the Pytorch hooks described previously. These steps were repeated for varous combination of learning rate, model architecture, and optimizer.</p>
 <img src="/weight_update.png" alt="Weight Update"/>
@@ -472,17 +442,11 @@ For the purpose of translating audio into embeddings, I only need the <code>Audi
 </pre>
 <p>The result is <em>pretty</em> good!</p>
 <p>It&rsquo;s worth repeating this is achieved by only training on the audio encoder projection without modifying the LLM weights or the Whisper AudioEncoder weights.</p>
-<h2 id="next-steps">
-  Next Steps
-  <a href="#next-steps" class="heading-anchor">#</a>
-</h2>
+<h2 id="next-steps">Next Steps</h2>
 <p>With the fundamentals in place, I am planning to scale up training by incorporating more audio tasks such as transcription, speaker identification, etc. as well as apply finetuning to LLM to work my way toward replicating &ldquo;emergent&rdquo; behaviors described in the referenced papers.</p>
 <p>Assuming sufficient data and with a proper training regime, LLM should be able to perform original audio tasks such as say identify the speaker age or gender without having been explicitly trained on such task.</p>
 <p>More work to be done!</p>
-<h2 id="acknowledgement">
-  Acknowledgement
-  <a href="#acknowledgement" class="heading-anchor">#</a>
-</h2>
+<h2 id="acknowledgement">Acknowledgement</h2>
 <p>I would not have been able to do any of this without learning from the <a href="https://github.com/karpathy/nn-zero-to-hero/">excellent lectures by Karpathy</a>.</p>
 
 		</div>

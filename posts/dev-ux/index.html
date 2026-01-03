@@ -6,7 +6,7 @@
 	<meta property="og:url" content="/posts/dev-ux/">
   <meta property="og:site_name" content="moomou">
   <meta property="og:title" content="Developer Experience">
-  <meta property="og:description" content="Commandline Productivity and Automation (aka make it easy to repeat) # Developers tend to repeat themselves. A lot. This can be as innocuous as running a test manually after you update a test file or as insidious as deploying a newly built binary into production manually. Nobody likes to repeat themselves over and over again. And for good reasons. Not only does it take time to repeatedly figure out all the parameters in a tricky command line program, it also increases stress when you are trying to fix outages as quickly as possible.">
+  <meta property="og:description" content="Commandline Productivity and Automation (aka make it easy to repeat) Developers tend to repeat themselves. A lot. This can be as innocuous as running a test manually after you update a test file or as insidious as deploying a newly built binary into production manually. Nobody likes to repeat themselves over and over again. And for good reasons. Not only does it take time to repeatedly figure out all the parameters in a tricky command line program, it also increases stress when you are trying to fix outages as quickly as possible.">
   <meta property="og:locale" content="en_us">
   <meta property="og:type" content="article">
     <meta property="article:section" content="posts">
@@ -15,7 +15,7 @@
 
   <meta name="twitter:card" content="summary">
   <meta name="twitter:title" content="Developer Experience">
-  <meta name="twitter:description" content="Commandline Productivity and Automation (aka make it easy to repeat) # Developers tend to repeat themselves. A lot. This can be as innocuous as running a test manually after you update a test file or as insidious as deploying a newly built binary into production manually. Nobody likes to repeat themselves over and over again. And for good reasons. Not only does it take time to repeatedly figure out all the parameters in a tricky command line program, it also increases stress when you are trying to fix outages as quickly as possible.">
+  <meta name="twitter:description" content="Commandline Productivity and Automation (aka make it easy to repeat) Developers tend to repeat themselves. A lot. This can be as innocuous as running a test manually after you update a test file or as insidious as deploying a newly built binary into production manually. Nobody likes to repeat themselves over and over again. And for good reasons. Not only does it take time to repeatedly figure out all the parameters in a tricky command line program, it also increases stress when you are trying to fix outages as quickly as possible.">
 <link href="https://fonts.googleapis.com/css?family=Ubuntu:300,400,300italic,400italic|Raleway:200,300" rel="stylesheet">
 
 	<link rel="stylesheet" type="text/css" media="screen" href="/css/normalize.css" />
@@ -27,7 +27,7 @@
 	<script src="/js/xyz.js"></script>
 	<script src="https://code.jquery.com/jquery-3.4.1.js"></script>
 	
-	<link rel="stylesheet" type="text/css" href="/css/anchors.css" />
+	<link rel="stylesheet" type="text/css" href="/css/hugo_override_theme.css" />
 
 </head>
 
@@ -67,17 +67,11 @@
     
 
 		<div class="markdown">
-			<h2 id="commandline-productivity-and-automation-aka-make-it-easy-to-repeat">
-  Commandline Productivity and Automation (aka make it easy to repeat)
-  <a href="#commandline-productivity-and-automation-aka-make-it-easy-to-repeat" class="heading-anchor">#</a>
-</h2>
+			<h2 id="commandline-productivity-and-automation-aka-make-it-easy-to-repeat">Commandline Productivity and Automation (aka make it easy to repeat)</h2>
 <p>Developers tend to repeat themselves. A lot. This can be as innocuous as running a test manually after you update a test file or as insidious as deploying a newly built binary into production manually. Nobody likes to repeat themselves over and over again. And for good reasons. Not only does it take time to repeatedly figure out all the parameters in a tricky command line program, it also increases stress when you are trying to fix outages as quickly as possible.</p>
 <p>The obvious solution to these problems is of course automation. But more or often than not, I avoid automation thinking whatever I am doing is an one off or does not occurs frequently enough to warrant scripting. Finally sensing this is slowing down my productivity, I decided to start automating as much as possible, no matter how small.</p>
 <p>In this post, I will share 3 broad automation strategies I have adopted. First, automating via simple shell scripts when possible. Second, creating a Swiss army knife tool to help make automation easier while keeping boilerplates to a minimum. Finally, using tools such as Docker and Chef to bootstrap cloud VMs with minimal manual configuration.</p>
-<h3 id="simple-shell-scripts">
-  Simple shell scripts
-  <a href="#simple-shell-scripts" class="heading-anchor">#</a>
-</h3>
+<h3 id="simple-shell-scripts">Simple shell scripts</h3>
 <p>Creating a shell script is the simplest form of automation and arguably also the most effective with immediate productivity gain. After some experimentation, I devised and follow a simple rule: if I need to type more 3 parameters to invoke a complicated command on the shell, I will write a shell script. This simple stratgey saves me time and also gives me a place to document various parameters.</p>
 <p>As a concrete example, I have been writing <code>build_container.sh</code> and <code>run_container.sh</code> to help streamline my Docker workflow.</p>
 <pre tabindex="0"><code># build_container.sh
@@ -95,10 +89,7 @@ docker run \
     sample_image \
     bash
 </code></pre><p>As an added bonus, I have been learning more about shell programming (and all its quirks!) as I am writing more of these scripts.</p>
-<h3 id="swiss-army-knife">
-  Swiss army knife
-  <a href="#swiss-army-knife" class="heading-anchor">#</a>
-</h3>
+<h3 id="swiss-army-knife">Swiss army knife</h3>
 <p>While automating with one off shell scripts for each specialized task is effective, the effort tend to be duplicated across repos and boilerplates start to add up, leading to increased tech debts and overall increase in complexity.</p>
 <p>To overcome this, I stole the idea of <code>s</code>, a Swiss army knife command line tool, from Smyte. Succinctly, <code>s</code> is a collection of scripts that automates various developer tasks, including deployment, remote server automation, running tests, compilation, and myraids of other things. More than a collection of scripts, <code>s</code> provides a common framework to centralize tool development and minimizes boilerplates.</p>
 <p>Some sample <code>s</code> invocation</p>
@@ -110,17 +101,11 @@ s deploy.roll --commit ABC
 </code></pre><p>Modelling after <code>s</code>, I created a tool called <code>m</code>. To bootstrap <code>m</code>, I use <a href="https://github.com/google/python-fire">python-fire</a> from Google. <code>python-fire</code> is an amazing python library that will turn any python script into a command line program with minimum fuzz and handles command line arguments in an intuitive manner.</p>
 <p>One of the major downside of <code>s</code> as implemented at Smyte is speed - importing modules in python is not free and these add up as more and more scripts get added. In <code>m</code>, I address this by loading dependencies only at invocation of each subcommand. Doing this has allowed to me to keep top level <code>m</code> invocation at ~250ms on my 2013 Mac Air.</p>
 <p>You can checkout <code>m</code> on my github <a href="https://go.mou.dev/m">here</a>.</p>
-<h3 id="environment-bootstrapping">
-  Environment bootstrapping
-  <a href="#environment-bootstrapping" class="heading-anchor">#</a>
-</h3>
+<h3 id="environment-bootstrapping">Environment bootstrapping</h3>
 <p>The last missing automation piece is environment bootstrapping on new machines or vms. With more demanding workload, I started to use AWS and Google Cloud to alleviate the load on my mac air.</p>
 <p>For the longest time, I would manually run <code>apt-get install</code> for every single package I use on each newly provisioned VMs. While that was painful, it occurred rarely enough I put up with it. But this has taken an mental toll on my workflow. I would put off tasks because I did not want to repeat the drudgery.</p>
 <p>To arrest this mental blockage, I started building docker containers for tricky development environments with all dependencies pre-installed as well as automatting VM bootstrapping with chef. Checkout my chef bootstrap scripts <a href="https://github.com/moomou/dotfiles/tree/master/chef">here</a>.</p>
-<h3 id="conclusion">
-  Conclusion
-  <a href="#conclusion" class="heading-anchor">#</a>
-</h3>
+<h3 id="conclusion">Conclusion</h3>
 <p>Developer experience has more often than not been an afterthought for me. Realizing this is slowing down my productivity and hurting my enjoyment of developing, I started addressing these productivity killers by employing more shell scripts, building <code>m</code>, as well as using chef and docker to avoid manual environment setup.</p>
 <p>These simple steps have tremendously improved my productivity and gave me the freedom to spend more time building and less time on fighting my toolchains.</p>
 <p>Am I done here? Of course not. There are many more impromvents and new tools I plan to look into to further improve and simplify my development workflow. Another closely related topic is deployment, which I have not yet addressed.</p>
