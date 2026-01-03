@@ -6,7 +6,7 @@
 	<meta property="og:url" content="/posts/dev-ux2/">
   <meta property="og:site_name" content="moomou">
   <meta property="og:title" content="Improvements to &#34;m&#34;, a personal command line tool">
-  <meta property="og:description" content="From m to m2 Having used m for many years now, I encountered two primary problems.
+  <meta property="og:description" content="From m to m2 # Having used m for many years now, I encountered two primary problems.
 The first is startup performance. Even with lazy module loading (see here), calling m without any subcommands still took ~250ms on my laptop.
 The second problem is code verbosity. To add a new command, one needs to create a new class in a separate file, import it in main, and finally instantiate the new class.">
   <meta property="og:locale" content="en_us">
@@ -17,7 +17,7 @@ The second problem is code verbosity. To add a new command, one needs to create 
 
   <meta name="twitter:card" content="summary">
   <meta name="twitter:title" content="Improvements to &#34;m&#34;, a personal command line tool">
-  <meta name="twitter:description" content="From m to m2 Having used m for many years now, I encountered two primary problems.
+  <meta name="twitter:description" content="From m to m2 # Having used m for many years now, I encountered two primary problems.
 The first is startup performance. Even with lazy module loading (see here), calling m without any subcommands still took ~250ms on my laptop.
 The second problem is code verbosity. To add a new command, one needs to create a new class in a separate file, import it in main, and finally instantiate the new class.">
 <link href="https://fonts.googleapis.com/css?family=Ubuntu:300,400,300italic,400italic|Raleway:200,300" rel="stylesheet">
@@ -31,7 +31,7 @@ The second problem is code verbosity. To add a new command, one needs to create 
 	<script src="/js/xyz.js"></script>
 	<script src="https://code.jquery.com/jquery-3.4.1.js"></script>
 	
-	<link rel="stylesheet" type="text/css" href="/css/hugo_override_theme.css" />
+	<link rel="stylesheet" type="text/css" href="/css/anchors.css" />
 
 </head>
 
@@ -71,21 +71,33 @@ The second problem is code verbosity. To add a new command, one needs to create 
     
 
 		<div class="markdown">
-			<h2 id="from-m-to-m2">From m to m2</h2>
+			<h2 id="from-m-to-m2">
+  From m to m2
+  <a href="#from-m-to-m2" class="heading-anchor">#</a>
+</h2>
 <p>Having used <code>m</code> for many years now, I encountered two primary problems.</p>
 <p>The first is startup performance. Even with lazy module loading (see <a href="/posts/dev-ux">here</a>), calling <code>m</code> without any subcommands still took ~250ms on my laptop.</p>
 <p>The second problem is code verbosity. To add a new command, one needs to create a new class in a separate file, import it in main, and finally instantiate the new class.</p>
 <p>In this short blog post, I am going to share how I tackled these two issues.</p>
-<h3 id="removing-python-fire">Removing <code>python-fire</code></h3>
+<h3 id="removing-python-fire">
+  Removing <code>python-fire</code>
+  <a href="#removing-python-fire" class="heading-anchor">#</a>
+</h3>
 <p>In order to reduce startup time, I first had to profile <code>m</code> startup performance. From <code>python -c 'print(&quot;Hi&quot;)</code>, I know python interpreter program can be fast.</p>
 <p>Iteratively removing modules <code>m</code> depends on one by one revealed <a href="https://github.com/google/python-fire"><code>python-fire</code></a> was the biggest contributor to the long startup time. Python-fire is great for easily turning any script into a commandline program, but it became clear it is not a great fit for scripts one invoke dozens of times a day.</p>
 <p>Having identified the culprit, I decided to implement my own basic commandline parser. The <a href="https://github.com/moomou/dotfiles/commit/c4ba772cd32e60d9a73a94bfea61ba767ae55cd9#diff-06616f4307b47ace8ecc795828245933"> implementation </a> itself is extremely simple but covers all <code>m</code> needs right now.</p>
 <p>Removing <code>python-fire</code> dropped the startup time by almost half to around 130ms.</p>
-<h3 id="reducing-boilerplates-with-metaprogramming">Reducing Boilerplates with metaprogramming</h3>
+<h3 id="reducing-boilerplates-with-metaprogramming">
+  Reducing Boilerplates with metaprogramming
+  <a href="#reducing-boilerplates-with-metaprogramming" class="heading-anchor">#</a>
+</h3>
 <p>Another problem I wanted to tackle was reducing boilerplates in <code>m</code>. With a bit of research, I learnt about  <code>inspect</code> and <code>importlib</code> modules and converted <code>m</code> to adopt them.</p>
 <p>Instead of doing <code>import</code> manually, I leveraged <code>importlib.import_module</code> to import <code>.py</code> files on startup and used <code>inspect.getmembers</code> and <code>inspect.isclass</code> to filter and expose instances of <code>m_base.Base</code>, a special class in <code>m</code> which every commands inherit from.</p>
 <p>The change itself was relatively <a href="https://github.com/moomou/dotfiles/commit/c4ba772cd32e60d9a73a94bfea61ba767ae55cd9#diff-4d5225df0a71c68ac298598b5942e4e6"> straightforward </a> and is a big win for maintainability - I can remove a command just by deleting a file now!</p>
-<h3 id="summary">Summary</h3>
+<h3 id="summary">
+  Summary
+  <a href="#summary" class="heading-anchor">#</a>
+</h3>
 <p>Not only did I learn about <code>inspect</code> and <code>importlib</code> modules in python, I also saved ~100ms off the <code>m</code> startup time and reduced a bunch of boilerplates.</p>
 <p>I use <code>m</code> everyday so I am a bit embarrassed that it took me this long to address two such obvious issues. Better late than never I suppose.</p>
 
