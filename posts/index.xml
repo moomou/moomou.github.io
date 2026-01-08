@@ -7,12 +7,12 @@
     <generator>Hugo</generator>
     <language>en-us</language>
     <copyright>since 2017</copyright>
-    <lastBuildDate>Mon, 29 Dec 2025 00:00:00 +0000</lastBuildDate>
+    <lastBuildDate>Wed, 07 Jan 2026 00:00:00 +0000</lastBuildDate>
     <atom:link href="/posts/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>Learning about CT with Gemini</title>
       <link>/posts/2025-12-29-learning-ct-with-gemini/</link>
-      <pubDate>Mon, 29 Dec 2025 00:00:00 +0000</pubDate>
+      <pubDate>Wed, 07 Jan 2026 00:00:00 +0000</pubDate>
       <guid>/posts/2025-12-29-learning-ct-with-gemini/</guid>
       <description>&lt;h2 id=&#34;overview&#34;&gt;&#xA;  Overview&#xA;  &lt;a href=&#34;#overview&#34; class=&#34;heading-anchor&#34;&gt;#&lt;/a&gt;&#xA;&lt;/h2&gt;&#xA;&lt;p&gt;Over the winter break, I was reviewing Fourier Transform and its various applications.&#xA;Fundamentally, Fourier Transform is about a shift in perspective - viewing the same data with a different lens makes some operations easier or faster. This piqued my curiosity about what other fundamental data transformations that I should be aware of. Like everyone in 2025, I jumped to my chatbot of choice, Gemini, to learn more.&lt;/p&gt;</description>
     </item>
