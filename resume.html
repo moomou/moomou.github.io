@@ -86,6 +86,22 @@
               <span
                 class="skill"
                 data-durian-width="100"
+                data-durian="docker"
+                data-print="Docker"
+              ></span>
+            </li>
+            <li>
+              <span
+                class="skill"
+                data-durian-width="100"
+                data-durian="spark"
+                data-print="Spark"
+              ></span>
+            </li>
+            <li>
+              <span
+                class="skill"
+                data-durian-width="100"
                 data-durian="bigquery"
                 data-print="BigQuery"
               ></span>
@@ -111,23 +127,7 @@
                 class="skill"
                 data-durian-width="100"
                 data-durian="grpc"
-                data-print="GRPC"
-              ></span>
-            </li>
-            <li>
-              <span
-                class="skill"
-                data-durian-width="100"
-                data-durian="chef"
-                data-print="Chef"
-              ></span>
-            </li>
-            <li>
-              <span
-                class="skill"
-                data-durian-width="100"
-                data-durian="docker"
-                data-print="Docker"
+                data-print="gRPC"
               ></span>
             </li>
           </ul>
@@ -163,11 +163,7 @@
           <ul class="talent">
             <li class="label">Library</li>
             <li>
-              <span
-                class="skill"
-                data-durian="terraform"
-                data-print="Terraform"
-              ></span>
+              <span class="skill" data-durian="ray" data-print="Ray"></span>
             </li>
             <li>
               <span
@@ -253,7 +249,7 @@
                 class="project-icon screen-only"
                 style="background-image: url('???')"
               ></div>
-              <ul class="project-description">
+              <ul class="project-description" hidden>
                 <li class="screen-only">
                   <a
                     target="_blank"
@@ -307,13 +303,34 @@
         </div>
         <div class="content">
           <div class="job">
+            <h4 class="title" data-print=" @ Microsoft AI, Redmond">
+              Member of Technical Staff
+            </h4>
+            <span class="title screen-only" style="margin-left: -5px"
+              >@ Microsoft AI</span
+            >
+            <h4 class="period">2024/12-Present</h4>
+            <ul class="detail">
+              <li>
+                Engineered high throughput Spark/Ray pipelines to process
+                billions of PDFs for LLM pre-training; conducted ablation
+                studies to optimize data quality and model performance
+              </li>
+              <li>
+                Scaled kubernetes infra across multiple geographic regions with
+                automated CI/CD pipelines, improving scalability and relability
+              </li>
+            </ul>
+          </div>
+
+          <div class="job">
             <h4 class="title" data-print=" @ Roblox, San Mateo">
               Software Engineer
             </h4>
             <span class="title screen-only" style="margin-left: -5px"
               >@ Roblox</span
             >
-            <h4 class="period">2022/05-present</h4>
+            <h4 class="period">2022/05-2024/12</h4>
             <ul class="detail">
               <li>
                 Key technical contributor and advocate for driving datalake
@@ -383,7 +400,7 @@
               </li>
             </ul>
           </div>
-          <div class="job">
+          <div class="job" hidden>
             <span class="title" data-print=" @ Inkling, San Francisco"
               >Software Engineer</span
             >

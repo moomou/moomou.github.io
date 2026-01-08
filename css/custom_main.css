@@ -92,7 +92,6 @@ a {
 }
 
 body {
-  padding: 15px 20px;
   display: flex;
   flex-direction: column;
 }
@@ -121,7 +120,7 @@ ul {
   align-items: center;
   display: flex;
   flex-direction: row;
-  justify-content: space-evenly;
+  justify-content: space-between;
 }
 .header .icon {
   margin: 10px 0;
@@ -316,12 +315,18 @@ ul {
 }
 
 @media print {
+  .body {
+    margin: 2em 1.5em;
+  }
   .print-only {
     display: block !important;
   }
   .screen-only,
   #detailBtn {
     display: none !important;
+  }
+  .header {
+    margin-bottom: 10px;
   }
   .header .name {
     font-size: 52px;
@@ -433,6 +438,9 @@ ul {
 }
 
 @media print {
+  @page {
+    margin: 0;
+  }
   body {
     padding: 2px !important;
     margin: 0;
@@ -462,7 +470,7 @@ ul {
   }
   .job .title {
     font-size: 17px;
-    margin-bottom: 8px;
+    margin-bottom: 4px;
   }
   .job .title:after {
     content: attr(data-print);
@@ -473,13 +481,13 @@ ul {
   .job .detail {
     border-right: 2px solid #c3c3c3;
     display: block;
-    padding-left: 1.4em;
-    padding-right: 25px;
+    padding-left: 20px;
+    padding-right: 15px;
     width: 90%;
     min-height: 12px;
   }
   .group {
-    margin: 15px;
+    margin: 8px;
   }
   .skill {
     line-height: normal !important;
@@ -494,8 +502,8 @@ ul {
     float: left !important;
   }
   .summary p {
-    margin-top: 8px;
-    margin-bottom: 8px;
+    margin-top: 4px;
+    margin-bottom: 4px;
   }
 }
 

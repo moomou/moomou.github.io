@@ -6,7 +6,7 @@
 	<meta property="og:url" content="/posts/2023-12-27-ohmy/">
   <meta property="og:site_name" content="moomou">
   <meta property="og:title" content="Learning to Debug Gibberish">
-  <meta property="og:description" content="Overview Recently, I went down a rabbit hole of debugging opensource LLM spewing gibberish on my PC. The investigation was the one of the most difficult (but interesting) debugging experience I have encountered so far.
+  <meta property="og:description" content="Overview # Recently, I went down a rabbit hole of debugging opensource LLM spewing gibberish on my PC. The investigation was the one of the most difficult (but interesting) debugging experience I have encountered so far.
 This blog will chronicle the problem I encountered, debugging steps I took, and finally, the resolution and workaround I adopted.
 tl;dr I traced down the source of LLM spewing gibberish to faulty RAM sticks after getting different sha256 checksums on a static file on different runs. I was then able to salvage ~40% of the faulty RAM stick capacity after discovering Linux kernl parameter memtest=.">
   <meta property="og:locale" content="en_us">
@@ -17,7 +17,7 @@ tl;dr I traced down the source of LLM spewing gibberish to faulty RAM sticks aft
 
   <meta name="twitter:card" content="summary">
   <meta name="twitter:title" content="Learning to Debug Gibberish">
-  <meta name="twitter:description" content="Overview Recently, I went down a rabbit hole of debugging opensource LLM spewing gibberish on my PC. The investigation was the one of the most difficult (but interesting) debugging experience I have encountered so far.
+  <meta name="twitter:description" content="Overview # Recently, I went down a rabbit hole of debugging opensource LLM spewing gibberish on my PC. The investigation was the one of the most difficult (but interesting) debugging experience I have encountered so far.
 This blog will chronicle the problem I encountered, debugging steps I took, and finally, the resolution and workaround I adopted.
 tl;dr I traced down the source of LLM spewing gibberish to faulty RAM sticks after getting different sha256 checksums on a static file on different runs. I was then able to salvage ~40% of the faulty RAM stick capacity after discovering Linux kernl parameter memtest=.">
 <link href="https://fonts.googleapis.com/css?family=Ubuntu:300,400,300italic,400italic|Raleway:200,300" rel="stylesheet">
@@ -31,7 +31,7 @@ tl;dr I traced down the source of LLM spewing gibberish to faulty RAM sticks aft
 	<script src="/js/xyz.js"></script>
 	<script src="https://code.jquery.com/jquery-3.4.1.js"></script>
 	
-	<link rel="stylesheet" type="text/css" href="/css/hugo_override_theme.css" />
+	<link rel="stylesheet" type="text/css" href="/css/anchors.css" />
 
 </head>
 
@@ -71,25 +71,37 @@ tl;dr I traced down the source of LLM spewing gibberish to faulty RAM sticks aft
     
 
 		<div class="markdown">
-			<h2 id="overview">Overview</h2>
+			<h2 id="overview">
+  Overview
+  <a href="#overview" class="heading-anchor">#</a>
+</h2>
 <p>Recently, I went down a rabbit hole of debugging opensource LLM spewing gibberish on my PC.
 The investigation was the one of the most difficult (but interesting) debugging experience I have encountered so far.</p>
 <p>This blog will chronicle the problem I encountered, debugging steps I took, and finally, the resolution and workaround I adopted.</p>
 <blockquote>
 <p><strong>tl;dr</strong> I traced down the source of LLM spewing gibberish to faulty RAM sticks after getting different sha256 checksums on a static file on different runs. I was then able to salvage ~40% of the faulty RAM stick capacity after discovering Linux kernl parameter <code>memtest=</code>.</p>
 </blockquote>
-<h2 id="the-problem">The Problem</h2>
+<h2 id="the-problem">
+  The Problem
+  <a href="#the-problem" class="heading-anchor">#</a>
+</h2>
 <p>Like everyone else, I have been spending a lot of time studying and playing with opensource LLMs, primarily leveraging my workstation sitting in my garage.</p>
 <p>I focused my time originally on deploying and setting up a local instance with <a href="https://github.com/ggerganov/llama.cpp">llama.cpp</a> and <a href="https://github.com/vllm-project/vllm">vllm </a> using quantized Mistral models.</p>
 <p>However, as I delved deeper and started customizing models (another blog post!) using pytorch and <a href="https://huggingface.co/docs/transformers/index">transformers</a> library, I noticed that models I downloaded directly from Huggingface all spew gibberish!</p>
 <p>This problem showed up in essentially all the models I tried without any obvious patterns. To make the whole situation extra confusing, <em>some</em> models <em>work</em>.</p>
-<h2 id="debugging">Debugging</h2>
+<h2 id="debugging">
+  Debugging
+  <a href="#debugging" class="heading-anchor">#</a>
+</h2>
 <p>The initial suspicion I had was on some subtle software compatibilities issues in my setup. After all, getting a LLM to run locally requires an insane amount of software.</p>
 <p>So as a first step, I started by upgrading and downgradign Nvidia driver and CUDA versions. Specifically, I tried different combinations of CUDA 12.1 and 11.8 with driver versions ranging from 520 to 535.</p>
 <p>Concurrently, I also tried different combinations of python, pytorch, and transformers versions.</p>
 <p>However, all combinations led to the same results - LLM still spewed gibberish.</p>
 <p>Googling (and asking ChatGPT) on various queries (<code>&quot;transformers+all+models+gibberish&quot;</code>, <code>&quot;nvidia+3090+pytorch+gibberish&quot;</code>, <code>&quot;qwen+gibberish&quot;</code>, etc.) led to nowhere.</p>
-<h2 id="verifying-in-cloud">Verifying in Cloud</h2>
+<h2 id="verifying-in-cloud">
+  Verifying in Cloud
+  <a href="#verifying-in-cloud" class="heading-anchor">#</a>
+</h2>
 <p>After trying just about all possible combinations of software dependencies, I decided I needed a working setup to find out what is wrong with my workstation.</p>
 <p>I hopped over to <a href="https://colab.research.google.com">Google Colab</a> and ran <a href="https://huggingface.co/Qwen/Qwen-7B">Qwen-7B</a>&rsquo;s starter template</p>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#f92672">from</span> transformers <span style="color:#f92672">import</span> AutoModelForCausalLM, AutoTokenizer
@@ -103,7 +115,10 @@ The investigation was the one of the most difficult (but interesting) debugging 
 </span></span></code></pre></div><p>and sure enough, it worked on Google cloud!</p>
 <p>I then noted down the Nvidia driver version (<code>!nvidia-smi</code>) and python dependencies (<code>!pip3 freeze</code>) and worked toward replicating that environment locally. Surely if it worked in the cloud it must work on my PC too!</p>
 <p>Except it did not&hellip;</p>
-<h2 id="sha256-in-a-loop">SHA256 in a Loop</h2>
+<h2 id="sha256-in-a-loop">
+  SHA256 in a Loop
+  <a href="#sha256-in-a-loop" class="heading-anchor">#</a>
+</h2>
 <p>Despite meticulously replicating the software environment from Colab, LLM still talked gibberish. Running out places to look, I decided to verify the model weight files (safetensors, bin files, etc.) are correct - ie have the same checksum as on Google Colab.</p>
 <p>The possibility of model files being corrupted somehow is quite unlikely since I tested dozens of different models and pytorch modules <code>`load`</code> calls were all succeeding.</p>
 <p>However, it is at this point that I am reminded of the following quote</p>
@@ -114,13 +129,19 @@ The investigation was the one of the most difficult (but interesting) debugging 
 <p>&ldquo;Ok so I have some corrupted files. I will just download them again&rdquo;, I thought to myself.</p>
 <p>I duly downloaded the model files again and ran <code>sha256sum</code> on the new files, only to discover they were still different from Colab&rsquo;s checksums AND from previous downloaded files. That is, I have 3 set of checksums at this point!</p>
 <p>A little confused, I reran the checkums again on the newly downloaded files and this time yieled completely new sha256 checksums, different from all previous attempts.</p>
-<h2 id="faulty-hardware">Faulty Hardware</h2>
+<h2 id="faulty-hardware">
+  Faulty Hardware
+  <a href="#faulty-hardware" class="heading-anchor">#</a>
+</h2>
 <p>At this point, I realized I have a <strong>hardware</strong> problem.</p>
 <p>The prime suspects were hard drive, network, and/or memory.</p>
 <p>I eliminated hard drive by downloading files to a different drive and still the checksums were different.</p>
 <p>This is replicable irrespective of file&rsquo;s physical location, whether SATA drives, M.2 sticks, or external USB drive. The faulty hardware is <strong>memory</strong>.</p>
 <p>What turned out to be happening is even when model files were downloaded correctly, when model weights were loaded into memory for LLM inference, they were silently corrupted due to bad RAM so every model spewed gibberish!!</p>
-<h2 id="linux-kernel-to-the-rescue">Linux Kernel to the Rescue</h2>
+<h2 id="linux-kernel-to-the-rescue">
+  Linux Kernel to the Rescue
+  <a href="#linux-kernel-to-the-rescue" class="heading-anchor">#</a>
+</h2>
 <p>After testing my RAM sticks one by one on each of the motherboard slot, I was able to identify the faulty RAM sticks.</p>
 <p>While I was glad to have my sanity restored, I was bummed about losing 64GB of RAM capacity.</p>
 <p>What was interesting was the RAM <em>mostly</em> worked - the data corruption was rare enough that it only manifested itself on LLM inference!</p>

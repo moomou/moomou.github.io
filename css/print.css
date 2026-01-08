@@ -3,6 +3,9 @@
 }
 
 @media print {
+  @page {
+    margin: 0;
+  }
   body {
     padding: 2px !important;
     margin: 0;
@@ -32,7 +35,7 @@
   }
   .job .title {
     font-size: 17px;
-    margin-bottom: 8px;
+    margin-bottom: 4px;
   }
   .job .title:after {
     content: attr(data-print);
@@ -43,13 +46,13 @@
   .job .detail {
     border-right: 2px solid #c3c3c3;
     display: block;
-    padding-left: 1.4em;
-    padding-right: 25px;
+    padding-left: 20px;
+    padding-right: 15px;
     width: 90%;
     min-height: 12px;
   }
   .group {
-    margin: 15px;
+    margin: 8px;
   }
   .skill {
     line-height: normal !important;
@@ -64,8 +67,8 @@
     float: left !important;
   }
   .summary p {
-    margin-top: 8px;
-    margin-bottom: 8px;
+    margin-top: 4px;
+    margin-bottom: 4px;
   }
 }
 

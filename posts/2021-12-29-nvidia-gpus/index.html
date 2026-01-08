@@ -9,7 +9,7 @@
   <meta property="og:description" content="I have a PC with Ubuntu server installed and Nvidia GPUs attached. I have Googled on and off for a while trying to learn how to overclock the GPUs without success.
 Finally, after gleaning bits and parts from different sources, I got power limit and overclocking working.
 Here are the steps required
-Virtual Monitor nvidia-settings need a monitor attached in order to work. For headless linux, one needs a virtual monitor. After messing with xorg conf manually for a while, I found and forked andyljones/coolgpus to automatically attach a virtual monitor for each GPU.">
+Virtual Monitor # nvidia-settings need a monitor attached in order to work. For headless linux, one needs a virtual monitor. After messing with xorg conf manually for a while, I found and forked andyljones/coolgpus to automatically attach a virtual monitor for each GPU.">
   <meta property="og:locale" content="en_us">
   <meta property="og:type" content="article">
     <meta property="article:section" content="posts">
@@ -21,7 +21,7 @@ Virtual Monitor nvidia-settings need a monitor attached in order to work. For he
   <meta name="twitter:description" content="I have a PC with Ubuntu server installed and Nvidia GPUs attached. I have Googled on and off for a while trying to learn how to overclock the GPUs without success.
 Finally, after gleaning bits and parts from different sources, I got power limit and overclocking working.
 Here are the steps required
-Virtual Monitor nvidia-settings need a monitor attached in order to work. For headless linux, one needs a virtual monitor. After messing with xorg conf manually for a while, I found and forked andyljones/coolgpus to automatically attach a virtual monitor for each GPU.">
+Virtual Monitor # nvidia-settings need a monitor attached in order to work. For headless linux, one needs a virtual monitor. After messing with xorg conf manually for a while, I found and forked andyljones/coolgpus to automatically attach a virtual monitor for each GPU.">
 <link href="https://fonts.googleapis.com/css?family=Ubuntu:300,400,300italic,400italic|Raleway:200,300" rel="stylesheet">
 
 	<link rel="stylesheet" type="text/css" media="screen" href="/css/normalize.css" />
@@ -33,7 +33,7 @@ Virtual Monitor nvidia-settings need a monitor attached in order to work. For he
 	<script src="/js/xyz.js"></script>
 	<script src="https://code.jquery.com/jquery-3.4.1.js"></script>
 	
-	<link rel="stylesheet" type="text/css" href="/css/hugo_override_theme.css" />
+	<link rel="stylesheet" type="text/css" href="/css/anchors.css" />
 
 </head>
 
@@ -76,10 +76,16 @@ Virtual Monitor nvidia-settings need a monitor attached in order to work. For he
 			<p>I have a PC with Ubuntu server installed and Nvidia GPUs attached. I have Googled on and off for a while trying to learn how to overclock the GPUs without success.</p>
 <p>Finally, after gleaning bits and parts from different sources, I got power limit and overclocking working.</p>
 <p>Here are the steps required</p>
-<h2 id="virtual-monitor">Virtual Monitor</h2>
+<h2 id="virtual-monitor">
+  Virtual Monitor
+  <a href="#virtual-monitor" class="heading-anchor">#</a>
+</h2>
 <p><code>nvidia-settings</code> need a monitor attached in order to work. For headless linux, one needs a virtual monitor. After messing with xorg conf manually for a while, I found and forked <a href="https://github.com/andyljones/coolgpus">andyljones/coolgpus</a> to automatically attach a virtual monitor for each GPU.</p>
 <p><code>coolgpu</code> was originally developed to override fan curves but I run it in debug only and rely on the default fan management.</p>
-<h2 id="power-limit">Power Limit</h2>
+<h2 id="power-limit">
+  Power Limit
+  <a href="#power-limit" class="heading-anchor">#</a>
+</h2>
 <p>With virtual monitor attached, you can now use <code>nvidia-smi</code> to set power limits</p>
 <pre><code>sudo nvidia-smi -i 0 -pl 150
 </code></pre>
@@ -92,7 +98,10 @@ Virtual Monitor nvidia-settings need a monitor attached in order to work. For he
 <pre><code>nvidia-smi -q -d PERFORMANCE
 </code></pre>
 <p>Which not only tells you whether the GPU has a software power limit, but also whether the GPU performance is currently limited by other factors as hardware.</p>
-<h2 id="overclocking-memory-transfer-rate">Overclocking Memory Transfer Rate</h2>
+<h2 id="overclocking-memory-transfer-rate">
+  Overclocking Memory Transfer Rate
+  <a href="#overclocking-memory-transfer-rate" class="heading-anchor">#</a>
+</h2>
 <p>Also with virtual monitor attached, you can overclock via <code>nvidia-settings</code> tool</p>
 <pre><code>DISPLAY=:0 nvidia-settings -a '[gpu:0]/GPUMemoryTransferRateOffsetAllPerformanceLevels=350
 </code></pre>
