@@ -6,7 +6,7 @@
 	<meta property="og:url" content="/posts/2026-03-10-flow/">
   <meta property="og:site_name" content="moomou">
   <meta property="og:title" content="Building Flow Matching Models from Scratch">
-  <meta property="og:description" content="Motivation # Continuing the path of learning about deep learning, I have been working on building a diffusion/flow matching models from scratch on and off for a while. My initial goal was to build a flow-matching or diffusion model for audio with mel-spectrograms inputs. However, after struggling with eyeballing a whether a generated melspectrogram is good or bad and playing melspectrogram to audio, I decided to pivot back to the image domain to make sure I get the diffusion modeling aspect before tackling audio. Specifically, I chose to go with with the classic celebrity datasets, allowing me to focus on the core mechanics of generation.">
+  <meta property="og:description" content="Introduction # Continuing the path of learning about deep learning, I have been working on building a diffusion/flow matching models from scratch on and off for a while. My initial goal was to build a flow-matching or diffusion model for audio with mel-spectrograms inputs. However, after struggling with eyeballing a whether a generated melspectrogram is good or bad and learning about transforming melspectrogram to audio, I decided to pivot back to the image domain to make sure I learn the diffusion modeling aspect properly before tackling audio. Specifically, I chose to go with with the classic celebrity datasets, allowing me to focus on the core mechanics of generation.">
   <meta property="og:locale" content="en_us">
   <meta property="og:type" content="article">
     <meta property="article:section" content="posts">
@@ -15,7 +15,7 @@
 
   <meta name="twitter:card" content="summary">
   <meta name="twitter:title" content="Building Flow Matching Models from Scratch">
-  <meta name="twitter:description" content="Motivation # Continuing the path of learning about deep learning, I have been working on building a diffusion/flow matching models from scratch on and off for a while. My initial goal was to build a flow-matching or diffusion model for audio with mel-spectrograms inputs. However, after struggling with eyeballing a whether a generated melspectrogram is good or bad and playing melspectrogram to audio, I decided to pivot back to the image domain to make sure I get the diffusion modeling aspect before tackling audio. Specifically, I chose to go with with the classic celebrity datasets, allowing me to focus on the core mechanics of generation.">
+  <meta name="twitter:description" content="Introduction # Continuing the path of learning about deep learning, I have been working on building a diffusion/flow matching models from scratch on and off for a while. My initial goal was to build a flow-matching or diffusion model for audio with mel-spectrograms inputs. However, after struggling with eyeballing a whether a generated melspectrogram is good or bad and learning about transforming melspectrogram to audio, I decided to pivot back to the image domain to make sure I learn the diffusion modeling aspect properly before tackling audio. Specifically, I chose to go with with the classic celebrity datasets, allowing me to focus on the core mechanics of generation.">
 <link href="https://fonts.googleapis.com/css?family=Ubuntu:300,400,300italic,400italic|Raleway:200,300" rel="stylesheet">
 
 	<link rel="stylesheet" type="text/css" media="screen" href="/css/normalize.css" />
@@ -68,7 +68,7 @@
     <div id="table-of-contents">
         <nav id="TableOfContents">
   <ul>
-    <li><a href="#motivation">Motivation</a></li>
+    <li><a href="#introduction">Introduction</a></li>
     <li><a href="#flow-matching-and-back-to-the-basics">Flow Matching and Back to the Basics</a></li>
     <li><a href="#lets-build">Let&rsquo;s Build!</a>
       <ul>
@@ -86,11 +86,11 @@
     
 
 		<div class="markdown">
-			<h2 id="motivation">
-  Motivation
-  <a href="#motivation" class="heading-anchor">#</a>
+			<h2 id="introduction">
+  Introduction
+  <a href="#introduction" class="heading-anchor">#</a>
 </h2>
-<p>Continuing the path of learning about deep learning, I have been working on building a diffusion/flow matching models from scratch on and off for a while. My initial goal was to build a flow-matching or diffusion model for audio with mel-spectrograms inputs. However, after struggling with eyeballing a whether a generated melspectrogram is good or bad and playing melspectrogram to audio, I decided to pivot back to the image domain to make sure I get the diffusion modeling aspect before tackling audio. Specifically, I chose to go with with the classic celebrity datasets, allowing me to focus on the core mechanics of generation.</p>
+<p>Continuing the path of learning about deep learning, I have been working on building a diffusion/flow matching models from scratch on and off for a while. My initial goal was to build a flow-matching or diffusion model for audio with mel-spectrograms inputs. However, after struggling with eyeballing a whether a generated melspectrogram is good or bad and learning about transforming melspectrogram to audio, I decided to pivot back to the image domain to make sure I learn the diffusion modeling aspect properly before tackling audio. Specifically, I chose to go with with the classic celebrity datasets, allowing me to focus on the core mechanics of generation.</p>
 <blockquote>
 <p><strong>tl;dr</strong> In this blog post, I share the steps I took to
 to build a toy flow matching image generator from scratch by following
@@ -100,8 +100,8 @@ the papers <a href="https://arxiv.org/abs/2511.13720">Back to Basics: Let Denois
   Flow Matching and Back to the Basics
   <a href="#flow-matching-and-back-to-the-basics" class="heading-anchor">#</a>
 </h2>
-<p>When I first dove into Flow Matching, the concept felt like a natural evolution, but recent literature has significantly clarified the &ldquo;where&rdquo; and &ldquo;how&rdquo; of the learning process.</p>
-<p>Specifically, Paper X [1] suggests that manifold learning is most effective when it is concentrated on the data plane rather than the noise plane.</p>
+<p>Flow matching and diffusion process is learning how to build a model to generate images by progressively &ldquo;cleaning&rdquo; a noisy version of the image until it&rsquo;s clean.</p>
+<p>There are many formulations and many models are focused on predicting the noise. I recently came across <a href="https://arxiv.org/abs/2511.13720"> Back to Basics </a>, which in my opinion suggests that manifold learning is most effective when it is concentrated on the data plane rather than the noise plane.</p>
 <p>There is something intuitive about this—focusing the model&rsquo;s capacity on the actual structure of the data rather than the chaos of the Gaussian prior.</p>
 <p>In practice, the authors obtained their best results by configuring the model to predict the original data ($x_0$) while training on the velocity ($v$) loss.The most striking takeaway for me, however, wasn&rsquo;t just the performance, but the sheer simplicity of the logic. I don’t know about you, but in this field, the simpler the explanation, the more I start to trust the method. When a framework is this elegant, it makes me feel that the researchers didn&rsquo;t just find a workaround—they actually uncovered a fundamental truth. It’s that &ldquo;aha!&rdquo; moment where the math aligns so perfectly with the intuition that you wonder why we ever did it any other way.</p>
 <ul>
