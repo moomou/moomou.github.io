@@ -70,7 +70,7 @@
   <ul>
     <li><a href="#introduction">Introduction</a></li>
     <li><a href="#flow-matching-and-back-to-basics-paper">Flow Matching and Back to Basics Paper</a></li>
-    <li><a href="#implementation-highlights">Implementation Highlights</a>
+    <li><a href="#highlight">Highlight</a>
       <ul>
         <li><a href="#image-to-patch-tokens">Image to Patch Tokens</a></li>
         <li><a href="#sampling-t">Sampling t</a></li>
@@ -78,7 +78,6 @@
       </ul>
     </li>
     <li><a href="#results">Results</a></li>
-    <li><a href="#ablations-on-hanhs-window-overlapping-tokens-and-normalized-rope-embeddings">Ablations on Hanh&rsquo;s Window, Overlapping Tokens, and Normalized RoPe Embeddings</a></li>
     <li><a href="#reflection">Reflection</a></li>
   </ul>
 </nav>
@@ -132,7 +131,7 @@ the papers <a href="https://arxiv.org/abs/2511.13720">Back to Basics: Let Denois
   <mi>&Delta;</mi>
   <mi>t</mi>
 </math>
-<p>In most common formulations, models are trained to predict noise ϵ. In this framework, the model estimates the specific noise residual that was added to the data to reach the current state x(t) at timestep t. By calculating this predicted noise, we can iteratively move toward a cleaner image by &ldquo;subtract&rdquo; the predicted noise at each step.</p>
+<p>In most common formulations, models are trained to predict noise ϵ. In this framework, the model estimates the specific noise residual that was added to the data to reach the current state x(t) at timestep t. By calculating this predicted noise, we can iteratively move toward a cleaner image by &ldquo;subtracting&rdquo; the predicted noise at each step.</p>
 <math xmlns="http://www.w3.org/1998/Math/MathML" display="block">
   <msub>
     <mi>x</mi>
@@ -164,17 +163,17 @@ the papers <a href="https://arxiv.org/abs/2511.13720">Back to Basics: Let Denois
   <mi>t</mi>
   <mo stretchy="false">)</mo>
 </math>
-<p>However, I recently came across <a href="https://arxiv.org/abs/2511.13720">Back to Basics</a>, which suggests that learning is most effective when model learns the data distribution rather than the noise distribution. Specifically, the paper suggested building a model to predict <code>x</code> (image) when given <code>t</code> and <code>z</code>, where <code>z</code> is a noisy version of the image and using the predicted velocity mean squared error (MSE) as the loss function.</p>
+<p>A recent paper that I came cross, <a href="https://arxiv.org/abs/2511.13720">Back to Basics</a>, suggests learning is most effective when model focuses on data distribution rather than the noise distribution. Specifically, the paper suggested building a model to predict <code>x</code> (image) when given <code>t</code> and <code>z</code>, where <code>z</code> is a noisy version of the image and using the predicted velocity mean squared error (MSE) as the loss function.</p>
 <p>This paper was eye opening for me because of how simple the formulation is and this is the implementation I converged upon. Straight from the paper, where JiT means Just Image Transformer</p>
 <img src="/algo1.png" alt="Back to Basics Algorithm 1">
-<p>This algorithm will serve as the blueprint for our implementation in this post.</p>
-<h2 id="implementation-highlights">
-  Implementation Highlights
-  <a href="#implementation-highlights" class="heading-anchor">#</a>
+<p>This algorithm will serve as the blueprint for the implementation in this post.</p>
+<h2 id="highlight">
+  Highlight
+  <a href="#highlight" class="heading-anchor">#</a>
 </h2>
 <p>You can find the full notebook with dataloading, model, training loop and sampling here: <a href="">TODO</a>.</p>
-<p>Instead of copy and pasting the notebook verbatim in this blog, I will cover the highlevel overview and deep dive into a few aspects of I found interesting from building this project.</p>
-<p>Here is the high level overview of the end to end flow. We will use a stanard transformer architecture with self attention, with some modern tweaks such as QK norm, SwiGLU activation, and use RoPE embedding (TODO: mention Derp).</p>
+<p>Instead of copy and pasting the notebook verbatim in this blog, I will cover a high level overview and deep dive into a few areas I found interesting from building this project.</p>
+<p>We will use a standard transformer architecture with <a href="https://arxiv.org/abs/1706.03762">self attention</a>, with some modern tweaks such as <a href="https://arxiv.org/abs/2302.05442">QK norm</a>, <a href="https://arxiv.org/abs/2002.05202">SwiGLU activation</a>, and use <a href="https://arxiv.org/abs/2104.09864">RoPE embedding</a>. As an experiment, I also tried using <a href="https://arxiv.org/pdf/2512.10938">Derf</a> instead of <a href="https://arxiv.org/abs/1910.07467">RMSNorm</a>.</p>
 <h3 id="image-to-patch-tokens">
   Image to Patch Tokens
   <a href="#image-to-patch-tokens" class="heading-anchor">#</a>
@@ -204,111 +203,8 @@ the papers <a href="https://arxiv.org/abs/2511.13720">Back to Basics: Let Denois
 </span></span><span style="display:flex;"><span>    folded_norm <span style="color:#f92672">=</span> folded_sum <span style="color:#f92672">/</span> norm_mask
 </span></span></code></pre></div><br/>
 <img src="/fold_unfold_half_stride.png" alt="Patchify with stride"/>
-<p>If we didn&rsquo;t normalize with the overlap mask, our image will be unnaturally brighter in areas where patches overlap, as shown in the image below.</p>
+<p>If we didn&rsquo;t normalize with the overlap mask, our image will be unnaturally bright in areas where patches overlap, as shown in the image below.</p>
 <img src="/fold_unfold_half_stride_no_normal.png" alt="Patchify stride but no normal"/>
-<p>In flow matching model, instead of feeding a clean image, we will feed a corrupted image. Let <code>x</code> be a clean image and <code>z(t)</code> be a corrupted image, where <code>t</code> represents time. <code>z(0)</code> is pure noise and <code>z(1)</code> equals <code>x</code>.</p>
-<math xmlns="http://www.w3.org/1998/Math/MathML" display="block">
-  <mi>z</mi>
-  <mo stretchy="false">(</mo>
-  <mi>t</mi>
-  <mo stretchy="false">)</mo>
-  <mo>=</mo>
-  <mi>x</mi>
-  <mo>⋅</mo>
-  <mi>t</mi>
-  <mo>+</mo>
-  <mo stretchy="false">(</mo>
-  <mn>1</mn>
-  <mo>&#x2212;</mo>
-  <mi>t</mi>
-  <mo stretchy="false">)</mo>
-  <mo>⋅</mo>
-  <mtext>noise</mtext>
-</math>
-<br/>
-<p>Following the paper X, we will make our transformer predict <code>x</code> (image space) and use velocity loss (<code>v</code>) as our loss function.</p>
-<p>That is, given <code>t</code> and corrupted input <code>z</code>,</p>
-<math xmlns="http://www.w3.org/1998/Math/MathML" display="block">
-  <msub>
-    <mi>x</mi>
-    <mtext>predicted</mtext>
-  </msub>
-  <mo>=</mo>
-  <mtext>model</mtext>
-  <mo stretchy="false">(</mo>
-  <mi>z</mi>
-  <mo>,</mo>
-  <mi>t</mi>
-  <mo stretchy="false">)</mo>
-</math>
-<p>Using <code>x</code> <sub>predicted</sub>, loss function is</p>
-<math xmlns="http://www.w3.org/1998/Math/MathML" display="block">
-  <msub>
-    <mi>v</mi>
-    <mtext>ground truth</mtext>
-  </msub>
-  <mo>=</mo>
-  <mfrac>
-    <mrow>
-      <msub>
-        <mi>x</mi>
-        <mtext>orig</mtext>
-      </msub>
-      <mo>&#x2212;</mo>
-      <mi>z</mi>
-    </mrow>
-    <mrow>
-      <mn>1</mn>
-      <mo>&#x2212;</mo>
-      <mi>t</mi>
-    </mrow>
-  </mfrac>
-</math>
-<br/>
-<math xmlns="http://www.w3.org/1998/Math/MathML" display="block">
-  <msub>
-    <mi>v</mi>
-    <mtext>predicted</mtext>
-  </msub>
-  <mo>=</mo>
-  <mfrac>
-    <mrow>
-      <msub>
-        <mi>x</mi>
-        <mtext>predicted</mtext>
-      </msub>
-      <mo>&#x2212;</mo>
-      <mi>z</mi>
-    </mrow>
-    <mrow>
-      <mn>1</mn>
-      <mo>&#x2212;</mo>
-      <mi>t</mi>
-    </mrow>
-  </mfrac>
-</math>
-<br/>
-<math xmlns="http://www.w3.org/1998/Math/MathML" display="block">
-  <mi>Loss</mi>
-  <mo>=</mo>
-  <msup>
-    <mrow>
-      <mo fence="true" stretchy="true">&#x2225;</mo>
-      <msub>
-        <mi>v</mi>
-        <mtext>pred</mtext>
-      </msub>
-      <mo>&#x2212;</mo>
-      <msub>
-        <mi>v</mi>
-        <mtext>gt</mtext>
-      </msub>
-      <mo fence="true" stretchy="true">&#x2225;</mo>
-    </mrow>
-    <mn>2</mn>
-  </msup>
-</math>
-<br/>
 <h3 id="sampling-t">
   Sampling t
   <a href="#sampling-t" class="heading-anchor">#</a>
@@ -391,18 +287,6 @@ the papers <a href="https://arxiv.org/abs/2511.13720">Back to Basics: Let Denois
 <p>With the model trained and euler explained, our sampling function looks like</p>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span>TODO
 </span></span></code></pre></div><p>Sampling a image takes about ~sec</p>
-<h2 id="ablations-on-hanhs-window-overlapping-tokens-and-normalized-rope-embeddings">
-  Ablations on Hanh&rsquo;s Window, Overlapping Tokens, and Normalized RoPe Embeddings
-  <a href="#ablations-on-hanhs-window-overlapping-tokens-and-normalized-rope-embeddings" class="heading-anchor">#</a>
-</h2>
-<ul>
-<li>
-<p>explored classifier free guidance</p>
-</li>
-<li>
-<p>sampling on logit t, faster convergence</p>
-</li>
-</ul>
 <h2 id="reflection">
   Reflection
   <a href="#reflection" class="heading-anchor">#</a>
