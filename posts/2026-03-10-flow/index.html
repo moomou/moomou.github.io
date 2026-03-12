@@ -78,6 +78,7 @@
       </ul>
     </li>
     <li><a href="#results">Results</a></li>
+    <li><a href="#ablations-on-hanhs-window-overlapping-tokens-and-normalized-rope-embeddings">Ablations on Hanh&rsquo;s Window, Overlapping Tokens, and Normalized RoPe Embeddings</a></li>
     <li><a href="#reflection">Reflection</a></li>
   </ul>
 </nav>
@@ -173,7 +174,7 @@ the papers <a href="https://arxiv.org/abs/2511.13720">Back to Basics: Let Denois
 </h2>
 <p>You can find the full notebook with dataloading, model, training loop and sampling here: <a href="">TODO</a>.</p>
 <p>Instead of copy and pasting the notebook verbatim in this blog, I will cover a high level overview and deep dive into a few areas I found interesting from building this project.</p>
-<p>We will use a standard transformer architecture with <a href="https://arxiv.org/abs/1706.03762">self attention</a>, with some modern tweaks such as <a href="https://arxiv.org/abs/2302.05442">QK norm</a>, <a href="https://arxiv.org/abs/2002.05202">SwiGLU activation</a>, and use <a href="https://arxiv.org/abs/2104.09864">RoPE embedding</a>. As an experiment, I also tried using <a href="https://arxiv.org/pdf/2512.10938">Derf</a> instead of <a href="https://arxiv.org/abs/1910.07467">RMSNorm</a>.</p>
+<p>We will use a standard transformer architecture with <a href="https://arxiv.org/abs/1706.03762">self attention</a>, with some modern tweaks such as <a href="https://arxiv.org/abs/2302.05442">QK norm</a>, <a href="https://arxiv.org/abs/2002.05202">SwiGLU activation</a>, and use <a href="https://arxiv.org/abs/2104.09864">RoPE embedding</a>. As an experiment, I also tried using <a href="https://arxiv.org/pdf/2512.10938">Derf</a> instead of <a href="https://arxiv.org/abs/1910.07467">RMSNorm</a>. The model generates 256x256x images.</p>
 <h3 id="image-to-patch-tokens">
   Image to Patch Tokens
   <a href="#image-to-patch-tokens" class="heading-anchor">#</a>
@@ -209,6 +210,111 @@ the papers <a href="https://arxiv.org/abs/2511.13720">Back to Basics: Let Denois
   Sampling t
   <a href="#sampling-t" class="heading-anchor">#</a>
 </h3>
+<p>In flow matching model, instead of feeding a clean image, we will feed a corrupted image. Let <code>x</code> be a clean image and <code>z(t)</code> be a corrupted image, where <code>t</code> represents time. <code>z(0)</code> is pure noise and <code>z(1)</code> equals <code>x</code>.</p>
+<math xmlns="http://www.w3.org/1998/Math/MathML" display="block">
+  <mi>z</mi>
+  <mo stretchy="false">(</mo>
+  <mi>t</mi>
+  <mo stretchy="false">)</mo>
+  <mo>=</mo>
+  <mi>x</mi>
+  <mo>⋅</mo>
+  <mi>t</mi>
+  <mo>+</mo>
+  <mo stretchy="false">(</mo>
+  <mn>1</mn>
+  <mo>&#x2212;</mo>
+  <mi>t</mi>
+  <mo stretchy="false">)</mo>
+  <mo>⋅</mo>
+  <mtext>noise</mtext>
+</math>
+<br/>
+<p>Following the paper X, we will make our transformer predict <code>x</code> (image space) and use velocity loss (<code>v</code>) as our loss function.</p>
+<p>That is, given <code>t</code> and corrupted input <code>z</code>,</p>
+<math xmlns="http://www.w3.org/1998/Math/MathML" display="block">
+  <msub>
+    <mi>x</mi>
+    <mtext>predicted</mtext>
+  </msub>
+  <mo>=</mo>
+  <mtext>model</mtext>
+  <mo stretchy="false">(</mo>
+  <mi>z</mi>
+  <mo>,</mo>
+  <mi>t</mi>
+  <mo stretchy="false">)</mo>
+</math>
+<p>Using <code>x</code> <sub>predicted</sub>, loss function is</p>
+<math xmlns="http://www.w3.org/1998/Math/MathML" display="block">
+  <msub>
+    <mi>v</mi>
+    <mtext>ground truth</mtext>
+  </msub>
+  <mo>=</mo>
+  <mfrac>
+    <mrow>
+      <msub>
+        <mi>x</mi>
+        <mtext>orig</mtext>
+      </msub>
+      <mo>&#x2212;</mo>
+      <mi>z</mi>
+    </mrow>
+    <mrow>
+      <mn>1</mn>
+      <mo>&#x2212;</mo>
+      <mi>t</mi>
+    </mrow>
+  </mfrac>
+</math>
+<br/>
+<math xmlns="http://www.w3.org/1998/Math/MathML" display="block">
+  <msub>
+    <mi>v</mi>
+    <mtext>predicted</mtext>
+  </msub>
+  <mo>=</mo>
+  <mfrac>
+    <mrow>
+      <msub>
+        <mi>x</mi>
+        <mtext>predicted</mtext>
+      </msub>
+      <mo>&#x2212;</mo>
+      <mi>z</mi>
+    </mrow>
+    <mrow>
+      <mn>1</mn>
+      <mo>&#x2212;</mo>
+      <mi>t</mi>
+    </mrow>
+  </mfrac>
+</math>
+<br/>
+<math xmlns="http://www.w3.org/1998/Math/MathML" display="block">
+  <mi>Loss</mi>
+  <mo>=</mo>
+  <msup>
+    <mrow>
+      <mo fence="true" stretchy="true">&#x2225;</mo>
+      <msub>
+        <mi>v</mi>
+        <mtext>pred</mtext>
+      </msub>
+      <mo>&#x2212;</mo>
+      <msub>
+        <mi>v</mi>
+        <mtext>gt</mtext>
+      </msub>
+      <mo fence="true" stretchy="true">&#x2225;</mo>
+    </mrow>
+    <mn>2</mn>
+  </msup>
+</math>
+<br/>
+<p>During training, we have to sample <code>t</code> to feed corrupted image into our model and let the model learn how to denoise. Sampling <code>t</code> plays a critical role in determining how many samples with different corruptions level get to see. Sample too many <code>t</code> close to one biases our model to only see lightly corrupted images.</p>
+<p>There is also an interesting relationship between how much corruption we want to introduce vs how big our images are. The bigger the image,</p>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#f92672">import</span> torch
 </span></span><span style="display:flex;"><span><span style="color:#f92672">import</span> torch.nn.functional <span style="color:#66d9ef">as</span> F
 </span></span><span style="display:flex;"><span><span style="color:#f92672">import</span> numpy <span style="color:#66d9ef">as</span> np
@@ -287,6 +393,18 @@ the papers <a href="https://arxiv.org/abs/2511.13720">Back to Basics: Let Denois
 <p>With the model trained and euler explained, our sampling function looks like</p>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span>TODO
 </span></span></code></pre></div><p>Sampling a image takes about ~sec</p>
+<h2 id="ablations-on-hanhs-window-overlapping-tokens-and-normalized-rope-embeddings">
+  Ablations on Hanh&rsquo;s Window, Overlapping Tokens, and Normalized RoPe Embeddings
+  <a href="#ablations-on-hanhs-window-overlapping-tokens-and-normalized-rope-embeddings" class="heading-anchor">#</a>
+</h2>
+<ul>
+<li>
+<p>explored classifier free guidance</p>
+</li>
+<li>
+<p>sampling on logit t, faster convergence</p>
+</li>
+</ul>
 <h2 id="reflection">
   Reflection
   <a href="#reflection" class="heading-anchor">#</a>
