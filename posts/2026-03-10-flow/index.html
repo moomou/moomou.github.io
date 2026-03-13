@@ -6,7 +6,7 @@
 	<meta property="og:url" content="/posts/2026-03-10-flow/">
   <meta property="og:site_name" content="moomou">
   <meta property="og:title" content="Building Flow Matching Models from Scratch">
-  <meta property="og:description" content="Introduction # Continuing the path of learning about deep learning, I have been working on building a diffusion/flow matching models from scratch on and off for a while. My initial goal was to build a flow-matching or diffusion model for audio with mel-spectrograms inputs. However, after struggling with eyeballing generated melspectrogram to determine if it’s good or bad and dealing with melspectrogram to audio conversion, I decided to pivot to the image domain first to make sure I learn the diffusion modeling aspect properly before tackling audio. Specifically, I chose to go with with the classic celebrity datasets, allowing me to focus on the core mechanics of generation.">
+  <meta property="og:description" content="Introduction # Continuing the path of learning about deep learning, I have been working on building a diffusion/flow matching models from scratch on and off for a while. My initial goal was to build a flow-matching or diffusion model for audio with mel-spectrograms inputs. However, after struggling with eyeballing generated melspectrogram to determine if it’s good or bad and the added complexity of dealing with melspectrogram to audio conversion, I decided to pivot to the image domain first to make sure I learn the diffusion modeling aspect properly before tackling audio. Specifically, I chose to go with with the classic celebrity datasets, allowing me to focus on the core mechanics of generation.">
   <meta property="og:locale" content="en_us">
   <meta property="og:type" content="article">
     <meta property="article:section" content="posts">
@@ -15,7 +15,7 @@
 
   <meta name="twitter:card" content="summary">
   <meta name="twitter:title" content="Building Flow Matching Models from Scratch">
-  <meta name="twitter:description" content="Introduction # Continuing the path of learning about deep learning, I have been working on building a diffusion/flow matching models from scratch on and off for a while. My initial goal was to build a flow-matching or diffusion model for audio with mel-spectrograms inputs. However, after struggling with eyeballing generated melspectrogram to determine if it’s good or bad and dealing with melspectrogram to audio conversion, I decided to pivot to the image domain first to make sure I learn the diffusion modeling aspect properly before tackling audio. Specifically, I chose to go with with the classic celebrity datasets, allowing me to focus on the core mechanics of generation.">
+  <meta name="twitter:description" content="Introduction # Continuing the path of learning about deep learning, I have been working on building a diffusion/flow matching models from scratch on and off for a while. My initial goal was to build a flow-matching or diffusion model for audio with mel-spectrograms inputs. However, after struggling with eyeballing generated melspectrogram to determine if it’s good or bad and the added complexity of dealing with melspectrogram to audio conversion, I decided to pivot to the image domain first to make sure I learn the diffusion modeling aspect properly before tackling audio. Specifically, I chose to go with with the classic celebrity datasets, allowing me to focus on the core mechanics of generation.">
 <link href="https://fonts.googleapis.com/css?family=Ubuntu:300,400,300italic,400italic|Raleway:200,300" rel="stylesheet">
 
 	<link rel="stylesheet" type="text/css" media="screen" href="/css/normalize.css" />
@@ -73,12 +73,11 @@
     <li><a href="#highlight">Highlight</a>
       <ul>
         <li><a href="#image-to-patch-tokens">Image to Patch Tokens</a></li>
-        <li><a href="#sampling-t">Sampling t</a></li>
-        <li><a href="#eulers-method">Euler&rsquo;s Method</a></li>
+        <li><a href="#noise-sampling-schedule">Noise Sampling Schedule</a></li>
+        <li><a href="#solving-ode-with-euler">Solving ODE with Euler</a></li>
       </ul>
     </li>
     <li><a href="#results">Results</a></li>
-    <li><a href="#ablations-on-hanhs-window-overlapping-tokens-and-normalized-rope-embeddings">Ablations on Hanh&rsquo;s Window, Overlapping Tokens, and Normalized RoPe Embeddings</a></li>
     <li><a href="#reflection">Reflection</a></li>
   </ul>
 </nav>
@@ -90,7 +89,7 @@
   Introduction
   <a href="#introduction" class="heading-anchor">#</a>
 </h2>
-<p>Continuing the path of learning about deep learning, I have been working on building a diffusion/flow matching models from scratch on and off for a while. My initial goal was to build a flow-matching or diffusion model for audio with mel-spectrograms inputs. However, after struggling with eyeballing generated melspectrogram to determine if it&rsquo;s good or bad and dealing with melspectrogram to audio conversion, I decided to pivot to the image domain first to make sure I learn the diffusion modeling aspect properly before tackling audio. Specifically, I chose to go with with the classic celebrity datasets, allowing me to focus on the core mechanics of generation.</p>
+<p>Continuing the path of learning about deep learning, I have been working on building a diffusion/flow matching models from scratch on and off for a while. My initial goal was to build a flow-matching or diffusion model for audio with mel-spectrograms inputs. However, after struggling with eyeballing generated melspectrogram to determine if it&rsquo;s good or bad and the added complexity of dealing with melspectrogram to audio conversion, I decided to pivot to the image domain first to make sure I learn the diffusion modeling aspect properly before tackling audio. Specifically, I chose to go with with the classic celebrity datasets, allowing me to focus on the core mechanics of generation.</p>
 <blockquote>
 <p><strong>tl;dr</strong> In this blog post, I discuss building a flow matching image generator from scratch by following
 the papers <a href="https://arxiv.org/abs/2511.13720">Back to Basics: Let Denoising Generative Models Denoise</a></p>
@@ -173,8 +172,8 @@ the papers <a href="https://arxiv.org/abs/2511.13720">Back to Basics: Let Denois
   <a href="#highlight" class="heading-anchor">#</a>
 </h2>
 <p>You can find the full notebook with dataloading, model, training loop and sampling here: <a href="">TODO</a>.</p>
-<p>Instead of copy and pasting the notebook verbatim in this blog, I will cover a high level overview and deep dive into a few areas I found interesting from building this project.</p>
-<p>We will use a standard transformer architecture with <a href="https://arxiv.org/abs/1706.03762">self attention</a>, with some modern tweaks such as <a href="https://arxiv.org/abs/2302.05442">QK norm</a>, <a href="https://arxiv.org/abs/2002.05202">SwiGLU activation</a>, and use <a href="https://arxiv.org/abs/2104.09864">RoPE embedding</a>. As an experiment, I also tried using <a href="https://arxiv.org/pdf/2512.10938">Derf</a> instead of <a href="https://arxiv.org/abs/1910.07467">RMSNorm</a>. The model generates 256x256x images.</p>
+<p>Instead of copying and pasting the notebook verbatim in this blog, I will cover a high level overview and deep dive into a few areas I found interesting from building this project.</p>
+<p>I used a standard transformer architecture with <a href="https://arxiv.org/abs/1706.03762">self attention</a>, with some modern tweaks such as <a href="https://arxiv.org/abs/2302.05442">QK norm</a>, <a href="https://arxiv.org/abs/2002.05202">SwiGLU activation</a>, and <a href="https://arxiv.org/abs/2104.09864">RoPE embedding</a>. As an experiment, I also tried using <a href="https://arxiv.org/pdf/2512.10938">Derf</a> instead of <a href="https://arxiv.org/abs/1910.07467">RMSNorm</a>. The model generates 256x256x images.</p>
 <h3 id="image-to-patch-tokens">
   Image to Patch Tokens
   <a href="#image-to-patch-tokens" class="heading-anchor">#</a>
@@ -206,9 +205,9 @@ the papers <a href="https://arxiv.org/abs/2511.13720">Back to Basics: Let Denois
 <img src="/fold_unfold_half_stride.png" alt="Patchify with stride"/>
 <p>If we didn&rsquo;t normalize with the overlap mask, our image will be unnaturally bright in areas where patches overlap, as shown in the image below.</p>
 <img src="/fold_unfold_half_stride_no_normal.png" alt="Patchify stride but no normal"/>
-<h3 id="sampling-t">
-  Sampling t
-  <a href="#sampling-t" class="heading-anchor">#</a>
+<h3 id="noise-sampling-schedule">
+  Noise Sampling Schedule
+  <a href="#noise-sampling-schedule" class="heading-anchor">#</a>
 </h3>
 <p>In flow matching model, instead of feeding a clean image, we will feed a corrupted image. Let <code>x</code> be a clean image and <code>z(t)</code> be a corrupted image, where <code>t</code> represents time. <code>z(0)</code> is pure noise and <code>z(1)</code> equals <code>x</code>.</p>
 <math xmlns="http://www.w3.org/1998/Math/MathML" display="block">
@@ -230,7 +229,7 @@ the papers <a href="https://arxiv.org/abs/2511.13720">Back to Basics: Let Denois
   <mtext>noise</mtext>
 </math>
 <br/>
-<p>Following the paper X, we will make our transformer predict <code>x</code> (image space) and use velocity loss (<code>v</code>) as our loss function.</p>
+<p>Following Back to Basics&rsquo; suggestion, we will make our transformer predict <code>x</code> (image space) and use velocity space (<code>v</code>) for our loss function.</p>
 <p>That is, given <code>t</code> and corrupted input <code>z</code>,</p>
 <math xmlns="http://www.w3.org/1998/Math/MathML" display="block">
   <msub>
@@ -313,8 +312,8 @@ the papers <a href="https://arxiv.org/abs/2511.13720">Back to Basics: Let Denois
   </msup>
 </math>
 <br/>
-<p>During training, we have to sample <code>t</code> to feed corrupted image into our model and let the model learn how to denoise. Sampling <code>t</code> plays a critical role in determining how many samples with different corruptions level get to see. Sample too many <code>t</code> close to one biases our model to only see lightly corrupted images.</p>
-<p>There is also an interesting relationship between how much corruption we want to introduce vs how big our images are. The bigger the image,</p>
+<p>During training, we sample t to generate the corrupted images used for denoising. How we sample t is critical, as it dictates the specific distribution of corruption levels observed by the network. This is particularly important because of image redundancy: larger images contain more spatial information than smaller ones. For example, corrupting 42 pixels in a 64×64 image results in a ∼1% loss of information, whereas the same number of corrupted pixels in a 256×256 image represents a loss of only ∼0.06%.</p>
+<p>This means as we scale up our model to generate higher resolution images, we have to adjust <code>t</code> sampling accordingly. Sample too many <code>t</code> close 1 biases our model to only see lightly corrupted images. I went with the suggested sampling schedule from Back to Basics for 256x256 images. For a reference paper on noise schedule, <a href="https://arxiv.org/pdf/2301.11093">Simple Diffusion</a> is a good resource.</p>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#f92672">import</span> torch
 </span></span><span style="display:flex;"><span><span style="color:#f92672">import</span> torch.nn.functional <span style="color:#66d9ef">as</span> F
 </span></span><span style="display:flex;"><span><span style="color:#f92672">import</span> numpy <span style="color:#66d9ef">as</span> np
@@ -333,13 +332,16 @@ the papers <a href="https://arxiv.org/abs/2511.13720">Back to Basics: Let Denois
 </span></span><span style="display:flex;"><span>    t <span style="color:#f92672">=</span> torch<span style="color:#f92672">.</span>sigmoid(u_sample)
 </span></span><span style="display:flex;"><span>    
 </span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> t
-</span></span></code></pre></div><h3 id="eulers-method">
-  Euler&rsquo;s Method
-  <a href="#eulers-method" class="heading-anchor">#</a>
+</span></span></code></pre></div><p>A graph showing the distribution of <code>t</code> for the sampling schedule used in my training setup.</p>
+<img src="/sampling_logit_t.png" alt="Sampling Logit t">
+<h3 id="solving-ode-with-euler">
+  Solving ODE with Euler
+  <a href="#solving-ode-with-euler" class="heading-anchor">#</a>
 </h3>
 <p>One of the core mechanisms of the Flow Matching algorithm is the need to iteratively solve an Ordinary Differential Equation (ODE). Specifically, we will leverage our flow matching model to derive a velocity field (position over time), and use that to nudge our image (position) step by step until we get a noise free version.</p>
 <p>While many implementations use complex adaptive solvers, in keeping with the spirit from scratch as much as possible, I have chosen to go with implement Euler&rsquo;s method.</p>
-<p>The core idea is this - suppose you have a function X(t) and you know the derivative of X (dxdt) and its value at a specific <code>t</code>.  To estimate the value of X at new value <code>t2</code>, we can start from <code>X(t)</code>, take a small step in the directions of the <code>dxdt(t)</code>, arrive at new value <code>X(t + epsilon)</code>. In equation form</p>
+<p>The core idea is as follows: suppose you have a function x(t) and you know both its derivative dxdt and its value at a specific <code>t</code>. To estimate the value of X at new value <code>t2</code>, we can start from <code>x(t)</code>, take a small step in the directions of the <code>dxdt(t)</code>, arrive at new value <code>x(t + epsilon)</code>. In equation form</p>
+<p>In equation form</p>
 <math xmlns="http://www.w3.org/1998/Math/MathML" display="block">
   <mi>x</mi>
   <mo stretchy="false">(</mo>
@@ -369,8 +371,8 @@ the papers <a href="https://arxiv.org/abs/2511.13720">Back to Basics: Let Denois
   <mo>&#x22C5;</mo>
   <mi>&#x03B5;</mi>
 </math>
-<p>We can repeat this process until we arrive at <code>t2</code> and get at an estimate for <code>X(t2)</code>.</p>
-<p>The smaller the epislon, the better the approximateion and the smaller the error.</p>
+<p>We can repeat this process until we arrive at <code>t2</code> and get at an estimate for <code>x(t2)</code>.</p>
+<p>The smaller the epsilon, the better the approximateion and the smaller the error.</p>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#a6e22e">@torch.no_grad</span>
 </span></span><span style="display:flex;"><span><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">euler_method</span>(y0, x0, x1, dfdx):
 </span></span><span style="display:flex;"><span>    x <span style="color:#f92672">=</span> x0
@@ -384,33 +386,31 @@ the papers <a href="https://arxiv.org/abs/2511.13720">Back to Basics: Let Denois
 </span></span><span style="display:flex;"><span>        x <span style="color:#f92672">+=</span> step_size
 </span></span><span style="display:flex;"><span>        x_tensor <span style="color:#f92672">=</span> torch<span style="color:#f92672">.</span>tensor(x)<span style="color:#f92672">.</span>to(y0<span style="color:#f92672">.</span>device)
 </span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> y
-</span></span></code></pre></div><p>To verify the euler function is working correctly, here is a visualization of my euler function approximately sine wave with different step sizes (the bigger the steps, the smaller the epislon)</p>
+</span></span></code></pre></div><p>To verify the euler function is working correctly, here is a visualization of euler function approximating sine wave with different step sizes (the bigger the steps, the smaller the epislon)</p>
 <img src="/euler_example2.jpg" alt="euler example"/>
+<p>As we can see, while not perfect, with 100 steps, euler method matches sine wave shape very well.</p>
 <h2 id="results">
   Results
   <a href="#results" class="heading-anchor">#</a>
 </h2>
-<p>With the model trained and euler explained, our sampling function looks like</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span>TODO
-</span></span></code></pre></div><p>Sampling a image takes about ~sec</p>
-<h2 id="ablations-on-hanhs-window-overlapping-tokens-and-normalized-rope-embeddings">
-  Ablations on Hanh&rsquo;s Window, Overlapping Tokens, and Normalized RoPe Embeddings
-  <a href="#ablations-on-hanhs-window-overlapping-tokens-and-normalized-rope-embeddings" class="heading-anchor">#</a>
-</h2>
-<ul>
-<li>
-<p>explored classifier free guidance</p>
-</li>
-<li>
-<p>sampling on logit t, faster convergence</p>
-</li>
-</ul>
+<p>I ran the training loop on the full celebrity dataset using a 12-layer transformer (~114M params). With an embedding size of 768, patch_size=16, and stride=12, the model reached 100 epochs in about 6 hours on an RTX 5090.</p>
+<img src="/loss_curve.png" alt="training loss"/>
+<p>Here are few selected samples of what the model can generate after this modest training</p>
+<div style="display: flex; justify-content: space-around;">
+  <img src="/ex5.png" alt="Example 5" style="width: 45%;" />
+  <img src="/ex4.png" alt="Example 4" style="width: 45%;" />
+</div>
+<img src="/ex3.png" alt="Example 3"/>
+<img src="/ex2.png" alt="Example 2"/>
+<img src="/ex1.png" alt="Example 1"/>
+<p>While far from perfect, these images demonstrate that model successfully learnt facial positions and the overlapping patches successfully mitigated grid like artifacts, a common failure mode I encountered during the course of this exercise.</p>
+<p>Noticeable denoising artifacts appear at the high t end of the spectrum, likely due to the noise sampling schedule&rsquo;s bias toward lower t values. This could be resolved with an adjusted noise schedule, which I will leave for future exploration.</p>
 <h2 id="reflection">
   Reflection
   <a href="#reflection" class="heading-anchor">#</a>
 </h2>
 <p>I think it&rsquo;s important to point out this learning path has been highly <strong>nonlinear</strong>. There were many debugging sessions (is rope implementation correct? is my attention implementation correct) and reading different papers to try to get to the essence of the flow matching algorithm.</p>
-<p>In an era where a single prompt to a LLM can generate <em>anything</em>, one might ask: what is the point of spending all these time to and writing a blog to document the journey? For me, it comes down to the pure joy of building. It’s much like hiking; there is a deep, quiet satisfaction in setting a goal and seeing it through to the end, regardless of how many others have trekked the same path and saw the same summit. Similarly, I find that writing these posts remains rewarding because it represents a mini milestone in my learning journey and as much for me as it is for the reader.</p>
+<p>In an era where a single prompt to a LLM can generate <em>anything</em>, one might ask: what is the point of spending all these time to write a blog to document the journey? For me, it boils down to the pure joy of building. It’s much like hiking - there is a deep, quiet satisfaction in setting a goal and seeing it through to the end, regardless of how many others have trekked the same path. Similarly, I find that writing these posts remains rewarding because it represents a mini milestone in my learning journey.</p>
 
 		</div>
 
