@@ -171,7 +171,7 @@ the papers <a href="https://arxiv.org/abs/2511.13720">Back to Basics: Let Denois
   Highlight
   <a href="#highlight" class="heading-anchor">#</a>
 </h2>
-<p>You can find the full notebook with dataloading, model, training loop and sampling here: <a href="">TODO</a>.</p>
+<p>You can find the full notebook with dataloading, model, training loop and sampling <a href="https://github.com/moomou/moomou.github.io/blob/master/20260311_diffusion_blog.ipynb">here</a></p>
 <p>Instead of copying and pasting the notebook verbatim in this blog, I will cover a high level overview and deep dive into a few areas I found interesting from building this project.</p>
 <p>I used a standard transformer architecture with <a href="https://arxiv.org/abs/1706.03762">self attention</a>, with some modern tweaks such as <a href="https://arxiv.org/abs/2302.05442">QK norm</a>, <a href="https://arxiv.org/abs/2002.05202">SwiGLU activation</a>, and <a href="https://arxiv.org/abs/2104.09864">RoPE embedding</a>. As an experiment, I also tried using <a href="https://arxiv.org/pdf/2512.10938">Derf</a> instead of <a href="https://arxiv.org/abs/1910.07467">RMSNorm</a>. The model generates 256x256x images.</p>
 <h3 id="image-to-patch-tokens">
