@@ -7,8 +7,15 @@
     <generator>Hugo</generator>
     <language>en-us</language>
     <copyright>since 2017</copyright>
-    <lastBuildDate>Tue, 10 Mar 2026 00:00:00 +0000</lastBuildDate>
+    <lastBuildDate>Thu, 19 Mar 2026 00:00:00 +0000</lastBuildDate>
     <atom:link href="/posts/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Building chef-py: Replacing Chef with Python</title>
+      <link>/posts/2026-03-19-chef-py/</link>
+      <pubDate>Thu, 19 Mar 2026 00:00:00 +0000</pubDate>
+      <guid>/posts/2026-03-19-chef-py/</guid>
+      <description>&lt;h2 id=&#34;introduction&#34;&gt;&#xA;  Introduction&#xA;  &lt;a href=&#34;#introduction&#34; class=&#34;heading-anchor&#34;&gt;#&lt;/a&gt;&#xA;&lt;/h2&gt;&#xA;&lt;p&gt;I&amp;rsquo;ve been using Chef for server configuration for a while now. It works, but there&amp;rsquo;s always been friction. I don&amp;rsquo;t write Ruby anywhere else, so every time I need to update server configs, I&amp;rsquo;m context-switching into a language I&amp;rsquo;m barely literate in. Chef uses Ruby with its own DSL conventions, and while that&amp;rsquo;s arguably better than learning a completely custom language like Puppet, I still find myself fighting against patterns I don&amp;rsquo;t understand and don&amp;rsquo;t use anywhere else.&lt;/p&gt;</description>
+    </item>
     <item>
       <title>Building Flow Matching Models from Scratch</title>
       <link>/posts/2026-03-10-flow/</link>

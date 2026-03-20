@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8" />
+	<meta http-equiv="X-UA-Compatible" content="IE=edge"><title>Building chef-py: Replacing Chef with Python - moomou</title><link rel="icon" type="image/png" href=favicon.ico /><meta name="viewport" content="width=device-width, initial-scale=1">
+	<meta property="og:url" content="/posts/2026-03-19-chef-py/">
+  <meta property="og:site_name" content="moomou">
+  <meta property="og:title" content="Building chef-py: Replacing Chef with Python">
+  <meta property="og:description" content="Introduction # I’ve been using Chef for server configuration for a while now. It works, but there’s always been friction. I don’t write Ruby anywhere else, so every time I need to update server configs, I’m context-switching into a language I’m barely literate in. Chef uses Ruby with its own DSL conventions, and while that’s arguably better than learning a completely custom language like Puppet, I still find myself fighting against patterns I don’t understand and don’t use anywhere else.">
+  <meta property="og:locale" content="en_us">
+  <meta property="og:type" content="article">
+    <meta property="article:section" content="posts">
+    <meta property="article:published_time" content="2026-03-19T00:00:00+00:00">
+    <meta property="article:modified_time" content="2026-03-19T00:00:00+00:00">
+
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="Building chef-py: Replacing Chef with Python">
+  <meta name="twitter:description" content="Introduction # I’ve been using Chef for server configuration for a while now. It works, but there’s always been friction. I don’t write Ruby anywhere else, so every time I need to update server configs, I’m context-switching into a language I’m barely literate in. Chef uses Ruby with its own DSL conventions, and while that’s arguably better than learning a completely custom language like Puppet, I still find myself fighting against patterns I don’t understand and don’t use anywhere else.">
+<link href="https://fonts.googleapis.com/css?family=Ubuntu:300,400,300italic,400italic|Raleway:200,300" rel="stylesheet">
+
+	<link rel="stylesheet" type="text/css" media="screen" href="/css/normalize.css" />
+	<link rel="stylesheet" type="text/css" media="screen" href="/css/main.css" /><link rel="stylesheet" type="text/css" href="/css/dark.css"  />
+
+	<script src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js"></script>
+	<script src="/js/main.js"></script>
+	<script src="/js/abc.js"></script>
+	<script src="/js/xyz.js"></script>
+	<script src="https://code.jquery.com/jquery-3.4.1.js"></script>
+	
+	<link rel="stylesheet" type="text/css" href="/css/anchors.css" />
+
+</head>
+
+<body>
+	<div class="container wrapper post">
+		<div class="header">
+	<h1 class="site-title"><a href="/">moomou</a></h1>
+	<div class="site-description"><h2>(ﾉ≧∇≦)ﾉ ﾐ ┸┸</h2><nav class="nav social">
+			<ul class="flat"><a href="https://github.com/moomou" title="Github"><i data-feather="github"></i></a></ul>
+		</nav>
+	</div>
+
+	<nav class="nav">
+		<ul class="flat">
+			
+			<li>
+				<a href="/">All posts</a>
+			</li>
+			
+			<li>
+				<a href="https://go.mou.dev/resume">Resume</a>
+			</li>
+			
+		</ul>
+	</nav>
+</div>
+
+
+		<div class="post-header">
+			<h1 class="title">Building chef-py: Replacing Chef with Python</h1>
+      
+      <div class="meta">Posted at &mdash; Mar 19, 2026</div>
+      
+      
+		</div>
+
+    
+    <div id="table-of-contents">
+        <nav id="TableOfContents">
+  <ul>
+    <li><a href="#introduction">Introduction</a></li>
+    <li><a href="#what-i-actually-use-from-chef">What I Actually Use from Chef</a></li>
+    <li><a href="#chef-py-python-instead-of-ruby">chef-py: Python Instead of Ruby</a></li>
+    <li><a href="#cookbooks-as-python-code">Cookbooks as Python Code</a></li>
+    <li><a href="#why-this-feels-better">Why This Feels Better</a></li>
+    <li><a href="#bootstrapping">Bootstrapping</a></li>
+    <li><a href="#debug-mode">Debug Mode</a></li>
+    <li><a href="#whats-missing">What&rsquo;s Missing</a></li>
+    <li><a href="#reflection">Reflection</a></li>
+  </ul>
+</nav>
+    </div>
+    
+
+		<div class="markdown">
+			<h2 id="introduction">
+  Introduction
+  <a href="#introduction" class="heading-anchor">#</a>
+</h2>
+<p>I&rsquo;ve been using Chef for server configuration for a while now. It works, but there&rsquo;s always been friction. I don&rsquo;t write Ruby anywhere else, so every time I need to update server configs, I&rsquo;m context-switching into a language I&rsquo;m barely literate in. Chef uses Ruby with its own DSL conventions, and while that&rsquo;s arguably better than learning a completely custom language like Puppet, I still find myself fighting against patterns I don&rsquo;t understand and don&rsquo;t use anywhere else.</p>
+<p>Eventually I thought: why not just use Python? It&rsquo;s what I write in every day. Why maintain infrastructure code in a language I only touch when something breaks?</p>
+<h2 id="what-i-actually-use-from-chef">
+  What I Actually Use from Chef
+  <a href="#what-i-actually-use-from-chef" class="heading-anchor">#</a>
+</h2>
+<p>When I looked at my actual Chef setup, I realized I only use a small handful of resource types:</p>
+<ul>
+<li><strong>Packages</strong>: Install apt packages</li>
+<li><strong>Files</strong>: Create files with content, permissions, ownership</li>
+<li><strong>Directories</strong>: Ensure directories exist</li>
+<li><strong>Execute</strong>: Run shell commands (often with guards like <code>creates</code> or <code>only_if</code>)</li>
+<li><strong>Services</strong>: Start/enable systemd services</li>
+<li><strong>Templates</strong>: Render config files from templates</li>
+<li><strong>Links</strong>: Create symlinks</li>
+</ul>
+<p>That&rsquo;s it. No search indexes, no complex dependency graphs, no distributed state. Just a way to describe what my servers should look like and have it happen.</p>
+<h2 id="chef-py-python-instead-of-ruby">
+  chef-py: Python Instead of Ruby
+  <a href="#chef-py-python-instead-of-ruby" class="heading-anchor">#</a>
+</h2>
+<p>So I built <code>chef-py</code> - a minimal replacement that covers the subset of Chef I actually use. The core idea is the same: resources describe what you want, providers handle how to make it happen.</p>
+<p>Resources are frozen dataclasses:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#a6e22e">@dataclass</span>(frozen<span style="color:#f92672">=</span><span style="color:#66d9ef">True</span>)
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">File</span>(Resource):
+</span></span><span style="display:flex;"><span>    path: str
+</span></span><span style="display:flex;"><span>    content: str
+</span></span><span style="display:flex;"><span>    owner: str <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;root&#34;</span>
+</span></span><span style="display:flex;"><span>    group: str <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;root&#34;</span>
+</span></span><span style="display:flex;"><span>    mode: str <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;0644&#34;</span>
+</span></span></code></pre></div><p>And providers do the actual work. Each provider knows how to apply one type of resource, checking first if the resource is already in the desired state:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">FileProvider</span>(Provider):
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">apply</span>(self, resource: File) <span style="color:#f92672">-&gt;</span> <span style="color:#66d9ef">None</span>:
+</span></span><span style="display:flex;"><span>        <span style="color:#75715e"># If file exists with correct content, skip</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">if</span> os<span style="color:#f92672">.</span>path<span style="color:#f92672">.</span>exists(resource<span style="color:#f92672">.</span>path):
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">with</span> open(resource<span style="color:#f92672">.</span>path) <span style="color:#66d9ef">as</span> f:
+</span></span><span style="display:flex;"><span>                <span style="color:#66d9ef">if</span> f<span style="color:#f92672">.</span>read() <span style="color:#f92672">==</span> resource<span style="color:#f92672">.</span>content:
+</span></span><span style="display:flex;"><span>                    <span style="color:#66d9ef">return</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        <span style="color:#75715e"># Otherwise write it</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">...</span>
+</span></span></code></pre></div><p>A registry maps resources to providers, so I can add new resource types without touching the core runner.</p>
+<h2 id="cookbooks-as-python-code">
+  Cookbooks as Python Code
+  <a href="#cookbooks-as-python-code" class="heading-anchor">#</a>
+</h2>
+<p>Cookbooks are just Python classes or functions that return lists of resources. Here&rsquo;s the Ubuntu basics:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">ubuntu</span>():
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> [
+</span></span><span style="display:flex;"><span>        Package(name<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;jq&#34;</span>),
+</span></span><span style="display:flex;"><span>        File(
+</span></span><span style="display:flex;"><span>            path<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;/etc/systemd/journald.conf&#34;</span>,
+</span></span><span style="display:flex;"><span>            content<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;[Journal]</span><span style="color:#ae81ff">\n</span><span style="color:#e6db74">SystemMaxUse=256M</span><span style="color:#ae81ff">\n</span><span style="color:#e6db74">&#34;</span>,
+</span></span><span style="display:flex;"><span>            mode<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;0644&#34;</span>,
+</span></span><span style="display:flex;"><span>        ),
+</span></span><span style="display:flex;"><span>    ]
+</span></span></code></pre></div><p>The Nginx cookbook is more involved - it&rsquo;s a class that takes configuration and generates a bunch of resources for SSL, certbot, rate limiting, upstreams, etc. But it&rsquo;s all just Python code. Loops, conditionals, string manipulation - no special syntax needed.</p>
+<p>Roles tie it together:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">role</span>():
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> [
+</span></span><span style="display:flex;"><span>        ubuntu(),
+</span></span><span style="display:flex;"><span>        Nginx(domains<span style="color:#f92672">=</span>[<span style="color:#f92672">...</span>], user<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;me@example.com&#34;</span>),
+</span></span><span style="display:flex;"><span>        Podman(ghcr_token<span style="color:#f92672">=</span>os<span style="color:#f92672">.</span>environ<span style="color:#f92672">.</span>get(<span style="color:#e6db74">&#34;GH_CR_RO_TOKEN&#34;</span>)),
+</span></span><span style="display:flex;"><span>    ]
+</span></span></code></pre></div><h2 id="why-this-feels-better">
+  Why This Feels Better
+  <a href="#why-this-feels-better" class="heading-anchor">#</a>
+</h2>
+<p>The biggest win is that I&rsquo;m writing code in a language I actually know. When I need to add conditional logic or loop over some configuration, I&rsquo;m not reaching for documentation or Stack Overflow. It&rsquo;s just Python.</p>
+<p>I also get:</p>
+<ul>
+<li>Type hints in my IDE</li>
+<li>pdb for debugging</li>
+<li>pytest for testing</li>
+<li>Standard library instead of Chef utilities</li>
+</ul>
+<p>The resource/provider pattern is the same one Chef uses - I didn&rsquo;t reinvent anything there. But frozen dataclasses give immutability for free, and I don&rsquo;t have to think about Ruby semantics.</p>
+<h2 id="bootstrapping">
+  Bootstrapping
+  <a href="#bootstrapping" class="heading-anchor">#</a>
+</h2>
+<p>Bootstrapping is straightforward. For remote servers, <code>bootstrap_remote.sh</code> tarballs the chef directory and sends it over SSH:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>tar cz . | ssh user@host <span style="color:#e6db74">&#34;
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">  cd \$(mktemp -d) &amp;&amp;
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">  tar xz &amp;&amp;
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">  sudo -E bash run_chef_role.sh my_role
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">&#34;</span>
+</span></span></code></pre></div><p>The role script installs Python and uv if they&rsquo;re missing, then runs <code>uv run --no-dev chef my_role</code>. uv handles the venv and dependencies automatically. Compared to <code>bundle install</code> and Ruby version management, this feels pretty light.</p>
+<p>For local testing, <code>bootstrap_local.sh</code> copies everything to a temp directory first, so I don&rsquo;t accidentally mess up my working tree.</p>
+<h2 id="debug-mode">
+  Debug Mode
+  <a href="#debug-mode" class="heading-anchor">#</a>
+</h2>
+<p>The <code>--debug</code> flag does two things: shows environment variables (hiding tokens/passwords), and dry-runs every resource so I can see what would happen without touching the server.</p>
+<p>The Nginx cookbook also prints out every certbot and shell command when debug is enabled, which makes it easy to inspect the generated configuration before running it.</p>
+<h2 id="whats-missing">
+  What&rsquo;s Missing
+  <a href="#whats-missing" class="heading-anchor">#</a>
+</h2>
+<p>This isn&rsquo;t a full Chef replacement. I left out the things that make Chef useful at scale - dynamic node discovery, handlers that fire when resources change, notifications between services. Chef has a whole distributed state layer that lets you query your infrastructure and build derived configurations. I don&rsquo;t have any of that.</p>
+<p>But here&rsquo;s the thing: I never used those features anyway. My servers are independent, and I prefer explicit ordering over implicit dependencies.</p>
+<p>The core is ~800 lines of Python, plus cookbooks. The cookbooks read like Python code because that&rsquo;s what they are.</p>
+<h2 id="reflection">
+  Reflection
+  <a href="#reflection" class="heading-anchor">#</a>
+</h2>
+<p>This has been gradually replacing my Chef setup for a while now. Every time I bootstrap a new server or tweak an nginx config, I&rsquo;m glad I don&rsquo;t have to switch mental contexts into Ruby.</p>
+<p>I think there&rsquo;s a broader lesson here: sometimes the best tool is the one you already know. Chef is powerful, but for my use case, Python with a few good primitives is more flexible and maintainable.</p>
+<p>There&rsquo;s a certain satisfaction in building something that fits your exact needs - stripping away complexity and keeping only what you use. I still use the same configuration management concepts I learned from Chef, but now they&rsquo;re expressed in code I understand.</p>
+<p>I should also mention: this kind of project only makes sense in the era of AI coding tools. Reimplementing even a subset of Chef would have been a multi-week endeavor without AI assistance - writing providers, getting the edge cases right, debugging shell commands that only fail in production. The ROI just wouldn&rsquo;t be there. But with AI, I could iterate quickly, catch issues early, and end up with something that actually works without drowning in yak shaving. Tooling has finally reached the point where building your own bespoke solution is practical instead of a trap.</p>
+
+		</div>
+
+		<div class="post-tags">
+			
+				
+			
+		</div>
+		</div>
+	<div class="footer wrapper">
+	<nav class="nav">
+		<div> since 2017 </div>
+	</nav>
+</div>
+
+
+<script async src="https://www.googletagmanager.com/gtag/js?id=trackingcode"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'trackingcode');
+</script><script>feather.replace()</script>
+</body>
+</html>
