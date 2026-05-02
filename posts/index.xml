@@ -7,8 +7,15 @@
     <generator>Hugo</generator>
     <language>en-us</language>
     <copyright>since 2017</copyright>
-    <lastBuildDate>Thu, 19 Mar 2026 00:00:00 +0000</lastBuildDate>
+    <lastBuildDate>Tue, 28 Apr 2026 00:00:00 +0000</lastBuildDate>
     <atom:link href="/posts/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Software for One</title>
+      <link>/posts/2026-04-28-software-for-one/</link>
+      <pubDate>Tue, 28 Apr 2026 00:00:00 +0000</pubDate>
+      <guid>/posts/2026-04-28-software-for-one/</guid>
+      <description>&lt;h2 id=&#34;introduction&#34;&gt;&#xA;  Introduction&#xA;  &lt;a href=&#34;#introduction&#34; class=&#34;heading-anchor&#34;&gt;#&lt;/a&gt;&#xA;&lt;/h2&gt;&#xA;&lt;p&gt;In the age of coding agents, building software has never been cheaper&#xA;or easier. I can go from an idea to shipping working software in an&#xA;afternoon. I wanted to document a couple of these in this post and&#xA;argue that, in the era of AI coding, more software will be written and&#xA;increasingly cater to a smaller audience.&lt;/p&gt;&#xA;&lt;h2 id=&#34;wingroup&#34;&gt;&#xA;  WinGroup&#xA;  &lt;a href=&#34;#wingroup&#34; class=&#34;heading-anchor&#34;&gt;#&lt;/a&gt;&#xA;&lt;/h2&gt;&#xA;&lt;p&gt;WinGroup is a Mission Control–style window overlay and a per-app&#xA;hotkey launcher. It replaces Apptivate, the last Rosetta-translated&#xA;app on my Mac, and adds two features I could not find in any single&#xA;shipping app: AI auto-grouping of open windows by project or task, and&#xA;a way to move a whole group of windows to another desktop space in&#xA;one action.&lt;/p&gt;</description>
+    </item>
     <item>
       <title>Building chef-py: Replacing Chef with Python</title>
       <link>/posts/2026-03-19-chef-py/</link>

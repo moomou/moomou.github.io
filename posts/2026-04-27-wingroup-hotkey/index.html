@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8" />
+	<meta http-equiv="X-UA-Compatible" content="IE=edge"><title>Eight Layers to Focus an App on macOS - moomou</title><link rel="icon" type="image/png" href=favicon.ico /><meta name="viewport" content="width=device-width, initial-scale=1">
+	<meta property="og:url" content="/posts/2026-04-27-wingroup-hotkey/">
+  <meta property="og:site_name" content="moomou">
+  <meta property="og:title" content="Eight Layers to Focus an App on macOS">
+  <meta property="og:description" content="Introduction # I have been using Apptivate for years. It is a tiny menu-bar app that lets you bind a global hotkey to any application — press ⌥V and you are in VSCode, press ⌥C and you are in Chrome. It makes switching apps fast and easy in a way Cmd&#43;Tab never has been.
+Apptivate has not been updated in a long time and is the only Rosetta-translated app left on my Mac. So when I built WinGroup — my own Mission Control–style window grouping overlay — I figured I’d fold the per-app hotkey feature in too. How hard could it be? Activate this app when this key is pressed.">
+  <meta property="og:locale" content="en_us">
+  <meta property="og:type" content="article">
+    <meta property="article:section" content="posts">
+    <meta property="article:published_time" content="2026-04-27T00:00:00+00:00">
+    <meta property="article:modified_time" content="2026-04-27T00:00:00+00:00">
+
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="Eight Layers to Focus an App on macOS">
+  <meta name="twitter:description" content="Introduction # I have been using Apptivate for years. It is a tiny menu-bar app that lets you bind a global hotkey to any application — press ⌥V and you are in VSCode, press ⌥C and you are in Chrome. It makes switching apps fast and easy in a way Cmd&#43;Tab never has been.
+Apptivate has not been updated in a long time and is the only Rosetta-translated app left on my Mac. So when I built WinGroup — my own Mission Control–style window grouping overlay — I figured I’d fold the per-app hotkey feature in too. How hard could it be? Activate this app when this key is pressed.">
+<link href="https://fonts.googleapis.com/css?family=Ubuntu:300,400,300italic,400italic|Raleway:200,300" rel="stylesheet">
+
+	<link rel="stylesheet" type="text/css" media="screen" href="/css/normalize.css" />
+	<link rel="stylesheet" type="text/css" media="screen" href="/css/main.css" /><link rel="stylesheet" type="text/css" href="/css/dark.css"  />
+
+	<script src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js"></script>
+	<script src="/js/main.js"></script>
+	<script src="/js/abc.js"></script>
+	<script src="/js/xyz.js"></script>
+	<script src="https://code.jquery.com/jquery-3.4.1.js"></script>
+	
+	<link rel="stylesheet" type="text/css" href="/css/anchors.css" />
+
+</head>
+
+<body>
+	<div class="container wrapper post">
+		<div class="header">
+	<h1 class="site-title"><a href="/">moomou</a></h1>
+	<div class="site-description"><h2>(ﾉ≧∇≦)ﾉ ﾐ ┸┸</h2><nav class="nav social">
+			<ul class="flat"><a href="https://github.com/moomou" title="Github"><i data-feather="github"></i></a></ul>
+		</nav>
+	</div>
+
+	<nav class="nav">
+		<ul class="flat">
+			
+			<li>
+				<a href="/">All posts</a>
+			</li>
+			
+			<li>
+				<a href="https://go.mou.dev/resume">Resume</a>
+			</li>
+			
+		</ul>
+	</nav>
+</div>
+
+
+		<div class="post-header">
+			<h1 class="title">Eight Layers to Focus an App on macOS</h1>
+      
+      <div class="meta">Posted at &mdash; Apr 27, 2026</div>
+      
+      
+		</div>
+
+    
+    <div id="table-of-contents">
+        <nav id="TableOfContents">
+  <ul>
+    <li><a href="#introduction">Introduction</a></li>
+    <li><a href="#the-naive-version">The Naive Version</a></li>
+    <li><a href="#why-the-public-api-fails">Why the Public API Fails</a></li>
+    <li><a href="#layer-1-carbon-hotkeys-not-nsevent">Layer 1: Carbon Hotkeys, Not NSEvent</a></li>
+    <li><a href="#layer-2-slps--the-front-process-switch">Layer 2: SLPS — The Front-Process Switch</a></li>
+    <li><a href="#layer-3-the-0xf8-byte-synthetic-event">Layer 3: The 0xf8-Byte Synthetic Event</a></li>
+    <li><a href="#layer-4-ax-and-the-sticky-focus-trap">Layer 4: AX, and the &ldquo;Sticky Focus&rdquo; Trap</a></li>
+    <li><a href="#layer-5-hid-active-lag-the-iterm-retry">Layer 5: HID-Active Lag (the iTerm Retry)</a></li>
+    <li><a href="#layer-6-the-usrbinopen-subprocess-fallback">Layer 6: The /usr/bin/open Subprocess Fallback</a></li>
+    <li><a href="#layer-7-the-cmd-last-resort">Layer 7: The Cmd+` Last Resort</a></li>
+    <li><a href="#layer-8-per-space-last-window-memory">Layer 8: Per-Space Last-Window Memory</a></li>
+    <li><a href="#layer-9-the-edge-cases">Layer 9: The Edge Cases</a></li>
+    <li><a href="#architecture-such-as-it-is">Architecture, Such As It Is</a></li>
+    <li><a href="#reflection">Reflection</a></li>
+  </ul>
+</nav>
+    </div>
+    
+
+		<div class="markdown">
+			<h2 id="introduction">
+  Introduction
+  <a href="#introduction" class="heading-anchor">#</a>
+</h2>
+<p>I have been using Apptivate for years. It is a tiny menu-bar app that lets you bind a global hotkey to any application — press <code>⌥V</code> and you are in VSCode, press <code>⌥C</code> and you are in Chrome. It makes switching apps fast and easy in a way Cmd+Tab never has been.</p>
+<p>Apptivate has not been updated in a long time and is the only Rosetta-translated app left on my Mac. So when I built WinGroup — my own Mission Control–style window grouping overlay — I figured I&rsquo;d fold the per-app hotkey feature in too. How hard could it be? Activate this app when this key is pressed.</p>
+<p>On Sonoma and Sequoia, doing that <em>reliably</em> across native, Electron, Chromium, Firefox, hidden, multi-instance, and cross-Space targets requires a layered cascade of private SkyLight calls, synthetic event injection, AX poking, subprocess fallbacks, and synthesized keyboard cycles. This post is about that cascade.</p>
+<blockquote>
+<p><strong>tl;dr</strong> macOS no longer lets a background <code>LSUIElement</code> app reliably bring another app&rsquo;s window to the front via the public API. A working solution requires <code>_SLPSSetFrontProcessWithOptions</code>, a 0xf8-byte synthetic event payload ported from Hammerspoon → AltTab, AXRaise, an iTerm-style activate-with-retry loop, a <code>/usr/bin/open -b</code> subprocess fallback for Electron, and as a last resort a synthesized `Cmd+`` cycle.</p>
+</blockquote>
+<h2 id="the-naive-version">
+  The Naive Version
+  <a href="#the-naive-version" class="heading-anchor">#</a>
+</h2>
+<p>The first version of <code>AppShortcutService</code> was about ten lines:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-swift" data-lang="swift"><span style="display:flex;"><span><span style="color:#66d9ef">private</span> <span style="color:#66d9ef">func</span> <span style="color:#a6e22e">handleHotkey</span>(id: UInt32) {
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">let</span> shortcut = registrations[id]<span style="color:#f92672">!</span>.shortcut
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">let</span> url = URL(fileURLWithPath: shortcut.path)
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">let</span> cfg = NSWorkspace.OpenConfiguration()
+</span></span><span style="display:flex;"><span>    cfg.activates = <span style="color:#66d9ef">true</span>
+</span></span><span style="display:flex;"><span>    NSWorkspace.shared.openApplication(at: url, configuration: cfg) { <span style="color:#66d9ef">_</span>, <span style="color:#66d9ef">_</span> <span style="color:#66d9ef">in</span> }
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>This actually works for native AppKit apps when WinGroup is the foreground app. It worked great in my unit-test driver. Then I made WinGroup an <code>LSUIElement</code> accessory (menu-bar only, no Dock icon), which is what you want for an always-running utility, and everything fell apart.</p>
+<p>The symptoms:</p>
+<ol>
+<li>Press <code>⌥V</code>. Sometimes VSCode comes to front. Sometimes nothing happens.</li>
+<li>Press <code>⌥V</code> again. Dock icon bounces, window does not raise.</li>
+<li>Press <code>⌥C</code> for Chrome. Chrome activates but a different window than the one I last used.</li>
+<li>Press <code>⌥V</code> then <code>⌥C</code> quickly. ~150ms after Chrome activates, focus jumps back to VSCode unprompted.</li>
+</ol>
+<p>Each one turned out to be a different layer of the macOS activation stack rejecting my request.</p>
+<h2 id="why-the-public-api-fails">
+  Why the Public API Fails
+  <a href="#why-the-public-api-fails" class="heading-anchor">#</a>
+</h2>
+<p><code>NSRunningApplication.activate(options:)</code> and <code>NSWorkspace.openApplication</code> are documented to bring an app to the front. On Sonoma+, when called from a non-foreground accessory process, they often:</p>
+<ul>
+<li>Return <code>true</code>.</li>
+<li>Post no notification.</li>
+<li>Bounce the Dock icon.</li>
+<li>Do not actually transfer keyboard focus.</li>
+</ul>
+<p>This is, as far as I can tell, deliberate hardening: Apple does not want background processes hijacking the foreground app. Cooperative activation is the new model. You can <em>request</em> activation; the OS may grant it. The system will silently downgrade your call to a Dock bounce when it suspects you are not user-initiated, even when the call comes from a Carbon hotkey handler that very much is.</p>
+<p>The workaround everyone reaches for (yabai, AltTab, Hammerspoon, Rectangle Pro, Raycast) is to bypass the public API and talk to WindowServer directly via the private SkyLight (CGS) framework.</p>
+<h2 id="layer-1-carbon-hotkeys-not-nsevent">
+  Layer 1: Carbon Hotkeys, Not NSEvent
+  <a href="#layer-1-carbon-hotkeys-not-nsevent" class="heading-anchor">#</a>
+</h2>
+<p>Before any of the activation problems matter, you have to register the hotkey itself. There are two options:</p>
+<ul>
+<li><strong><code>NSEvent.addGlobalMonitorForEvents</code></strong>: easy, but requires Accessibility permission, does not consume the keystroke (so <code>⌥C</code> will <em>also</em> type <code>ç</code>), and is unreliable across screen-lock and login-window transitions.</li>
+<li><strong>Carbon <code>RegisterEventHotKey</code></strong>: older API, still fully supported, no Accessibility permission required, consumes the keystroke, survives sleep/wake.</li>
+</ul>
+<p>WinGroup uses Carbon:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-swift" data-lang="swift"><span style="display:flex;"><span><span style="color:#66d9ef">let</span> id = EventHotKeyID(signature: <span style="color:#ae81ff">0x57477270</span>, id: hkID) <span style="color:#75715e">// &#39;WGrp&#39;</span>
+</span></span><span style="display:flex;"><span>RegisterEventHotKey(
+</span></span><span style="display:flex;"><span>    shortcut.keyCode,
+</span></span><span style="display:flex;"><span>    shortcut.modifiers,
+</span></span><span style="display:flex;"><span>    id,
+</span></span><span style="display:flex;"><span>    GetApplicationEventTarget(),
+</span></span><span style="display:flex;"><span>    <span style="color:#ae81ff">0</span>,
+</span></span><span style="display:flex;"><span>    &amp;ref
+</span></span><span style="display:flex;"><span>)
+</span></span></code></pre></div><p>The handler runs on the main thread, so AppKit calls from inside it are safe.</p>
+<h2 id="layer-2-slps--the-front-process-switch">
+  Layer 2: SLPS — The Front-Process Switch
+  <a href="#layer-2-slps--the-front-process-switch" class="heading-anchor">#</a>
+</h2>
+<p>The private SkyLight call that actually flips the front process is:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-swift" data-lang="swift"><span style="display:flex;"><span>@_silgen_name(<span style="color:#e6db74">&#34;_SLPSSetFrontProcessWithOptions&#34;</span>) @discardableResult
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">func</span> <span style="color:#a6e22e">_SLPSSetFrontProcessWithOptions</span>(
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">_</span> psn: UnsafePointer&lt;ProcessSerialNumber&gt;,
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">_</span> wid: UInt32,
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">_</span> mode: UInt32
+</span></span><span style="display:flex;"><span>) -&gt; CGError
+</span></span></code></pre></div><p>You pass it a <code>ProcessSerialNumber</code> (resolved from the target <code>pid</code> via <code>GetProcessForPID</code>, itself deprecated but still functional) and the target <code>CGWindowID</code>. With <code>mode = kCPSUserGenerated (0x200)</code>, it tells WindowServer &ldquo;treat this as if the user clicked on this window.&rdquo;</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-swift" data-lang="swift"><span style="display:flex;"><span><span style="color:#66d9ef">var</span> psn = ProcessSerialNumber()
+</span></span><span style="display:flex;"><span>GetProcessForPID(pid, &amp;psn)
+</span></span><span style="display:flex;"><span>_SLPSSetFrontProcessWithOptions(&amp;psn, windowID, <span style="color:#ae81ff">0x200</span>)
+</span></span></code></pre></div><p>For native AppKit apps this is enough. For Electron and Chromium apps it is not: Chromium&rsquo;s window management does not listen to the WindowServer-level front-process change directly. It watches its own run loop for AppKit notifications, which SLPS alone does not generate.</p>
+<h2 id="layer-3-the-0xf8-byte-synthetic-event">
+  Layer 3: The 0xf8-Byte Synthetic Event
+  <a href="#layer-3-the-0xf8-byte-synthetic-event" class="heading-anchor">#</a>
+</h2>
+<p>This is where things get weird. Hammerspoon discovered around 2018 that you could wake up Chromium-based apps&rsquo; run loops by posting a specially-crafted synthetic event via another private call:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-swift" data-lang="swift"><span style="display:flex;"><span>@_silgen_name(<span style="color:#e6db74">&#34;SLPSPostEventRecordTo&#34;</span>) @discardableResult
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">func</span> <span style="color:#a6e22e">SLPSPostEventRecordTo</span>(
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">_</span> psn: UnsafePointer&lt;ProcessSerialNumber&gt;,
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">_</span> bytes: UnsafePointer&lt;UInt8&gt;
+</span></span><span style="display:flex;"><span>) -&gt; CGError
+</span></span></code></pre></div><p>The &ldquo;event&rdquo; is a 248-byte (<code>0xf8</code>) blob whose internal layout is <em>entirely undocumented</em>. Hammerspoon reverse-engineered it. AltTab ported the recipe. WinGroup copies it verbatim:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-swift" data-lang="swift"><span style="display:flex;"><span><span style="color:#66d9ef">private</span> <span style="color:#66d9ef">static</span> <span style="color:#66d9ef">func</span> <span style="color:#a6e22e">makeKeyWindow</span>(psn: <span style="color:#66d9ef">inout</span> ProcessSerialNumber, windowID: CGWindowID) {
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">var</span> bytes = [UInt8](repeating: <span style="color:#ae81ff">0</span>, count: <span style="color:#ae81ff">0xf8</span>)
+</span></span><span style="display:flex;"><span>    bytes[<span style="color:#ae81ff">0x04</span>] = <span style="color:#ae81ff">0xf8</span>        <span style="color:#75715e">// record length</span>
+</span></span><span style="display:flex;"><span>    bytes[<span style="color:#ae81ff">0x3a</span>] = <span style="color:#ae81ff">0x10</span>        <span style="color:#75715e">// event type</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">var</span> wid = windowID
+</span></span><span style="display:flex;"><span>    withUnsafeBytes(of: &amp;wid) { src <span style="color:#66d9ef">in</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">for</span> i <span style="color:#66d9ef">in</span> <span style="color:#ae81ff">0.</span>.&lt;MemoryLayout&lt;UInt32&gt;.size {
+</span></span><span style="display:flex;"><span>            bytes[<span style="color:#ae81ff">0x3c</span> <span style="color:#f92672">+</span> i] = src[i]   <span style="color:#75715e">// target window ID at offset 0x3c</span>
+</span></span><span style="display:flex;"><span>        }
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">for</span> i <span style="color:#66d9ef">in</span> <span style="color:#ae81ff">0x20</span>..<span style="color:#f92672">&lt;</span>(<span style="color:#ae81ff">0x20</span> <span style="color:#f92672">+</span> <span style="color:#ae81ff">0x10</span>) {
+</span></span><span style="display:flex;"><span>        bytes[i] = <span style="color:#ae81ff">0xff</span>       <span style="color:#75715e">// flags / reserved — must be 0xff</span>
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>    bytes[<span style="color:#ae81ff">0x08</span>] = <span style="color:#ae81ff">0x01</span>        <span style="color:#75715e">// phase 1</span>
+</span></span><span style="display:flex;"><span>    SLPSPostEventRecordTo(&amp;psn, &amp;bytes)
+</span></span><span style="display:flex;"><span>    bytes[<span style="color:#ae81ff">0x08</span>] = <span style="color:#ae81ff">0x02</span>        <span style="color:#75715e">// phase 2</span>
+</span></span><span style="display:flex;"><span>    SLPSPostEventRecordTo(&amp;psn, &amp;bytes)
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>If you omit the <code>0xff</code> fill at offset <code>0x20</code>, or write the windowID anywhere other than offset <code>0x3c</code>, or post only one phase instead of two, the call <em>succeeds</em> but Chromium&rsquo;s run loop never wakes up. The receiving app acknowledges the front-process switch but does not surface a window. No error, no log, just silence.</p>
+<p>The only references for these offsets are forum posts and the source code of three open-source apps. If Apple changes the layout in a future macOS release, every cross-app window manager on the platform breaks at the same time.</p>
+<h2 id="layer-4-ax-and-the-sticky-focus-trap">
+  Layer 4: AX, and the &ldquo;Sticky Focus&rdquo; Trap
+  <a href="#layer-4-ax-and-the-sticky-focus-trap" class="heading-anchor">#</a>
+</h2>
+<p>After SLPS plus the synthetic event, WindowServer thinks the right app is front. But the app may have multiple windows and we want a specific one. The Accessibility API is how you reach in and tell an app to raise a particular window:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-swift" data-lang="swift"><span style="display:flex;"><span><span style="color:#66d9ef">let</span> axApp = AXUIElementCreateApplication(pid)
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">let</span> target: AXUIElement = findAXWindow(axApp: axApp, windowID: windowID, title: title)
+</span></span><span style="display:flex;"><span>AXUIElementPerformAction(target, kAXRaiseAction <span style="color:#66d9ef">as</span> CFString)
+</span></span></code></pre></div><p>This works. It also has a sharp edge.</p>
+<p>The natural extension is to also set <code>kAXMainAttribute = true</code>, <code>kAXFocusedAttribute = true</code>, and on the app <code>kAXFocusedWindowAttribute = target</code>. The AX docs read like that&rsquo;s what they&rsquo;re for. Don&rsquo;t do it.</p>
+<p>If you set these attributes, the app remembers the chosen window as its main/focused window. When the user later presses <code>Cmd+N</code> to open a new document, the new window does <em>not</em> become focused. Focus stays stuck on the window you marked. New windows appear unfocused, behind the old one, and typing goes nowhere.</p>
+<p>I called this the &ldquo;sticky focus&rdquo; bug. Tracking it down took an entire weekend. The fix is to do <code>AXRaise</code> and only <code>AXRaise</code>. No <code>kAXMain</code>, no <code>kAXFocused</code>, no <code>kAXFocusedWindow</code>. Apptivate sidesteps the trap by doing <code>tell app &quot;VSCode&quot; to activate</code> via AppleScript: it never picks a specific window, so there&rsquo;s nothing to stick. But picking a specific window is the whole point of per-Space last-window memory, so that escape hatch is closed for us.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-swift" data-lang="swift"><span style="display:flex;"><span><span style="color:#75715e">// NOTE on what we are deliberately NOT doing:</span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">//   • kAXMainAttribute=true on the window         ← sticks; new windows don&#39;t promote</span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">//   • kAXFocusedAttribute=true on the window      ← sticks; same problem</span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">//   • kAXFocusedWindowAttribute=target on app     ← sticks; same problem</span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">//   • kAXFrontmostAttribute=true on the app       ← redundant with SLPS, can race</span>
+</span></span></code></pre></div><h2 id="layer-5-hid-active-lag-the-iterm-retry">
+  Layer 5: HID-Active Lag (the iTerm Retry)
+  <a href="#layer-5-hid-active-lag-the-iterm-retry" class="heading-anchor">#</a>
+</h2>
+<p>SLPS updates WindowServer. The synthetic event wakes the target&rsquo;s run loop. AXRaise picks the window. We are done, right?</p>
+<p>No. There is <em>another</em> layer below WindowServer: the HID input layer, which decides where keyboard events are routed. On Sonoma+, when called from an accessory process, the HID layer often does not follow the WindowServer change for ~150ms. Sometimes longer. Sometimes never.</p>
+<p>The symptom: the visual front app changes but keystrokes still go to whatever was previously focused. You see VSCode in front, you start typing, and your text appears in the Slack channel you had open before.</p>
+<p>iTerm2 hit this exact problem and documented their workaround in <code>iTermApplication.m</code>: call <code>NSRunningApplication.activate(...)</code> repeatedly until <code>NSWorkspaceDidActivateApplicationNotification</code> fires for the target pid. WinGroup copies this:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-swift" data-lang="swift"><span style="display:flex;"><span><span style="color:#66d9ef">let</span> delays: [Double] = [<span style="color:#ae81ff">0.0</span>, <span style="color:#ae81ff">0.05</span>, <span style="color:#ae81ff">0.15</span>, <span style="color:#ae81ff">0.30</span>, <span style="color:#ae81ff">0.60</span>, <span style="color:#ae81ff">1.0</span>]
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">for</span> delay <span style="color:#66d9ef">in</span> delays {
+</span></span><span style="display:flex;"><span>    DispatchQueue.main.asyncAfter(deadline: .now() <span style="color:#f92672">+</span> delay) { [<span style="color:#66d9ef">weak</span> runningApp] <span style="color:#66d9ef">in</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">guard</span> stillPending, <span style="color:#66d9ef">let</span> app = runningApp <span style="color:#66d9ef">else</span> { <span style="color:#66d9ef">return</span> }
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">if</span> app.isActive { <span style="color:#66d9ef">return</span> }
+</span></span><span style="display:flex;"><span>        app.activate(options: [.activateIgnoringOtherApps])
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>The retry loop is observed by an <code>NSWorkspace</code> notification observer that cancels remaining attempts as soon as activation lands. Without it you get duplicate Dock bounces and the focus can flicker.</p>
+<p>There&rsquo;s a critical detail here: the retry loop has to be cancelled across pids, not just within a pid. I learned this the hard way.</p>
+<p>If the user presses <code>⌥C</code> (Chrome) and 100ms later presses <code>⌥V</code> (VSCode), the Chrome retry loop is still firing <code>app.activate(...)</code> in the background. About 150ms after VSCode activates, one of those Chrome retries lands and steals focus back. The visible behavior is &ldquo;I pressed VSCode but I&rsquo;m in Chrome.&rdquo; The fix: only one in-flight activation at a time, ever.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-swift" data-lang="swift"><span style="display:flex;"><span>pendingLock.lock()
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">for</span> (<span style="color:#66d9ef">_</span>, prev) <span style="color:#66d9ef">in</span> pendingActivations {
+</span></span><span style="display:flex;"><span>    nc.removeObserver(prev)
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span>pendingActivations.removeAll()
+</span></span><span style="display:flex;"><span>pendingLock.unlock()
+</span></span></code></pre></div><h2 id="layer-6-the-usrbinopen-subprocess-fallback">
+  Layer 6: The /usr/bin/open Subprocess Fallback
+  <a href="#layer-6-the-usrbinopen-subprocess-fallback" class="heading-anchor">#</a>
+</h2>
+<p>Even with the iTerm retry, some apps (most notably Electron-based VSCode) silently reject in-process <code>NSRunningApplication.activate(...)</code> from an accessory caller. The call returns success, no notification fires, the app does not come forward, and repeating it does not help.</p>
+<p>The <code>/usr/bin/open</code> binary, run as a separate user-owned subprocess, gets full activation rights from Launch Services where our in-process call does not. Empirically:</p>
+<pre tabindex="0"><code>$ open -b com.microsoft.VSCode    # works
+osascript -e &#39;tell app &#34;Visual Studio Code&#34; to activate&#39;    # silently rejected
+NSRunningApplication.activate(...)    # silently rejected
+</code></pre><p>So at the 250ms mark, if HID-active still has not landed, WinGroup spawns:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-swift" data-lang="swift"><span style="display:flex;"><span><span style="color:#66d9ef">let</span> task = Process()
+</span></span><span style="display:flex;"><span>task.launchPath = <span style="color:#e6db74">&#34;/usr/bin/open&#34;</span>
+</span></span><span style="display:flex;"><span>task.arguments = [<span style="color:#e6db74">&#34;-b&#34;</span>, bundleID]
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">try</span> task.run()
+</span></span></code></pre></div><p><code>open -b</code> is a no-op when the app is already running with windows; it just activates. Safe to fire even when not strictly needed.</p>
+<h2 id="layer-7-the-cmd-last-resort">
+  Layer 7: The Cmd+` Last Resort
+  <a href="#layer-7-the-cmd-last-resort" class="heading-anchor">#</a>
+</h2>
+<p>For one specific class of stuck-focus scenarios, usually involving VSCode on a different Space we just switched away from, even <code>open -b</code> does not promote a window to key status inside the app. The app receives HID input but has no internal &ldquo;key window&rdquo; assigned, so typing goes nowhere.</p>
+<p>The empirical workaround was: &ldquo;after the hotkey, I press Cmd+<code> and it works.&quot; Cmd+</code> is the standard &ldquo;cycle windows within app&rdquo; shortcut. Pressing it forward then backward nets to the same window, but forces the app&rsquo;s internal window-cycling code path to assign key status to whatever it lands on.</p>
+<p>So at the 700ms mark, if nothing else has worked, WinGroup synthesizes the cycle and posts it directly to the target pid:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-swift" data-lang="swift"><span style="display:flex;"><span><span style="color:#66d9ef">private</span> <span style="color:#66d9ef">static</span> <span style="color:#66d9ef">func</span> <span style="color:#a6e22e">postBackquoteCycle</span>(pid: pid_t) {
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">let</span> src = CGEventSource(stateID: .hidSystemState)
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">let</span> key: CGKeyCode = <span style="color:#ae81ff">0x32</span>   <span style="color:#75715e">// kVK_ANSI_Grave</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">let</span> d1 = CGEvent(keyboardEventSource: src, virtualKey: key, keyDown: <span style="color:#66d9ef">true</span>)
+</span></span><span style="display:flex;"><span>    d1?.flags = .maskCommand
+</span></span><span style="display:flex;"><span>    d1?.postToPid(pid)
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e">// ... up, then down with shift, then up with shift</span>
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p><code>postToPid</code> (not <code>.cghidEventTap</code>) means the event is delivered only to the target process: no risk of leaking `Cmd+`` to whatever the OS thinks is frontmost if SLPS still hasn&rsquo;t won.</p>
+<p>It&rsquo;s the ugliest piece of code in the project. It also reliably unsticks VSCode where nothing else does, so it stays.</p>
+<h2 id="layer-8-per-space-last-window-memory">
+  Layer 8: Per-Space Last-Window Memory
+  <a href="#layer-8-per-space-last-window-memory" class="heading-anchor">#</a>
+</h2>
+<p>All of the above just gets <em>a</em> window of the target app to front. The Apptivate-style behavior I want is more specific: for each desktop Space, remember the last window of this app the user raised on that Space.</p>
+<p>So if on Space 1 you were in VSCode workspace <code>mono</code> and on Space 2 you were in VSCode workspace <code>notes</code>, pressing <code>⌥V</code> on each Space should return you to the workspace that belongs there.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-swift" data-lang="swift"><span style="display:flex;"><span><span style="color:#66d9ef">private</span> <span style="color:#66d9ef">struct</span> <span style="color:#a6e22e">SpaceKey</span>: Hashable {
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">let</span> bundleKey: String
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">let</span> spaceID: UInt64
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">private</span> <span style="color:#66d9ef">var</span> lastWindowID: [SpaceKey: UInt32] = [:]
+</span></span></code></pre></div><p>The active Space ID comes from a private CGS query against <code>copyManagedDisplaySpaces</code> (with a fallback to <code>CGSGetActiveSpace</code>). When the hotkey fires, we filter <code>CGWindowList</code> to <code>.optionOnScreenOnly</code>, which only returns windows on the current Space, and prefer the remembered windowID if it is still on-screen. Otherwise we pick the topmost on-Space window — same semantics as the system Cmd+` cycle.</p>
+<h2 id="layer-9-the-edge-cases">
+  Layer 9: The Edge Cases
+  <a href="#layer-9-the-edge-cases" class="heading-anchor">#</a>
+</h2>
+<p>A non-exhaustive list of things that broke in real-world use:</p>
+<ul>
+<li>Hidden apps drop out of <code>CGWindowList</code> even when their windows are on the current Space. We <code>unhide()</code> every running instance up front.</li>
+<li>Some apps (Slack notably) register more than one Launch Services process per bundle ID. The window owner PID we see in <code>CGWindowList</code> may not match <code>runningApplications.first</code>, so we collect all pids for the bundle ID before filtering windows.</li>
+<li>AX takes time to populate the destination Space&rsquo;s window list after a Space switch. We poll AX every 80ms for up to 8 attempts after activation and re-AXRaise once the target window appears.</li>
+<li>Apps with no on-screen windows on the current Space: we can&rsquo;t pick a specific window, but we still want the app&rsquo;s keyboard shortcuts to work, so we run the activation cascade with <code>windowID = 0</code> as a sentinel that skips the post-activation re-raise.</li>
+<li>Folder paths instead of <code>.app</code> paths. Apptivate let you bind hotkeys to folders too. We pass those to <code>NSWorkspace.open</code> and short-circuit the rest.</li>
+<li><code>kCGWindowName</code> requires Screen Recording permission on Sonoma+. We use windowID as the primary match key and treat title as diagnostic-only; the Screen Recording prompt is ugly and not worth requiring.</li>
+</ul>
+<h2 id="architecture-such-as-it-is">
+  Architecture, Such As It Is
+  <a href="#architecture-such-as-it-is" class="heading-anchor">#</a>
+</h2>
+<p>The full activation cascade for a single hotkey press, in order:</p>
+<ol>
+<li>Carbon <code>RegisterEventHotKey</code> handler fires on the main thread.</li>
+<li>Resolve target via <code>AppShortcutService.activateApp</code> — bundleID → all running instances → unhide hidden ones → enumerate on-screen windows on the current Space → pick the per-Space-remembered window or fall back to topmost.</li>
+<li><code>WindowActivator.raise</code> runs the cascade:
+<ul>
+<li>Resolve the AXUIElement up front (cached, survives Space switches).</li>
+<li><code>_SLPSSetFrontProcessWithOptions(psn, windowID, 0x200)</code>.</li>
+<li>Two <code>SLPSPostEventRecordTo</code> synthetic events (the 0xf8-byte payload).</li>
+<li><code>AXUIElementPerformAction(target, kAXRaiseAction)</code> — and <em>nothing</em> else AX-wise.</li>
+</ul>
+</li>
+<li><code>scheduleHIDActivation</code> launches the retry stack:
+<ul>
+<li>Cancel any in-flight activation for any other pid.</li>
+<li>Register <code>NSWorkspace</code> activation observer.</li>
+<li>Schedule <code>app.activate(...)</code> retries at 0/50/150/300/600/1000ms.</li>
+<li>Schedule <code>/usr/bin/open -b &lt;bundleID&gt;</code> subprocess at 250ms.</li>
+<li>Schedule `Cmd+`` cycle at 700ms.</li>
+<li>Final timeout / observer cleanup at 1500ms.</li>
+</ul>
+</li>
+<li><code>scheduleAXRetry</code> polls AX every 80ms for up to 640ms in case the AX window list lagged the front-process switch, and re-runs <code>AXRaise</code> once it lands.</li>
+</ol>
+<p>That&rsquo;s the working solution for &ldquo;press a key, focus an app.&rdquo; On a clean modern AppKit app with one window on the current Space, only steps 1–3 actually do anything observable. The rest exists because of Electron, hidden apps, multi-Space targets, and accessory-process activation rules. Which between them describe most of the apps anyone uses every day.</p>
+<h2 id="reflection">
+  Reflection
+  <a href="#reflection" class="heading-anchor">#</a>
+</h2>
+<p>What I thought was a weekend project turned into a multi-week tour through the source of yabai, AltTab, Hammerspoon, and iTerm2. There is no public API that does what every window utility on macOS needs, so we all converge on the same private cascade.</p>
+<p>A few things stuck with me:</p>
+<ul>
+<li>Read comparable open-source apps before writing code. The 0xf8 byte layout, the iTerm retry pattern, the &ldquo;do not set <code>kAXMain</code>&rdquo; rule — none of these are documented anywhere except as comments inside other people&rsquo;s source.</li>
+<li>Log with timestamps. Activation bugs are timing bugs. Without per-step logs I would never have caught the cross-pid retry stealing focus, or that Cmd+` was what unstuck VSCode.</li>
+<li>The trap doors are the AX attributes that look like they should help. <code>kAXMain</code>, <code>kAXFocused</code>, <code>kAXFocusedWindow</code> each look documented and useful, and each creates a long-lived bug when set from outside the app. Only <code>AXRaise</code>.</li>
+</ul>
+<p>This is also the kind of project that&rsquo;s dramatically more tractable in 2026. Reverse-engineering an undocumented byte layout used to be a weeks-long grep across other people&rsquo;s repos. With AI assistance the discovery loop is much tighter: paste a Hammerspoon comment, get a hypothesis, verify in AltTab, write the Swift.</p>
+<p>The end result is that <code>⌥V</code> takes me to my last VSCode window on the current Space in under 200ms, every time, regardless of whether VSCode was hidden, on a different Space, or had no windows at all. Eight layers of fallback for a single keystroke is a lot, but having ⌥V just <em>work</em> again after months of Apptivate getting flakier turned out to be worth all of it.</p>
+
+		</div>
+
+		<div class="post-tags">
+			
+				
+			
+		</div>
+		</div>
+	<div class="footer wrapper">
+	<nav class="nav">
+		<div> since 2017 </div>
+	</nav>
+</div>
+
+
+<script async src="https://www.googletagmanager.com/gtag/js?id=trackingcode"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'trackingcode');
+</script><script>feather.replace()</script>
+</body>
+</html>
