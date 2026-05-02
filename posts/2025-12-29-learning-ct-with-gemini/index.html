@@ -16,29 +16,23 @@
   <meta name="twitter:card" content="summary">
   <meta name="twitter:title" content="Learning about CT with Gemini">
   <meta name="twitter:description" content="Overview # Over the winter break, I was reviewing Fourier Transform and its various applications. Fundamentally, Fourier Transform is about a shift in perspective - viewing the same data with a different lens makes some operations easier or faster. This piqued my curiosity about what other fundamental data transformations that I should be aware of. Like everyone in 2025, I jumped to my chatbot of choice, Gemini, to learn more.">
-<link href="https://fonts.googleapis.com/css?family=Ubuntu:300,400,300italic,400italic|Raleway:200,300" rel="stylesheet">
+<link rel="stylesheet" type="text/css" media="screen" href="/css/normalize.css" />
+	<link rel="stylesheet" type="text/css" media="screen" href="/css/main.css" />
+	<link rel="stylesheet" type="text/css" href="/css/dark.css" media="(prefers-color-scheme: dark)" />
+	<link rel="stylesheet" type="text/css" href="/css/custom.css" />
 
-	<link rel="stylesheet" type="text/css" media="screen" href="/css/normalize.css" />
-	<link rel="stylesheet" type="text/css" media="screen" href="/css/main.css" /><link rel="stylesheet" type="text/css" href="/css/dark.css"  />
-
-	<script src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js"></script>
 	<script src="/js/main.js"></script>
-	<script src="/js/abc.js"></script>
-	<script src="/js/xyz.js"></script>
-	<script src="https://code.jquery.com/jquery-3.4.1.js"></script>
-	
+
 	<link rel="stylesheet" type="text/css" href="/css/anchors.css" />
 
 </head>
 
+
 <body>
 	<div class="container wrapper post">
 		<div class="header">
-	<h1 class="site-title"><a href="/">moomou</a></h1>
-	<div class="site-description"><h2>(ﾉ≧∇≦)ﾉ ﾐ ┸┸</h2><nav class="nav social">
-			<ul class="flat"><a href="https://github.com/moomou" title="Github"><i data-feather="github"></i></a></ul>
-		</nav>
-	</div>
+	<div class="branding">
+		<h1 class="site-title"><a href="/">moomou</a></h1><span class="site-tagline">(ﾉ≧∇≦)ﾉ ﾐ ┸┸</span></div>
 
 	<nav class="nav">
 		<ul class="flat">
@@ -50,10 +44,10 @@
 			<li>
 				<a href="https://go.mou.dev/resume">Resume</a>
 			</li>
-			
-		</ul>
+			<li><a href="https://github.com/moomou" rel="noopener">github</a></li></ul>
 	</nav>
 </div>
+
 
 
 		<div class="post-header">
@@ -182,154 +176,154 @@ Fundamentally, Fourier Transform is about a shift in perspective - viewing the s
 </h2>
 <p>With the basics theory finally out of the way, let&rsquo;s build a toy X ray simulator! I have always wanted to dabble with voxels and this gave me a perfect opportunity and I chose to go with <a href="https://threejs.org/">Threejs</a>. As the focus is in implementing X simulation, I vibe-coded a basic project template with Threejs and HTML canvas rendering functions.</p>
 <p>From there, I built out a simple 3D voxel world with size 128 and represent the world with 2 arrays</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-typescript" data-lang="typescript"><span style="display:flex;"><span><span style="color:#66d9ef">const</span> <span style="color:#a6e22e">SIZE</span> <span style="color:#f92672">=</span> <span style="color:#ae81ff">128</span>;
-</span></span><span style="display:flex;"><span><span style="color:#66d9ef">const</span> <span style="color:#a6e22e">HALF_SIZE</span> <span style="color:#f92672">=</span> <span style="color:#a6e22e">SIZE</span> <span style="color:#f92672">/</span> <span style="color:#ae81ff">2</span>;
-</span></span><span style="display:flex;"><span><span style="color:#75715e">// stores object ID 
-</span></span></span><span style="display:flex;"><span><span style="color:#66d9ef">const</span> <span style="color:#a6e22e">data</span> <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> <span style="color:#a6e22e">Uint8Array</span>(<span style="color:#a6e22e">SIZE</span> <span style="color:#f92672">*</span> <span style="color:#a6e22e">SIZE</span> <span style="color:#f92672">*</span> <span style="color:#a6e22e">SIZE</span>);
-</span></span><span style="display:flex;"><span><span style="color:#75715e">// stores the density of the material
-</span></span></span><span style="display:flex;"><span><span style="color:#66d9ef">const</span> <span style="color:#a6e22e">densitys</span> <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> <span style="color:#a6e22e">Float32Array</span>(<span style="color:#a6e22e">SIZE</span> <span style="color:#f92672">*</span> <span style="color:#a6e22e">SIZE</span> <span style="color:#f92672">*</span> <span style="color:#a6e22e">SIZE</span>);
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-typescript" data-lang="typescript"><span class="line"><span class="cl"><span class="kr">const</span> <span class="nx">SIZE</span> <span class="o">=</span> <span class="mi">128</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="kr">const</span> <span class="nx">HALF_SIZE</span> <span class="o">=</span> <span class="nx">SIZE</span> <span class="o">/</span> <span class="mi">2</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="c1">// stores object ID 
+</span></span></span><span class="line"><span class="cl"><span class="kr">const</span> <span class="nx">data</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">Uint8Array</span><span class="p">(</span><span class="nx">SIZE</span> <span class="o">*</span> <span class="nx">SIZE</span> <span class="o">*</span> <span class="nx">SIZE</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl"><span class="c1">// stores the density of the material
+</span></span></span><span class="line"><span class="cl"><span class="kr">const</span> <span class="nx">densitys</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">Float32Array</span><span class="p">(</span><span class="nx">SIZE</span> <span class="o">*</span> <span class="nx">SIZE</span> <span class="o">*</span> <span class="nx">SIZE</span><span class="p">);</span>
 </span></span></code></pre></div><p>I then model a simple human skull using spheres and cubes</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-typescript" data-lang="typescript"><span style="display:flex;"><span>(<span style="color:#66d9ef">function</span> <span style="color:#a6e22e">setupScene() {</span>
-</span></span><span style="display:flex;"><span>  <span style="color:#75715e">// 1. The &#34;Skull&#34; (Hollow Sphere)
-</span></span></span><span style="display:flex;"><span>  <span style="color:#75715e">// We add a large sphere, then an &#34;air&#34; sphere inside it
-</span></span></span><span style="display:flex;"><span>  <span style="color:#a6e22e">addSphere</span>([<span style="color:#ae81ff">64</span>, <span style="color:#ae81ff">64</span>, <span style="color:#ae81ff">64</span>], <span style="color:#ae81ff">60</span>, <span style="color:#ae81ff">1.0</span>);
-</span></span><span style="display:flex;"><span>  <span style="color:#a6e22e">addSphere</span>([<span style="color:#ae81ff">64</span>, <span style="color:#ae81ff">64</span>, <span style="color:#ae81ff">64</span>], <span style="color:#ae81ff">56</span>, <span style="color:#ae81ff">0.0</span>); <span style="color:#75715e">// Hollow out the inside
-</span></span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>  <span style="color:#75715e">// 2. Internal &#34;Organs&#34; with different densities
-</span></span></span><span style="display:flex;"><span>  <span style="color:#a6e22e">addSphere</span>([<span style="color:#ae81ff">45</span>, <span style="color:#ae81ff">64</span>, <span style="color:#ae81ff">64</span>], <span style="color:#ae81ff">15</span>, <span style="color:#ae81ff">0.3</span>); <span style="color:#75715e">// Left lobe
-</span></span></span><span style="display:flex;"><span>  <span style="color:#a6e22e">addSphere</span>([<span style="color:#ae81ff">83</span>, <span style="color:#ae81ff">64</span>, <span style="color:#ae81ff">64</span>], <span style="color:#ae81ff">15</span>, <span style="color:#ae81ff">0.3</span>); <span style="color:#75715e">// Right lobe
-</span></span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>  <span style="color:#75715e">// 3. A &#34;Spine&#34; (Central Cube)
-</span></span></span><span style="display:flex;"><span>  <span style="color:#a6e22e">addCube</span>([<span style="color:#ae81ff">64</span>, <span style="color:#ae81ff">64</span>, <span style="color:#ae81ff">64</span>], <span style="color:#ae81ff">12</span>, <span style="color:#ae81ff">1.2</span>);
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>  <span style="color:#75715e">// 4. A Small &#34;Foreign Object&#34; (High contrast test)
-</span></span></span><span style="display:flex;"><span>  <span style="color:#a6e22e">addSphere</span>([<span style="color:#ae81ff">64</span>, <span style="color:#ae81ff">90</span>, <span style="color:#ae81ff">40</span>], <span style="color:#ae81ff">5</span>, <span style="color:#ae81ff">1.5</span>);
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>  <span style="color:#75715e">// 5. STREAK ARTIFACT TEST (Metal Insert)
-</span></span></span><span style="display:flex;"><span>  <span style="color:#75715e">// A very high density object. In real CT, these cause &#34;streak artifacts.&#34;
-</span></span></span><span style="display:flex;"><span>  <span style="color:#a6e22e">addCube</span>([<span style="color:#ae81ff">100</span>, <span style="color:#ae81ff">80</span>, <span style="color:#ae81ff">64</span>], <span style="color:#ae81ff">6</span>, <span style="color:#ae81ff">5.0</span>);
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>  <span style="color:#75715e">// 6. The &#34;Scanning Table&#34; (Bottom Plane)
-</span></span></span><span style="display:flex;"><span>  <span style="color:#66d9ef">for</span> (<span style="color:#66d9ef">let</span> <span style="color:#a6e22e">z</span> <span style="color:#f92672">=</span> <span style="color:#ae81ff">0</span>; <span style="color:#a6e22e">z</span> <span style="color:#f92672">&lt;</span> <span style="color:#a6e22e">SIZE</span>; <span style="color:#a6e22e">z</span><span style="color:#f92672">++</span>) {
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">for</span> (<span style="color:#66d9ef">let</span> <span style="color:#a6e22e">x</span> <span style="color:#f92672">=</span> <span style="color:#ae81ff">0</span>; <span style="color:#a6e22e">x</span> <span style="color:#f92672">&lt;</span> <span style="color:#a6e22e">SIZE</span>; <span style="color:#a6e22e">x</span><span style="color:#f92672">++</span>) {
-</span></span><span style="display:flex;"><span>      <span style="color:#66d9ef">const</span> <span style="color:#a6e22e">idx</span> <span style="color:#f92672">=</span> <span style="color:#a6e22e">get1DIndex</span>(<span style="color:#a6e22e">x</span>, <span style="color:#ae81ff">5</span>, <span style="color:#a6e22e">z</span>);
-</span></span><span style="display:flex;"><span>      <span style="color:#a6e22e">data</span>[<span style="color:#a6e22e">idx</span>] <span style="color:#f92672">=</span> <span style="color:#ae81ff">1</span>;
-</span></span><span style="display:flex;"><span>      <span style="color:#a6e22e">densitys</span>[<span style="color:#a6e22e">idx</span>] <span style="color:#f92672">=</span> <span style="color:#ae81ff">0.8</span>;
-</span></span><span style="display:flex;"><span>    }
-</span></span><span style="display:flex;"><span>  }
-</span></span><span style="display:flex;"><span>})()
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-typescript" data-lang="typescript"><span class="line"><span class="cl"><span class="p">(</span><span class="kd">function</span> <span class="nx">setupScene() {</span>
+</span></span><span class="line"><span class="cl">  <span class="c1">// 1. The &#34;Skull&#34; (Hollow Sphere)
+</span></span></span><span class="line"><span class="cl">  <span class="c1">// We add a large sphere, then an &#34;air&#34; sphere inside it
+</span></span></span><span class="line"><span class="cl">  <span class="nx">addSphere</span><span class="p">([</span><span class="mi">64</span><span class="p">,</span> <span class="mi">64</span><span class="p">,</span> <span class="mi">64</span><span class="p">],</span> <span class="mi">60</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">  <span class="nx">addSphere</span><span class="p">([</span><span class="mi">64</span><span class="p">,</span> <span class="mi">64</span><span class="p">,</span> <span class="mi">64</span><span class="p">],</span> <span class="mi">56</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">);</span> <span class="c1">// Hollow out the inside
+</span></span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  <span class="c1">// 2. Internal &#34;Organs&#34; with different densities
+</span></span></span><span class="line"><span class="cl">  <span class="nx">addSphere</span><span class="p">([</span><span class="mi">45</span><span class="p">,</span> <span class="mi">64</span><span class="p">,</span> <span class="mi">64</span><span class="p">],</span> <span class="mi">15</span><span class="p">,</span> <span class="mf">0.3</span><span class="p">);</span> <span class="c1">// Left lobe
+</span></span></span><span class="line"><span class="cl">  <span class="nx">addSphere</span><span class="p">([</span><span class="mi">83</span><span class="p">,</span> <span class="mi">64</span><span class="p">,</span> <span class="mi">64</span><span class="p">],</span> <span class="mi">15</span><span class="p">,</span> <span class="mf">0.3</span><span class="p">);</span> <span class="c1">// Right lobe
+</span></span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  <span class="c1">// 3. A &#34;Spine&#34; (Central Cube)
+</span></span></span><span class="line"><span class="cl">  <span class="nx">addCube</span><span class="p">([</span><span class="mi">64</span><span class="p">,</span> <span class="mi">64</span><span class="p">,</span> <span class="mi">64</span><span class="p">],</span> <span class="mi">12</span><span class="p">,</span> <span class="mf">1.2</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  <span class="c1">// 4. A Small &#34;Foreign Object&#34; (High contrast test)
+</span></span></span><span class="line"><span class="cl">  <span class="nx">addSphere</span><span class="p">([</span><span class="mi">64</span><span class="p">,</span> <span class="mi">90</span><span class="p">,</span> <span class="mi">40</span><span class="p">],</span> <span class="mi">5</span><span class="p">,</span> <span class="mf">1.5</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  <span class="c1">// 5. STREAK ARTIFACT TEST (Metal Insert)
+</span></span></span><span class="line"><span class="cl">  <span class="c1">// A very high density object. In real CT, these cause &#34;streak artifacts.&#34;
+</span></span></span><span class="line"><span class="cl">  <span class="nx">addCube</span><span class="p">([</span><span class="mi">100</span><span class="p">,</span> <span class="mi">80</span><span class="p">,</span> <span class="mi">64</span><span class="p">],</span> <span class="mi">6</span><span class="p">,</span> <span class="mf">5.0</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  <span class="c1">// 6. The &#34;Scanning Table&#34; (Bottom Plane)
+</span></span></span><span class="line"><span class="cl">  <span class="k">for</span> <span class="p">(</span><span class="kd">let</span> <span class="nx">z</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="nx">z</span> <span class="o">&lt;</span> <span class="nx">SIZE</span><span class="p">;</span> <span class="nx">z</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="k">for</span> <span class="p">(</span><span class="kd">let</span> <span class="nx">x</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="nx">x</span> <span class="o">&lt;</span> <span class="nx">SIZE</span><span class="p">;</span> <span class="nx">x</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">      <span class="kr">const</span> <span class="nx">idx</span> <span class="o">=</span> <span class="nx">get1DIndex</span><span class="p">(</span><span class="nx">x</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="nx">z</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">      <span class="nx">data</span><span class="p">[</span><span class="nx">idx</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">      <span class="nx">densitys</span><span class="p">[</span><span class="nx">idx</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.8</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">  <span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">})()</span>
 </span></span></code></pre></div><br/>
 <p>Now the more interesting part. Here is the function to shoot X ray through the voxel world, one Y slice at a time through the XZ plane by summing up the density and applying the Beer-Lambert&rsquo;s law.</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-typescript" data-lang="typescript"><span style="display:flex;"><span><span style="color:#66d9ef">function</span> <span style="color:#a6e22e">take2DXray</span>(<span style="color:#a6e22e">angle</span>: <span style="color:#66d9ef">number</span>) {
-</span></span><span style="display:flex;"><span>  <span style="color:#75715e">// angle to radian
-</span></span></span><span style="display:flex;"><span>  <span style="color:#66d9ef">const</span> <span style="color:#a6e22e">rad</span> <span style="color:#f92672">=</span> (Math.<span style="color:#a6e22e">PI</span> <span style="color:#f92672">*</span> <span style="color:#a6e22e">angle</span>) <span style="color:#f92672">/</span> <span style="color:#ae81ff">180</span>;
-</span></span><span style="display:flex;"><span>  <span style="color:#66d9ef">const</span> <span style="color:#a6e22e">detector</span> <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> <span style="color:#a6e22e">Float32Array</span>(<span style="color:#a6e22e">SIZE</span> <span style="color:#f92672">*</span> <span style="color:#a6e22e">SIZE</span>);
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>  <span style="color:#66d9ef">for</span> (<span style="color:#66d9ef">let</span> <span style="color:#a6e22e">v</span> <span style="color:#f92672">=</span> <span style="color:#ae81ff">0</span>; <span style="color:#a6e22e">v</span> <span style="color:#f92672">&lt;</span> <span style="color:#a6e22e">SIZE</span>; <span style="color:#a6e22e">v</span><span style="color:#f92672">++</span>) { <span style="color:#75715e">// v for y
-</span></span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">for</span> (<span style="color:#66d9ef">let</span> <span style="color:#a6e22e">u</span> <span style="color:#f92672">=</span> <span style="color:#ae81ff">0</span>; <span style="color:#a6e22e">u</span> <span style="color:#f92672">&lt;</span> <span style="color:#a6e22e">SIZE</span>; <span style="color:#a6e22e">u</span><span style="color:#f92672">++</span>) { <span style="color:#75715e">// u for x
-</span></span></span><span style="display:flex;"><span>      <span style="color:#66d9ef">let</span> <span style="color:#a6e22e">density</span> <span style="color:#f92672">=</span> <span style="color:#ae81ff">0</span>;  
-</span></span><span style="display:flex;"><span>      <span style="color:#75715e">// note the range here is -64 to 64 because we want the X ray to rotate 
-</span></span></span><span style="display:flex;"><span>      <span style="color:#75715e">// around the center of the voxel world but our coordinate system is from 0 to 128
-</span></span></span><span style="display:flex;"><span>      <span style="color:#66d9ef">for</span> (<span style="color:#66d9ef">let</span> <span style="color:#a6e22e">d</span> <span style="color:#f92672">=</span> <span style="color:#f92672">-</span><span style="color:#ae81ff">64</span>; <span style="color:#a6e22e">d</span> <span style="color:#f92672">&lt;</span> <span style="color:#ae81ff">64</span>; <span style="color:#a6e22e">d</span><span style="color:#f92672">++</span>) { <span style="color:#75715e">// d for z; 
-</span></span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">const</span> <span style="color:#a6e22e">x</span> <span style="color:#f92672">=</span> Math.<span style="color:#a6e22e">floor</span>(
-</span></span><span style="display:flex;"><span>          <span style="color:#a6e22e">HALF_SIZE</span> <span style="color:#f92672">+</span> (<span style="color:#a6e22e">u</span> <span style="color:#f92672">-</span> <span style="color:#a6e22e">HALF_SIZE</span>) <span style="color:#f92672">*</span> Math.<span style="color:#a6e22e">cos</span>(<span style="color:#a6e22e">rad</span>) <span style="color:#f92672">-</span> <span style="color:#a6e22e">d</span> <span style="color:#f92672">*</span> Math.<span style="color:#a6e22e">sin</span>(<span style="color:#a6e22e">rad</span>)
-</span></span><span style="display:flex;"><span>        );
-</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">const</span> <span style="color:#a6e22e">z</span> <span style="color:#f92672">=</span> Math.<span style="color:#a6e22e">floor</span>(
-</span></span><span style="display:flex;"><span>          <span style="color:#a6e22e">HALF_SIZE</span> <span style="color:#f92672">+</span> (<span style="color:#a6e22e">u</span> <span style="color:#f92672">-</span> <span style="color:#a6e22e">HALF_SIZE</span>) <span style="color:#f92672">*</span> Math.<span style="color:#a6e22e">sin</span>(<span style="color:#a6e22e">rad</span>) <span style="color:#f92672">+</span> <span style="color:#a6e22e">d</span> <span style="color:#f92672">*</span> Math.<span style="color:#a6e22e">cos</span>(<span style="color:#a6e22e">rad</span>)
-</span></span><span style="display:flex;"><span>        );
-</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">const</span> <span style="color:#a6e22e">y</span> <span style="color:#f92672">=</span> <span style="color:#a6e22e">v</span>;
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">if</span> (<span style="color:#a6e22e">x</span> <span style="color:#f92672">&gt;=</span> <span style="color:#ae81ff">0</span> <span style="color:#f92672">&amp;&amp;</span> <span style="color:#a6e22e">x</span> <span style="color:#f92672">&lt;</span> <span style="color:#a6e22e">SIZE</span> <span style="color:#f92672">&amp;&amp;</span> <span style="color:#a6e22e">y</span> <span style="color:#f92672">&gt;=</span> <span style="color:#ae81ff">0</span> <span style="color:#f92672">&amp;&amp;</span> <span style="color:#a6e22e">y</span> <span style="color:#f92672">&lt;</span> <span style="color:#a6e22e">SIZE</span> <span style="color:#f92672">&amp;&amp;</span> <span style="color:#a6e22e">z</span> <span style="color:#f92672">&gt;=</span> <span style="color:#ae81ff">0</span> <span style="color:#f92672">&amp;&amp;</span> <span style="color:#a6e22e">z</span> <span style="color:#f92672">&lt;</span> <span style="color:#a6e22e">SIZE</span>) {
-</span></span><span style="display:flex;"><span>          <span style="color:#66d9ef">const</span> <span style="color:#a6e22e">voxel</span> <span style="color:#f92672">=</span> <span style="color:#a6e22e">getVoxel</span>(<span style="color:#a6e22e">x</span>, <span style="color:#a6e22e">y</span>, <span style="color:#a6e22e">z</span>);
-</span></span><span style="display:flex;"><span>          <span style="color:#a6e22e">density</span> <span style="color:#f92672">+=</span> <span style="color:#a6e22e">voxel</span>.<span style="color:#a6e22e">density</span>;
-</span></span><span style="display:flex;"><span>        }
-</span></span><span style="display:flex;"><span>      }
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>      <span style="color:#66d9ef">const</span> <span style="color:#a6e22e">I</span> <span style="color:#f92672">=</span> <span style="color:#a6e22e">I0</span> <span style="color:#f92672">*</span> Math.<span style="color:#a6e22e">exp</span>(<span style="color:#f92672">-</span><span style="color:#a6e22e">density</span> <span style="color:#f92672">*</span> <span style="color:#ae81ff">0.05</span>); <span style="color:#75715e">// 0.05 is the &#34;attenuation coefficient&#34;
-</span></span></span><span style="display:flex;"><span>      <span style="color:#a6e22e">detector</span>[<span style="color:#a6e22e">u</span> <span style="color:#f92672">+</span> <span style="color:#a6e22e">v</span> <span style="color:#f92672">*</span> <span style="color:#a6e22e">SIZE</span>] <span style="color:#f92672">=</span> <span style="color:#a6e22e">I</span>;
-</span></span><span style="display:flex;"><span>    }
-</span></span><span style="display:flex;"><span>  }
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>  <span style="color:#66d9ef">return</span> <span style="color:#a6e22e">detector</span>;
-</span></span><span style="display:flex;"><span>}
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#66d9ef">const</span> <span style="color:#a6e22e">xray2DByDeg</span>: <span style="color:#66d9ef">Array</span>&lt;<span style="color:#f92672">Float32Array</span>&gt; <span style="color:#f92672">=</span> [];
-</span></span><span style="display:flex;"><span><span style="color:#75715e">// note we only need 180 degrees because 360 deg = 0 deg, 270 deg = 90 deg, etc.
-</span></span></span><span style="display:flex;"><span><span style="color:#66d9ef">for</span> (<span style="color:#66d9ef">let</span> <span style="color:#a6e22e">deg</span> <span style="color:#f92672">=</span> <span style="color:#ae81ff">0</span>; <span style="color:#a6e22e">deg</span> <span style="color:#f92672">&lt;</span> <span style="color:#ae81ff">180</span>; <span style="color:#a6e22e">deg</span><span style="color:#f92672">++</span>) {
-</span></span><span style="display:flex;"><span>  <span style="color:#a6e22e">xray2DByDeg</span>.<span style="color:#a6e22e">push</span>(<span style="color:#a6e22e">take2DXray</span>(<span style="color:#a6e22e">deg</span>));
-</span></span><span style="display:flex;"><span>}
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-typescript" data-lang="typescript"><span class="line"><span class="cl"><span class="kd">function</span> <span class="nx">take2DXray</span><span class="p">(</span><span class="nx">angle</span>: <span class="kt">number</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="c1">// angle to radian
+</span></span></span><span class="line"><span class="cl">  <span class="kr">const</span> <span class="nx">rad</span> <span class="o">=</span> <span class="p">(</span><span class="nb">Math</span><span class="p">.</span><span class="nx">PI</span> <span class="o">*</span> <span class="nx">angle</span><span class="p">)</span> <span class="o">/</span> <span class="mi">180</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">  <span class="kr">const</span> <span class="nx">detector</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">Float32Array</span><span class="p">(</span><span class="nx">SIZE</span> <span class="o">*</span> <span class="nx">SIZE</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  <span class="k">for</span> <span class="p">(</span><span class="kd">let</span> <span class="nx">v</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="nx">v</span> <span class="o">&lt;</span> <span class="nx">SIZE</span><span class="p">;</span> <span class="nx">v</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span> <span class="c1">// v for y
+</span></span></span><span class="line"><span class="cl">    <span class="k">for</span> <span class="p">(</span><span class="kd">let</span> <span class="nx">u</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="nx">u</span> <span class="o">&lt;</span> <span class="nx">SIZE</span><span class="p">;</span> <span class="nx">u</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span> <span class="c1">// u for x
+</span></span></span><span class="line"><span class="cl">      <span class="kd">let</span> <span class="nx">density</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>  
+</span></span><span class="line"><span class="cl">      <span class="c1">// note the range here is -64 to 64 because we want the X ray to rotate 
+</span></span></span><span class="line"><span class="cl">      <span class="c1">// around the center of the voxel world but our coordinate system is from 0 to 128
+</span></span></span><span class="line"><span class="cl">      <span class="k">for</span> <span class="p">(</span><span class="kd">let</span> <span class="nx">d</span> <span class="o">=</span> <span class="o">-</span><span class="mi">64</span><span class="p">;</span> <span class="nx">d</span> <span class="o">&lt;</span> <span class="mi">64</span><span class="p">;</span> <span class="nx">d</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span> <span class="c1">// d for z; 
+</span></span></span><span class="line"><span class="cl">        <span class="kr">const</span> <span class="nx">x</span> <span class="o">=</span> <span class="nb">Math</span><span class="p">.</span><span class="nx">floor</span><span class="p">(</span>
+</span></span><span class="line"><span class="cl">          <span class="nx">HALF_SIZE</span> <span class="o">+</span> <span class="p">(</span><span class="nx">u</span> <span class="o">-</span> <span class="nx">HALF_SIZE</span><span class="p">)</span> <span class="o">*</span> <span class="nb">Math</span><span class="p">.</span><span class="nx">cos</span><span class="p">(</span><span class="nx">rad</span><span class="p">)</span> <span class="o">-</span> <span class="nx">d</span> <span class="o">*</span> <span class="nb">Math</span><span class="p">.</span><span class="nx">sin</span><span class="p">(</span><span class="nx">rad</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">        <span class="p">);</span>
+</span></span><span class="line"><span class="cl">        <span class="kr">const</span> <span class="nx">z</span> <span class="o">=</span> <span class="nb">Math</span><span class="p">.</span><span class="nx">floor</span><span class="p">(</span>
+</span></span><span class="line"><span class="cl">          <span class="nx">HALF_SIZE</span> <span class="o">+</span> <span class="p">(</span><span class="nx">u</span> <span class="o">-</span> <span class="nx">HALF_SIZE</span><span class="p">)</span> <span class="o">*</span> <span class="nb">Math</span><span class="p">.</span><span class="nx">sin</span><span class="p">(</span><span class="nx">rad</span><span class="p">)</span> <span class="o">+</span> <span class="nx">d</span> <span class="o">*</span> <span class="nb">Math</span><span class="p">.</span><span class="nx">cos</span><span class="p">(</span><span class="nx">rad</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">        <span class="p">);</span>
+</span></span><span class="line"><span class="cl">        <span class="kr">const</span> <span class="nx">y</span> <span class="o">=</span> <span class="nx">v</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="k">if</span> <span class="p">(</span><span class="nx">x</span> <span class="o">&gt;=</span> <span class="mi">0</span> <span class="o">&amp;&amp;</span> <span class="nx">x</span> <span class="o">&lt;</span> <span class="nx">SIZE</span> <span class="o">&amp;&amp;</span> <span class="nx">y</span> <span class="o">&gt;=</span> <span class="mi">0</span> <span class="o">&amp;&amp;</span> <span class="nx">y</span> <span class="o">&lt;</span> <span class="nx">SIZE</span> <span class="o">&amp;&amp;</span> <span class="nx">z</span> <span class="o">&gt;=</span> <span class="mi">0</span> <span class="o">&amp;&amp;</span> <span class="nx">z</span> <span class="o">&lt;</span> <span class="nx">SIZE</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">          <span class="kr">const</span> <span class="nx">voxel</span> <span class="o">=</span> <span class="nx">getVoxel</span><span class="p">(</span><span class="nx">x</span><span class="p">,</span> <span class="nx">y</span><span class="p">,</span> <span class="nx">z</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">          <span class="nx">density</span> <span class="o">+=</span> <span class="nx">voxel</span><span class="p">.</span><span class="nx">density</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">        <span class="p">}</span>
+</span></span><span class="line"><span class="cl">      <span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">      <span class="kr">const</span> <span class="nx">I</span> <span class="o">=</span> <span class="nx">I0</span> <span class="o">*</span> <span class="nb">Math</span><span class="p">.</span><span class="nx">exp</span><span class="p">(</span><span class="o">-</span><span class="nx">density</span> <span class="o">*</span> <span class="mf">0.05</span><span class="p">);</span> <span class="c1">// 0.05 is the &#34;attenuation coefficient&#34;
+</span></span></span><span class="line"><span class="cl">      <span class="nx">detector</span><span class="p">[</span><span class="nx">u</span> <span class="o">+</span> <span class="nx">v</span> <span class="o">*</span> <span class="nx">SIZE</span><span class="p">]</span> <span class="o">=</span> <span class="nx">I</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">  <span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  <span class="k">return</span> <span class="nx">detector</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kr">const</span> <span class="nx">xray2DByDeg</span>: <span class="kt">Array</span><span class="p">&lt;</span><span class="nt">Float32Array</span><span class="p">&gt;</span> <span class="o">=</span> <span class="p">[];</span>
+</span></span><span class="line"><span class="cl"><span class="c1">// note we only need 180 degrees because 360 deg = 0 deg, 270 deg = 90 deg, etc.
+</span></span></span><span class="line"><span class="cl"><span class="k">for</span> <span class="p">(</span><span class="kd">let</span> <span class="nx">deg</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="nx">deg</span> <span class="o">&lt;</span> <span class="mi">180</span><span class="p">;</span> <span class="nx">deg</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nx">xray2DByDeg</span><span class="p">.</span><span class="nx">push</span><span class="p">(</span><span class="nx">take2DXray</span><span class="p">(</span><span class="nx">deg</span><span class="p">));</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
 </span></span></code></pre></div><p><code>xray2DByDeg</code> contains the full projection data that allows us to build the 3D volume. A sinogram is a slice in this dataset at specific Y.</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-typescript" data-lang="typescript"><span style="display:flex;"><span><span style="color:#66d9ef">function</span> <span style="color:#a6e22e">getSinogramData</span>(<span style="color:#a6e22e">yValue</span>: <span style="color:#66d9ef">number</span>) {
-</span></span><span style="display:flex;"><span>  <span style="color:#66d9ef">const</span> <span style="color:#a6e22e">sinogram</span> <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> <span style="color:#a6e22e">Float32Array</span>(<span style="color:#ae81ff">180</span> <span style="color:#f92672">*</span> <span style="color:#a6e22e">SIZE</span>);
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>  <span style="color:#66d9ef">for</span> (<span style="color:#66d9ef">let</span> <span style="color:#a6e22e">deg</span> <span style="color:#f92672">=</span> <span style="color:#ae81ff">0</span>; <span style="color:#a6e22e">deg</span> <span style="color:#f92672">&lt;</span> <span style="color:#ae81ff">180</span>; <span style="color:#a6e22e">deg</span><span style="color:#f92672">++</span>) {
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">const</span> <span style="color:#a6e22e">xray2d</span> <span style="color:#f92672">=</span> <span style="color:#a6e22e">xray2DByDeg</span>[<span style="color:#a6e22e">deg</span>];
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>    <span style="color:#75715e">// now grab the density at Y
-</span></span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">for</span> (<span style="color:#66d9ef">let</span> <span style="color:#a6e22e">u</span> <span style="color:#f92672">=</span> <span style="color:#ae81ff">0</span>; <span style="color:#a6e22e">u</span> <span style="color:#f92672">&lt;</span> <span style="color:#a6e22e">SIZE</span>; <span style="color:#a6e22e">u</span><span style="color:#f92672">++</span>) {
-</span></span><span style="display:flex;"><span>      <span style="color:#66d9ef">const</span> <span style="color:#a6e22e">observed</span> <span style="color:#f92672">=</span> <span style="color:#a6e22e">xray2d</span>[<span style="color:#a6e22e">u</span> <span style="color:#f92672">+</span> <span style="color:#a6e22e">yValue</span> <span style="color:#f92672">*</span> <span style="color:#a6e22e">SIZE</span>];
-</span></span><span style="display:flex;"><span>      <span style="color:#66d9ef">const</span> <span style="color:#a6e22e">calculated</span> <span style="color:#f92672">=</span> <span style="color:#f92672">-</span>Math.<span style="color:#a6e22e">log</span>(Math.<span style="color:#a6e22e">max</span>(<span style="color:#a6e22e">observed</span>, <span style="color:#ae81ff">0.001</span>) <span style="color:#f92672">/</span> <span style="color:#a6e22e">I0</span>);
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>      <span style="color:#a6e22e">sinogram</span>[<span style="color:#a6e22e">u</span> <span style="color:#f92672">+</span> <span style="color:#a6e22e">deg</span> <span style="color:#f92672">*</span> <span style="color:#a6e22e">SIZE</span>] <span style="color:#f92672">=</span> <span style="color:#a6e22e">calculated</span>;
-</span></span><span style="display:flex;"><span>    }
-</span></span><span style="display:flex;"><span>  }
-</span></span><span style="display:flex;"><span>  <span style="color:#66d9ef">return</span> <span style="color:#a6e22e">sinogram</span>;
-</span></span><span style="display:flex;"><span>}
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-typescript" data-lang="typescript"><span class="line"><span class="cl"><span class="kd">function</span> <span class="nx">getSinogramData</span><span class="p">(</span><span class="nx">yValue</span>: <span class="kt">number</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="kr">const</span> <span class="nx">sinogram</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">Float32Array</span><span class="p">(</span><span class="mi">180</span> <span class="o">*</span> <span class="nx">SIZE</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  <span class="k">for</span> <span class="p">(</span><span class="kd">let</span> <span class="nx">deg</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="nx">deg</span> <span class="o">&lt;</span> <span class="mi">180</span><span class="p">;</span> <span class="nx">deg</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="kr">const</span> <span class="nx">xray2d</span> <span class="o">=</span> <span class="nx">xray2DByDeg</span><span class="p">[</span><span class="nx">deg</span><span class="p">];</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="c1">// now grab the density at Y
+</span></span></span><span class="line"><span class="cl">    <span class="k">for</span> <span class="p">(</span><span class="kd">let</span> <span class="nx">u</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="nx">u</span> <span class="o">&lt;</span> <span class="nx">SIZE</span><span class="p">;</span> <span class="nx">u</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">      <span class="kr">const</span> <span class="nx">observed</span> <span class="o">=</span> <span class="nx">xray2d</span><span class="p">[</span><span class="nx">u</span> <span class="o">+</span> <span class="nx">yValue</span> <span class="o">*</span> <span class="nx">SIZE</span><span class="p">];</span>
+</span></span><span class="line"><span class="cl">      <span class="kr">const</span> <span class="nx">calculated</span> <span class="o">=</span> <span class="o">-</span><span class="nb">Math</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nb">Math</span><span class="p">.</span><span class="nx">max</span><span class="p">(</span><span class="nx">observed</span><span class="p">,</span> <span class="mf">0.001</span><span class="p">)</span> <span class="o">/</span> <span class="nx">I0</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">      <span class="nx">sinogram</span><span class="p">[</span><span class="nx">u</span> <span class="o">+</span> <span class="nx">deg</span> <span class="o">*</span> <span class="nx">SIZE</span><span class="p">]</span> <span class="o">=</span> <span class="nx">calculated</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">  <span class="p">}</span>
+</span></span><span class="line"><span class="cl">  <span class="k">return</span> <span class="nx">sinogram</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
 </span></span></code></pre></div><p>Given a sinogram, we can then construct the CT scan at a specific Y by doing the back projection</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-typescript" data-lang="typescript"><span style="display:flex;"><span><span style="color:#66d9ef">function</span> <span style="color:#a6e22e">backProjectWithRampFilter</span>(<span style="color:#a6e22e">y</span>: <span style="color:#66d9ef">number</span>) {
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">const</span> <span style="color:#a6e22e">reconSlice</span> <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> <span style="color:#a6e22e">Float32Array</span>(<span style="color:#a6e22e">SIZE</span> <span style="color:#f92672">*</span> <span style="color:#a6e22e">SIZE</span>);
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">const</span> <span style="color:#a6e22e">sinogram</span> <span style="color:#f92672">=</span> <span style="color:#a6e22e">getSinogramData</span>(<span style="color:#a6e22e">y</span>);
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">const</span> <span style="color:#a6e22e">filteredSinogram</span> <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> <span style="color:#a6e22e">Float32Array</span>(<span style="color:#a6e22e">sinogram</span>.<span style="color:#a6e22e">length</span>);
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>    <span style="color:#75715e">// apply ramp filter
-</span></span></span><span style="display:flex;"><span>    <span style="color:#75715e">// which is a V shaped filter - ie high freq gets thru
-</span></span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">for</span> (<span style="color:#66d9ef">let</span> <span style="color:#a6e22e">deg</span> <span style="color:#f92672">=</span> <span style="color:#ae81ff">0</span>; <span style="color:#a6e22e">deg</span> <span style="color:#f92672">&lt;</span> <span style="color:#ae81ff">180</span>; <span style="color:#a6e22e">deg</span><span style="color:#f92672">++</span>) {
-</span></span><span style="display:flex;"><span>      <span style="color:#66d9ef">const</span> <span style="color:#a6e22e">start</span> <span style="color:#f92672">=</span> <span style="color:#a6e22e">deg</span> <span style="color:#f92672">*</span> <span style="color:#a6e22e">SIZE</span>;
-</span></span><span style="display:flex;"><span>      <span style="color:#66d9ef">const</span> <span style="color:#a6e22e">row</span> <span style="color:#f92672">=</span> <span style="color:#a6e22e">sinogram</span>.<span style="color:#a6e22e">slice</span>(<span style="color:#a6e22e">start</span>, <span style="color:#a6e22e">start</span> <span style="color:#f92672">+</span> <span style="color:#a6e22e">SIZE</span>);
-</span></span><span style="display:flex;"><span>      <span style="color:#a6e22e">filteredSinogram</span>.<span style="color:#66d9ef">set</span>(<span style="color:#a6e22e">applyFFTRampFilter</span>(<span style="color:#a6e22e">row</span>), <span style="color:#a6e22e">start</span>);
-</span></span><span style="display:flex;"><span>    }
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">for</span> (<span style="color:#66d9ef">let</span> <span style="color:#a6e22e">deg</span> <span style="color:#f92672">=</span> <span style="color:#ae81ff">0</span>; <span style="color:#a6e22e">deg</span> <span style="color:#f92672">&lt;</span> <span style="color:#ae81ff">180</span>; <span style="color:#a6e22e">deg</span><span style="color:#f92672">++</span>) {
-</span></span><span style="display:flex;"><span>      <span style="color:#66d9ef">const</span> <span style="color:#a6e22e">rad</span> <span style="color:#f92672">=</span> (Math.<span style="color:#a6e22e">PI</span> <span style="color:#f92672">*</span> <span style="color:#a6e22e">deg</span>) <span style="color:#f92672">/</span> <span style="color:#ae81ff">180</span>;
-</span></span><span style="display:flex;"><span>      <span style="color:#66d9ef">for</span> (<span style="color:#66d9ef">let</span> <span style="color:#a6e22e">z</span> <span style="color:#f92672">=</span> <span style="color:#ae81ff">0</span>; <span style="color:#a6e22e">z</span> <span style="color:#f92672">&lt;</span> <span style="color:#a6e22e">SIZE</span>; <span style="color:#a6e22e">z</span><span style="color:#f92672">++</span>) {
-</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">for</span> (<span style="color:#66d9ef">let</span> <span style="color:#a6e22e">x</span> <span style="color:#f92672">=</span> <span style="color:#ae81ff">0</span>; <span style="color:#a6e22e">x</span> <span style="color:#f92672">&lt;</span> <span style="color:#a6e22e">SIZE</span>; <span style="color:#a6e22e">x</span><span style="color:#f92672">++</span>) {
-</span></span><span style="display:flex;"><span>          <span style="color:#66d9ef">const</span> <span style="color:#a6e22e">xC</span> <span style="color:#f92672">=</span> <span style="color:#a6e22e">x</span> <span style="color:#f92672">-</span> <span style="color:#a6e22e">HALF_SIZE</span>;
-</span></span><span style="display:flex;"><span>          <span style="color:#66d9ef">const</span> <span style="color:#a6e22e">zC</span> <span style="color:#f92672">=</span> <span style="color:#a6e22e">z</span> <span style="color:#f92672">-</span> <span style="color:#a6e22e">HALF_SIZE</span>;
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>          <span style="color:#75715e">// inverse radon transform
-</span></span></span><span style="display:flex;"><span>          <span style="color:#66d9ef">const</span> <span style="color:#a6e22e">u</span> <span style="color:#f92672">=</span> Math.<span style="color:#a6e22e">floor</span>(
-</span></span><span style="display:flex;"><span>            <span style="color:#a6e22e">HALF_SIZE</span> <span style="color:#f92672">+</span> <span style="color:#a6e22e">xC</span> <span style="color:#f92672">*</span> Math.<span style="color:#a6e22e">cos</span>(<span style="color:#a6e22e">rad</span>) <span style="color:#f92672">+</span> <span style="color:#a6e22e">zC</span> <span style="color:#f92672">*</span> Math.<span style="color:#a6e22e">sin</span>(<span style="color:#a6e22e">rad</span>)
-</span></span><span style="display:flex;"><span>          );
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>          <span style="color:#66d9ef">if</span> (<span style="color:#a6e22e">u</span> <span style="color:#f92672">&gt;=</span> <span style="color:#ae81ff">0</span> <span style="color:#f92672">&amp;&amp;</span> <span style="color:#a6e22e">u</span> <span style="color:#f92672">&lt;</span> <span style="color:#a6e22e">SIZE</span>) {
-</span></span><span style="display:flex;"><span>            <span style="color:#a6e22e">reconSlice</span>[<span style="color:#a6e22e">x</span> <span style="color:#f92672">+</span> <span style="color:#a6e22e">z</span> <span style="color:#f92672">*</span> <span style="color:#a6e22e">SIZE</span>] <span style="color:#f92672">+=</span> <span style="color:#a6e22e">filteredSinogram</span>[<span style="color:#a6e22e">u</span> <span style="color:#f92672">+</span> <span style="color:#a6e22e">deg</span> <span style="color:#f92672">*</span> <span style="color:#a6e22e">SIZE</span>];
-</span></span><span style="display:flex;"><span>          }
-</span></span><span style="display:flex;"><span>        }
-</span></span><span style="display:flex;"><span>      }
-</span></span><span style="display:flex;"><span>    }
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> <span style="color:#a6e22e">reconSlice</span>;
-</span></span><span style="display:flex;"><span>}
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-typescript" data-lang="typescript"><span class="line"><span class="cl"><span class="kd">function</span> <span class="nx">backProjectWithRampFilter</span><span class="p">(</span><span class="nx">y</span>: <span class="kt">number</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="kr">const</span> <span class="nx">reconSlice</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">Float32Array</span><span class="p">(</span><span class="nx">SIZE</span> <span class="o">*</span> <span class="nx">SIZE</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="kr">const</span> <span class="nx">sinogram</span> <span class="o">=</span> <span class="nx">getSinogramData</span><span class="p">(</span><span class="nx">y</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">    <span class="kr">const</span> <span class="nx">filteredSinogram</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">Float32Array</span><span class="p">(</span><span class="nx">sinogram</span><span class="p">.</span><span class="nx">length</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="c1">// apply ramp filter
+</span></span></span><span class="line"><span class="cl">    <span class="c1">// which is a V shaped filter - ie high freq gets thru
+</span></span></span><span class="line"><span class="cl">    <span class="k">for</span> <span class="p">(</span><span class="kd">let</span> <span class="nx">deg</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="nx">deg</span> <span class="o">&lt;</span> <span class="mi">180</span><span class="p">;</span> <span class="nx">deg</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">      <span class="kr">const</span> <span class="nx">start</span> <span class="o">=</span> <span class="nx">deg</span> <span class="o">*</span> <span class="nx">SIZE</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">      <span class="kr">const</span> <span class="nx">row</span> <span class="o">=</span> <span class="nx">sinogram</span><span class="p">.</span><span class="nx">slice</span><span class="p">(</span><span class="nx">start</span><span class="p">,</span> <span class="nx">start</span> <span class="o">+</span> <span class="nx">SIZE</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">      <span class="nx">filteredSinogram</span><span class="p">.</span><span class="kr">set</span><span class="p">(</span><span class="nx">applyFFTRampFilter</span><span class="p">(</span><span class="nx">row</span><span class="p">),</span> <span class="nx">start</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="k">for</span> <span class="p">(</span><span class="kd">let</span> <span class="nx">deg</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="nx">deg</span> <span class="o">&lt;</span> <span class="mi">180</span><span class="p">;</span> <span class="nx">deg</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">      <span class="kr">const</span> <span class="nx">rad</span> <span class="o">=</span> <span class="p">(</span><span class="nb">Math</span><span class="p">.</span><span class="nx">PI</span> <span class="o">*</span> <span class="nx">deg</span><span class="p">)</span> <span class="o">/</span> <span class="mi">180</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">      <span class="k">for</span> <span class="p">(</span><span class="kd">let</span> <span class="nx">z</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="nx">z</span> <span class="o">&lt;</span> <span class="nx">SIZE</span><span class="p">;</span> <span class="nx">z</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="k">for</span> <span class="p">(</span><span class="kd">let</span> <span class="nx">x</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="nx">x</span> <span class="o">&lt;</span> <span class="nx">SIZE</span><span class="p">;</span> <span class="nx">x</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">          <span class="kr">const</span> <span class="nx">xC</span> <span class="o">=</span> <span class="nx">x</span> <span class="o">-</span> <span class="nx">HALF_SIZE</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">          <span class="kr">const</span> <span class="nx">zC</span> <span class="o">=</span> <span class="nx">z</span> <span class="o">-</span> <span class="nx">HALF_SIZE</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">          <span class="c1">// inverse radon transform
+</span></span></span><span class="line"><span class="cl">          <span class="kr">const</span> <span class="nx">u</span> <span class="o">=</span> <span class="nb">Math</span><span class="p">.</span><span class="nx">floor</span><span class="p">(</span>
+</span></span><span class="line"><span class="cl">            <span class="nx">HALF_SIZE</span> <span class="o">+</span> <span class="nx">xC</span> <span class="o">*</span> <span class="nb">Math</span><span class="p">.</span><span class="nx">cos</span><span class="p">(</span><span class="nx">rad</span><span class="p">)</span> <span class="o">+</span> <span class="nx">zC</span> <span class="o">*</span> <span class="nb">Math</span><span class="p">.</span><span class="nx">sin</span><span class="p">(</span><span class="nx">rad</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">          <span class="p">);</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">          <span class="k">if</span> <span class="p">(</span><span class="nx">u</span> <span class="o">&gt;=</span> <span class="mi">0</span> <span class="o">&amp;&amp;</span> <span class="nx">u</span> <span class="o">&lt;</span> <span class="nx">SIZE</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">            <span class="nx">reconSlice</span><span class="p">[</span><span class="nx">x</span> <span class="o">+</span> <span class="nx">z</span> <span class="o">*</span> <span class="nx">SIZE</span><span class="p">]</span> <span class="o">+=</span> <span class="nx">filteredSinogram</span><span class="p">[</span><span class="nx">u</span> <span class="o">+</span> <span class="nx">deg</span> <span class="o">*</span> <span class="nx">SIZE</span><span class="p">];</span>
+</span></span><span class="line"><span class="cl">          <span class="p">}</span>
+</span></span><span class="line"><span class="cl">        <span class="p">}</span>
+</span></span><span class="line"><span class="cl">      <span class="p">}</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">    <span class="k">return</span> <span class="nx">reconSlice</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
 </span></span></code></pre></div><p>This backprojection only builds the XZ slice (viewing the skull from top down).</p>
 <p>To build the YZ slice, we can build the full 3D volume and then extract the YZ plane.</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-typescript" data-lang="typescript"><span style="display:flex;"><span><span style="color:#66d9ef">const</span> <span style="color:#a6e22e">full3DRecon</span> <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> <span style="color:#a6e22e">Float32Array</span>(<span style="color:#a6e22e">SIZE</span> <span style="color:#f92672">*</span> <span style="color:#a6e22e">SIZE</span> <span style="color:#f92672">*</span> <span style="color:#a6e22e">SIZE</span>);
-</span></span><span style="display:flex;"><span><span style="color:#66d9ef">for</span> (<span style="color:#66d9ef">let</span> <span style="color:#a6e22e">y</span> <span style="color:#f92672">=</span> <span style="color:#ae81ff">0</span>; <span style="color:#a6e22e">y</span> <span style="color:#f92672">&lt;</span> <span style="color:#a6e22e">SIZE</span>; <span style="color:#a6e22e">y</span><span style="color:#f92672">++</span>) {
-</span></span><span style="display:flex;"><span>  <span style="color:#66d9ef">const</span> <span style="color:#a6e22e">xzSlice</span> <span style="color:#f92672">=</span> <span style="color:#a6e22e">backProjectWithRampFilter</span>(<span style="color:#a6e22e">y</span>);
-</span></span><span style="display:flex;"><span>  <span style="color:#66d9ef">for</span> (<span style="color:#66d9ef">let</span> <span style="color:#a6e22e">i</span> <span style="color:#f92672">=</span> <span style="color:#ae81ff">0</span>; <span style="color:#a6e22e">i</span> <span style="color:#f92672">&lt;</span> <span style="color:#a6e22e">SIZE</span> <span style="color:#f92672">*</span> <span style="color:#a6e22e">SIZE</span>; <span style="color:#a6e22e">i</span><span style="color:#f92672">++</span>) {
-</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">full3DRecon</span>[<span style="color:#a6e22e">y</span> <span style="color:#f92672">*</span> (<span style="color:#a6e22e">SIZE</span> <span style="color:#f92672">*</span> <span style="color:#a6e22e">SIZE</span>) <span style="color:#f92672">+</span> <span style="color:#a6e22e">i</span>] <span style="color:#f92672">=</span> <span style="color:#a6e22e">xzSlice</span>[<span style="color:#a6e22e">i</span>];
-</span></span><span style="display:flex;"><span>  }
-</span></span><span style="display:flex;"><span>}
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#66d9ef">function</span> <span style="color:#a6e22e">yzFrom3DRecon</span>(<span style="color:#a6e22e">xValue</span>: <span style="color:#66d9ef">number</span>) {
-</span></span><span style="display:flex;"><span>  <span style="color:#66d9ef">const</span> <span style="color:#a6e22e">yzSlice</span> <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> <span style="color:#a6e22e">Float32Array</span>(<span style="color:#a6e22e">SIZE</span> <span style="color:#f92672">*</span> <span style="color:#a6e22e">SIZE</span>);
-</span></span><span style="display:flex;"><span>  <span style="color:#66d9ef">for</span> (<span style="color:#66d9ef">let</span> <span style="color:#a6e22e">z</span> <span style="color:#f92672">=</span> <span style="color:#ae81ff">0</span>; <span style="color:#a6e22e">z</span> <span style="color:#f92672">&lt;</span> <span style="color:#a6e22e">SIZE</span>; <span style="color:#a6e22e">z</span><span style="color:#f92672">++</span>) {
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">for</span> (<span style="color:#66d9ef">let</span> <span style="color:#a6e22e">y</span> <span style="color:#f92672">=</span> <span style="color:#ae81ff">0</span>; <span style="color:#a6e22e">y</span> <span style="color:#f92672">&lt;</span> <span style="color:#a6e22e">SIZE</span>; <span style="color:#a6e22e">y</span><span style="color:#f92672">++</span>) {
-</span></span><span style="display:flex;"><span>      <span style="color:#66d9ef">const</span> <span style="color:#a6e22e">volIdx</span> <span style="color:#f92672">=</span> <span style="color:#a6e22e">xValue</span> <span style="color:#f92672">+</span> <span style="color:#a6e22e">y</span> <span style="color:#f92672">*</span> <span style="color:#a6e22e">SIZE</span> <span style="color:#f92672">*</span> <span style="color:#a6e22e">SIZE</span> <span style="color:#f92672">+</span> <span style="color:#a6e22e">z</span> <span style="color:#f92672">*</span> <span style="color:#a6e22e">SIZE</span>;
-</span></span><span style="display:flex;"><span>      <span style="color:#a6e22e">yzSlice</span>[<span style="color:#a6e22e">y</span> <span style="color:#f92672">+</span> <span style="color:#a6e22e">z</span> <span style="color:#f92672">*</span> <span style="color:#a6e22e">SIZE</span>] <span style="color:#f92672">=</span> <span style="color:#a6e22e">full3DRecon</span>[<span style="color:#a6e22e">volIdx</span>];
-</span></span><span style="display:flex;"><span>    }
-</span></span><span style="display:flex;"><span>  }
-</span></span><span style="display:flex;"><span>  <span style="color:#66d9ef">return</span> <span style="color:#a6e22e">yzSlice</span>;
-</span></span><span style="display:flex;"><span>}
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-typescript" data-lang="typescript"><span class="line"><span class="cl"><span class="kr">const</span> <span class="nx">full3DRecon</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">Float32Array</span><span class="p">(</span><span class="nx">SIZE</span> <span class="o">*</span> <span class="nx">SIZE</span> <span class="o">*</span> <span class="nx">SIZE</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl"><span class="k">for</span> <span class="p">(</span><span class="kd">let</span> <span class="nx">y</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="nx">y</span> <span class="o">&lt;</span> <span class="nx">SIZE</span><span class="p">;</span> <span class="nx">y</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="kr">const</span> <span class="nx">xzSlice</span> <span class="o">=</span> <span class="nx">backProjectWithRampFilter</span><span class="p">(</span><span class="nx">y</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">  <span class="k">for</span> <span class="p">(</span><span class="kd">let</span> <span class="nx">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="nx">i</span> <span class="o">&lt;</span> <span class="nx">SIZE</span> <span class="o">*</span> <span class="nx">SIZE</span><span class="p">;</span> <span class="nx">i</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="nx">full3DRecon</span><span class="p">[</span><span class="nx">y</span> <span class="o">*</span> <span class="p">(</span><span class="nx">SIZE</span> <span class="o">*</span> <span class="nx">SIZE</span><span class="p">)</span> <span class="o">+</span> <span class="nx">i</span><span class="p">]</span> <span class="o">=</span> <span class="nx">xzSlice</span><span class="p">[</span><span class="nx">i</span><span class="p">];</span>
+</span></span><span class="line"><span class="cl">  <span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kd">function</span> <span class="nx">yzFrom3DRecon</span><span class="p">(</span><span class="nx">xValue</span>: <span class="kt">number</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="kr">const</span> <span class="nx">yzSlice</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">Float32Array</span><span class="p">(</span><span class="nx">SIZE</span> <span class="o">*</span> <span class="nx">SIZE</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">  <span class="k">for</span> <span class="p">(</span><span class="kd">let</span> <span class="nx">z</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="nx">z</span> <span class="o">&lt;</span> <span class="nx">SIZE</span><span class="p">;</span> <span class="nx">z</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="k">for</span> <span class="p">(</span><span class="kd">let</span> <span class="nx">y</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="nx">y</span> <span class="o">&lt;</span> <span class="nx">SIZE</span><span class="p">;</span> <span class="nx">y</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">      <span class="kr">const</span> <span class="nx">volIdx</span> <span class="o">=</span> <span class="nx">xValue</span> <span class="o">+</span> <span class="nx">y</span> <span class="o">*</span> <span class="nx">SIZE</span> <span class="o">*</span> <span class="nx">SIZE</span> <span class="o">+</span> <span class="nx">z</span> <span class="o">*</span> <span class="nx">SIZE</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">      <span class="nx">yzSlice</span><span class="p">[</span><span class="nx">y</span> <span class="o">+</span> <span class="nx">z</span> <span class="o">*</span> <span class="nx">SIZE</span><span class="p">]</span> <span class="o">=</span> <span class="nx">full3DRecon</span><span class="p">[</span><span class="nx">volIdx</span><span class="p">];</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">  <span class="p">}</span>
+</span></span><span class="line"><span class="cl">  <span class="k">return</span> <span class="nx">yzSlice</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
 </span></span></code></pre></div><br/>
 <p>Finally, putting everything together, here is the toy CT scan app.</p>
 <br/>
@@ -352,12 +346,12 @@ Fundamentally, Fourier Transform is about a shift in perspective - viewing the s
 			
 		</div>
 		</div>
-	<div class="footer wrapper">
-	<nav class="nav">
-		<div> since 2017 </div>
-	</nav>
+	<div class="footer wrapper container">
+	<div>since 2017</div>
+	<div class="footer-meta">
+		<a href="/index.xml">rss</a>
+	</div>
 </div>
-
 
 <script async src="https://www.googletagmanager.com/gtag/js?id=trackingcode"></script>
 <script>
@@ -365,6 +359,7 @@ Fundamentally, Fourier Transform is about a shift in perspective - viewing the s
   function gtag(){dataLayer.push(arguments);}
   gtag('js', new Date());
   gtag('config', 'trackingcode');
-</script><script>feather.replace()</script>
+</script>
+
 </body>
 </html>

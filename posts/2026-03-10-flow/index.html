@@ -16,29 +16,23 @@
   <meta name="twitter:card" content="summary">
   <meta name="twitter:title" content="Building Flow Matching Models from Scratch">
   <meta name="twitter:description" content="Introduction # Continuing the path of learning about deep learning, I have been working on building a diffusion/flow matching models from scratch on and off for a while. My initial goal was to build a flow-matching or diffusion model for audio with mel-spectrograms inputs. However, after struggling with eyeballing generated melspectrogram to determine if it’s good or bad and the added complexity of dealing with melspectrogram to audio conversion, I decided to pivot to the image domain first to make sure I learn the diffusion modeling aspect properly before tackling audio. Specifically, I chose to go with with the classic celebrity datasets, allowing me to focus on the core mechanics of generation.">
-<link href="https://fonts.googleapis.com/css?family=Ubuntu:300,400,300italic,400italic|Raleway:200,300" rel="stylesheet">
+<link rel="stylesheet" type="text/css" media="screen" href="/css/normalize.css" />
+	<link rel="stylesheet" type="text/css" media="screen" href="/css/main.css" />
+	<link rel="stylesheet" type="text/css" href="/css/dark.css" media="(prefers-color-scheme: dark)" />
+	<link rel="stylesheet" type="text/css" href="/css/custom.css" />
 
-	<link rel="stylesheet" type="text/css" media="screen" href="/css/normalize.css" />
-	<link rel="stylesheet" type="text/css" media="screen" href="/css/main.css" /><link rel="stylesheet" type="text/css" href="/css/dark.css"  />
-
-	<script src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js"></script>
 	<script src="/js/main.js"></script>
-	<script src="/js/abc.js"></script>
-	<script src="/js/xyz.js"></script>
-	<script src="https://code.jquery.com/jquery-3.4.1.js"></script>
-	
+
 	<link rel="stylesheet" type="text/css" href="/css/anchors.css" />
 
 </head>
 
+
 <body>
 	<div class="container wrapper post">
 		<div class="header">
-	<h1 class="site-title"><a href="/">moomou</a></h1>
-	<div class="site-description"><h2>(ﾉ≧∇≦)ﾉ ﾐ ┸┸</h2><nav class="nav social">
-			<ul class="flat"><a href="https://github.com/moomou" title="Github"><i data-feather="github"></i></a></ul>
-		</nav>
-	</div>
+	<div class="branding">
+		<h1 class="site-title"><a href="/">moomou</a></h1><span class="site-tagline">(ﾉ≧∇≦)ﾉ ﾐ ┸┸</span></div>
 
 	<nav class="nav">
 		<ul class="flat">
@@ -50,10 +44,10 @@
 			<li>
 				<a href="https://go.mou.dev/resume">Resume</a>
 			</li>
-			
-		</ul>
+			<li><a href="https://github.com/moomou" rel="noopener">github</a></li></ul>
 	</nav>
 </div>
+
 
 
 		<div class="post-header">
@@ -181,27 +175,27 @@ Python Notebook with full implementation is <a href="https://github.com/moomou/m
 </h3>
 <p>In order for the transformer to interact with images, which is represented as tensor of shape (C, H, W), we need to encode images into a sequence of &ldquo;tokens&rdquo;. Following standard literature practice, we will patchify the image; that is, we will chop the image into a sequence of small square images of size <code>p</code> and obtain a tensor of size (T, C&rsquo;), where <code>T = H * W // (p * p)</code> and <code>C' = p * p</code>, assuming a stride of <code>p</code>, which results in no overlapping patches.</p>
 <p>The patchify function is conveniently available inside torch.nn.functional module as</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span>  F<span style="color:#f92672">.</span>unfold(
-</span></span><span style="display:flex;"><span>    img_tensor, 
-</span></span><span style="display:flex;"><span>    kernel_size<span style="color:#f92672">=</span>patch_size, 
-</span></span><span style="display:flex;"><span>    stride<span style="color:#f92672">=</span>patch_size)
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl">  <span class="n">F</span><span class="o">.</span><span class="n">unfold</span><span class="p">(</span>
+</span></span><span class="line"><span class="cl">    <span class="n">img_tensor</span><span class="p">,</span> 
+</span></span><span class="line"><span class="cl">    <span class="n">kernel_size</span><span class="o">=</span><span class="n">patch_size</span><span class="p">,</span> 
+</span></span><span class="line"><span class="cl">    <span class="n">stride</span><span class="o">=</span><span class="n">patch_size</span><span class="p">)</span>
 </span></span></code></pre></div><p>The inverse function is</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span>  folded_sum <span style="color:#f92672">=</span> F<span style="color:#f92672">.</span>fold(
-</span></span><span style="display:flex;"><span>    unfolded, 
-</span></span><span style="display:flex;"><span>    output_size<span style="color:#f92672">=</span>(H, W), 
-</span></span><span style="display:flex;"><span>    kernel_size<span style="color:#f92672">=</span>patch_size, 
-</span></span><span style="display:flex;"><span>    stride<span style="color:#f92672">=</span>stride)
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl">  <span class="n">folded_sum</span> <span class="o">=</span> <span class="n">F</span><span class="o">.</span><span class="n">fold</span><span class="p">(</span>
+</span></span><span class="line"><span class="cl">    <span class="n">unfolded</span><span class="p">,</span> 
+</span></span><span class="line"><span class="cl">    <span class="n">output_size</span><span class="o">=</span><span class="p">(</span><span class="n">H</span><span class="p">,</span> <span class="n">W</span><span class="p">),</span> 
+</span></span><span class="line"><span class="cl">    <span class="n">kernel_size</span><span class="o">=</span><span class="n">patch_size</span><span class="p">,</span> 
+</span></span><span class="line"><span class="cl">    <span class="n">stride</span><span class="o">=</span><span class="n">stride</span><span class="p">)</span>
 </span></span></code></pre></div><p>Here is a screenshot showing visually what patchify looks like when stride is set to patch_size.</p>
 <img src="/fold_unfold.png" alt="Patchify"/>
 <p>It can be beneficial to set stride lower than patch_size, say 50% or 25% to give our model more information. If our patches overlap (ie stride is less than patch), then when folding (turning patches back into image), it&rsquo;s important to make sure to account for the overlap with a normalization mask.</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span>    <span style="color:#75715e"># Create a normalization mask (fold a tensor of ones)</span>
-</span></span><span style="display:flex;"><span>    ones <span style="color:#f92672">=</span> torch<span style="color:#f92672">.</span>ones_like(unfolded)
-</span></span><span style="display:flex;"><span>    norm_mask <span style="color:#f92672">=</span> F<span style="color:#f92672">.</span>fold(
-</span></span><span style="display:flex;"><span>      ones, 
-</span></span><span style="display:flex;"><span>      output_size<span style="color:#f92672">=</span>(H, W), 
-</span></span><span style="display:flex;"><span>      kernel_size<span style="color:#f92672">=</span>patch_size, 
-</span></span><span style="display:flex;"><span>      stride<span style="color:#f92672">=</span>stride)
-</span></span><span style="display:flex;"><span>    folded_norm <span style="color:#f92672">=</span> folded_sum <span style="color:#f92672">/</span> norm_mask
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl">    <span class="c1"># Create a normalization mask (fold a tensor of ones)</span>
+</span></span><span class="line"><span class="cl">    <span class="n">ones</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">ones_like</span><span class="p">(</span><span class="n">unfolded</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="n">norm_mask</span> <span class="o">=</span> <span class="n">F</span><span class="o">.</span><span class="n">fold</span><span class="p">(</span>
+</span></span><span class="line"><span class="cl">      <span class="n">ones</span><span class="p">,</span> 
+</span></span><span class="line"><span class="cl">      <span class="n">output_size</span><span class="o">=</span><span class="p">(</span><span class="n">H</span><span class="p">,</span> <span class="n">W</span><span class="p">),</span> 
+</span></span><span class="line"><span class="cl">      <span class="n">kernel_size</span><span class="o">=</span><span class="n">patch_size</span><span class="p">,</span> 
+</span></span><span class="line"><span class="cl">      <span class="n">stride</span><span class="o">=</span><span class="n">stride</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="n">folded_norm</span> <span class="o">=</span> <span class="n">folded_sum</span> <span class="o">/</span> <span class="n">norm_mask</span>
 </span></span></code></pre></div><br/>
 <img src="/fold_unfold_half_stride.png" alt="Patchify with stride"/>
 <p>If we didn&rsquo;t normalize with the overlap mask, our image will be unnaturally bright in areas where patches overlap, as shown in the image below.</p>
@@ -315,24 +309,24 @@ Python Notebook with full implementation is <a href="https://github.com/moomou/m
 <br/>
 <p>During training, we sample t to generate the corrupted images used for denoising. How we sample t is critical, as it dictates the specific distribution of corruption levels observed by the network. This is particularly important because of image redundancy: larger images contain more spatial information than smaller ones. For example, corrupting 42 pixels in a 64×64 image results in a ∼1% loss of information, whereas the same number of corrupted pixels in a 256×256 image represents a loss of only ∼0.06%.</p>
 <p>This means as we scale up our model to generate higher resolution images, we have to adjust <code>t</code> sampling accordingly. Sample too many <code>t</code> close 1 biases our model to only see lightly corrupted images. I went with the suggested sampling schedule from Back to Basics for 256x256 images. For a reference paper on noise schedule, <a href="https://arxiv.org/pdf/2301.11093">Simple Diffusion</a> is a good resource.</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#f92672">import</span> torch
-</span></span><span style="display:flex;"><span><span style="color:#f92672">import</span> torch.nn.functional <span style="color:#66d9ef">as</span> F
-</span></span><span style="display:flex;"><span><span style="color:#f92672">import</span> numpy <span style="color:#66d9ef">as</span> np
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">sample_logit_t</span>(dim, resolution<span style="color:#f92672">=</span><span style="color:#ae81ff">256</span>, base_res<span style="color:#f92672">=</span><span style="color:#ae81ff">256</span>, sig<span style="color:#f92672">=</span><span style="color:#ae81ff">0.8</span>, mu_base<span style="color:#f92672">=-</span><span style="color:#ae81ff">0.8</span>):
-</span></span><span style="display:flex;"><span>    <span style="color:#e6db74">&#34;&#34;&#34;
-</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">    Adjusts the logit-normal sampling mean based on resolution.
-</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">    Shifts the distribution to higher noise for higher resolutions.
-</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">    &#34;&#34;&#34;</span>
-</span></span><span style="display:flex;"><span>    <span style="color:#75715e"># 1. Calculate the resolution shift (from Simple Diffusion paper)</span>
-</span></span><span style="display:flex;"><span>    <span style="color:#75715e"># As resolution increases, we shift the mean to sample higher noise levels</span>
-</span></span><span style="display:flex;"><span>    mu <span style="color:#f92672">=</span> mu_base <span style="color:#f92672">-</span> math<span style="color:#f92672">.</span>log(resolution<span style="color:#f92672">/</span>base_res)
-</span></span><span style="display:flex;"><span>    
-</span></span><span style="display:flex;"><span>    <span style="color:#75715e"># 2. Sample from logit-normal distribution</span>
-</span></span><span style="display:flex;"><span>    u_sample <span style="color:#f92672">=</span> torch<span style="color:#f92672">.</span>randn(dim) <span style="color:#f92672">*</span> sig <span style="color:#f92672">+</span> mu
-</span></span><span style="display:flex;"><span>    t <span style="color:#f92672">=</span> torch<span style="color:#f92672">.</span>sigmoid(u_sample)
-</span></span><span style="display:flex;"><span>    
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> t
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">torch</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">torch.nn.functional</span> <span class="k">as</span> <span class="nn">F</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="k">def</span> <span class="nf">sample_logit_t</span><span class="p">(</span><span class="n">dim</span><span class="p">,</span> <span class="n">resolution</span><span class="o">=</span><span class="mi">256</span><span class="p">,</span> <span class="n">base_res</span><span class="o">=</span><span class="mi">256</span><span class="p">,</span> <span class="n">sig</span><span class="o">=</span><span class="mf">0.8</span><span class="p">,</span> <span class="n">mu_base</span><span class="o">=-</span><span class="mf">0.8</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">&#34;&#34;&#34;
+</span></span></span><span class="line"><span class="cl"><span class="s2">    Adjusts the logit-normal sampling mean based on resolution.
+</span></span></span><span class="line"><span class="cl"><span class="s2">    Shifts the distribution to higher noise for higher resolutions.
+</span></span></span><span class="line"><span class="cl"><span class="s2">    &#34;&#34;&#34;</span>
+</span></span><span class="line"><span class="cl">    <span class="c1"># 1. Calculate the resolution shift (from Simple Diffusion paper)</span>
+</span></span><span class="line"><span class="cl">    <span class="c1"># As resolution increases, we shift the mean to sample higher noise levels</span>
+</span></span><span class="line"><span class="cl">    <span class="n">mu</span> <span class="o">=</span> <span class="n">mu_base</span> <span class="o">-</span> <span class="n">math</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">resolution</span><span class="o">/</span><span class="n">base_res</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    
+</span></span><span class="line"><span class="cl">    <span class="c1"># 2. Sample from logit-normal distribution</span>
+</span></span><span class="line"><span class="cl">    <span class="n">u_sample</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">randn</span><span class="p">(</span><span class="n">dim</span><span class="p">)</span> <span class="o">*</span> <span class="n">sig</span> <span class="o">+</span> <span class="n">mu</span>
+</span></span><span class="line"><span class="cl">    <span class="n">t</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">sigmoid</span><span class="p">(</span><span class="n">u_sample</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    
+</span></span><span class="line"><span class="cl">    <span class="k">return</span> <span class="n">t</span>
 </span></span></code></pre></div><p>A graph showing the distribution of <code>t</code> for the sampling schedule used in my training setup.</p>
 <img src="/sampling_logit_t.png" alt="Sampling Logit t">
 <h3 id="solving-ode-with-euler">
@@ -374,19 +368,19 @@ Python Notebook with full implementation is <a href="https://github.com/moomou/m
 </math>
 <p>We can repeat this process until we arrive at <code>t2</code> and get at an estimate for <code>x(t2)</code>.</p>
 <p>The smaller the epsilon, the better the approximateion and the smaller the error.</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#a6e22e">@torch.no_grad</span>
-</span></span><span style="display:flex;"><span><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">euler_method</span>(y0, x0, x1, dfdx):
-</span></span><span style="display:flex;"><span>    x <span style="color:#f92672">=</span> x0
-</span></span><span style="display:flex;"><span>    x_tensor <span style="color:#f92672">=</span> torch<span style="color:#f92672">.</span>tensor(x)<span style="color:#f92672">.</span>to(y0<span style="color:#f92672">.</span>device)
-</span></span><span style="display:flex;"><span>    
-</span></span><span style="display:flex;"><span>    y <span style="color:#f92672">=</span> y0
-</span></span><span style="display:flex;"><span>    B <span style="color:#f92672">=</span> y<span style="color:#f92672">.</span>shape[<span style="color:#ae81ff">0</span>]
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">while</span> x <span style="color:#f92672">&lt;</span> x1:
-</span></span><span style="display:flex;"><span>        dfdx_val <span style="color:#f92672">=</span> dfdx(y, x_tensor<span style="color:#f92672">.</span>repeat(B))
-</span></span><span style="display:flex;"><span>        y <span style="color:#f92672">=</span> y <span style="color:#f92672">+</span> step_size <span style="color:#f92672">*</span> dfdx_val
-</span></span><span style="display:flex;"><span>        x <span style="color:#f92672">+=</span> step_size
-</span></span><span style="display:flex;"><span>        x_tensor <span style="color:#f92672">=</span> torch<span style="color:#f92672">.</span>tensor(x)<span style="color:#f92672">.</span>to(y0<span style="color:#f92672">.</span>device)
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> y
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="nd">@torch.no_grad</span>
+</span></span><span class="line"><span class="cl"><span class="k">def</span> <span class="nf">euler_method</span><span class="p">(</span><span class="n">y0</span><span class="p">,</span> <span class="n">x0</span><span class="p">,</span> <span class="n">x1</span><span class="p">,</span> <span class="n">dfdx</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">    <span class="n">x</span> <span class="o">=</span> <span class="n">x0</span>
+</span></span><span class="line"><span class="cl">    <span class="n">x_tensor</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">(</span><span class="n">x</span><span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">y0</span><span class="o">.</span><span class="n">device</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    
+</span></span><span class="line"><span class="cl">    <span class="n">y</span> <span class="o">=</span> <span class="n">y0</span>
+</span></span><span class="line"><span class="cl">    <span class="n">B</span> <span class="o">=</span> <span class="n">y</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl">    <span class="k">while</span> <span class="n">x</span> <span class="o">&lt;</span> <span class="n">x1</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">        <span class="n">dfdx_val</span> <span class="o">=</span> <span class="n">dfdx</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">x_tensor</span><span class="o">.</span><span class="n">repeat</span><span class="p">(</span><span class="n">B</span><span class="p">))</span>
+</span></span><span class="line"><span class="cl">        <span class="n">y</span> <span class="o">=</span> <span class="n">y</span> <span class="o">+</span> <span class="n">step_size</span> <span class="o">*</span> <span class="n">dfdx_val</span>
+</span></span><span class="line"><span class="cl">        <span class="n">x</span> <span class="o">+=</span> <span class="n">step_size</span>
+</span></span><span class="line"><span class="cl">        <span class="n">x_tensor</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">(</span><span class="n">x</span><span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">y0</span><span class="o">.</span><span class="n">device</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="k">return</span> <span class="n">y</span>
 </span></span></code></pre></div><p>To verify the euler function is working correctly, here is a visualization of euler function approximating sine wave with different step sizes (the bigger the steps, the smaller the epislon)</p>
 <img src="/euler_example2.jpg" alt="euler example"/>
 <p>As we can see, while not perfect, with 100 steps, euler method matches sine wave shape very well.</p>
@@ -421,12 +415,12 @@ Python Notebook with full implementation is <a href="https://github.com/moomou/m
 			
 		</div>
 		</div>
-	<div class="footer wrapper">
-	<nav class="nav">
-		<div> since 2017 </div>
-	</nav>
+	<div class="footer wrapper container">
+	<div>since 2017</div>
+	<div class="footer-meta">
+		<a href="/index.xml">rss</a>
+	</div>
 </div>
-
 
 <script async src="https://www.googletagmanager.com/gtag/js?id=trackingcode"></script>
 <script>
@@ -434,6 +428,7 @@ Python Notebook with full implementation is <a href="https://github.com/moomou/m
   function gtag(){dataLayer.push(arguments);}
   gtag('js', new Date());
   gtag('config', 'trackingcode');
-</script><script>feather.replace()</script>
+</script>
+
 </body>
 </html>

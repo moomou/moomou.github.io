@@ -18,29 +18,23 @@ I am motivated to gain hands-on experience tinkering LLMs so, as much as practic
   <meta name="twitter:title" content="Listening with LLM">
   <meta name="twitter:description" content="Overview # This is the first part of many posts I am writing to consolidate learnings on how to finetune Large Language Models (LLMs) to process audio, with the eventual goal of being able to build and host a LLM able to describe human voices.
 I am motivated to gain hands-on experience tinkering LLMs so, as much as practical, I tried to recreate utilities and functions with pytorch from scratch rather than rely on 3rd party libraries.">
-<link href="https://fonts.googleapis.com/css?family=Ubuntu:300,400,300italic,400italic|Raleway:200,300" rel="stylesheet">
+<link rel="stylesheet" type="text/css" media="screen" href="/css/normalize.css" />
+	<link rel="stylesheet" type="text/css" media="screen" href="/css/main.css" />
+	<link rel="stylesheet" type="text/css" href="/css/dark.css" media="(prefers-color-scheme: dark)" />
+	<link rel="stylesheet" type="text/css" href="/css/custom.css" />
 
-	<link rel="stylesheet" type="text/css" media="screen" href="/css/normalize.css" />
-	<link rel="stylesheet" type="text/css" media="screen" href="/css/main.css" /><link rel="stylesheet" type="text/css" href="/css/dark.css"  />
-
-	<script src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js"></script>
 	<script src="/js/main.js"></script>
-	<script src="/js/abc.js"></script>
-	<script src="/js/xyz.js"></script>
-	<script src="https://code.jquery.com/jquery-3.4.1.js"></script>
-	
+
 	<link rel="stylesheet" type="text/css" href="/css/anchors.css" />
 
 </head>
 
+
 <body>
 	<div class="container wrapper post">
 		<div class="header">
-	<h1 class="site-title"><a href="/">moomou</a></h1>
-	<div class="site-description"><h2>(ﾉ≧∇≦)ﾉ ﾐ ┸┸</h2><nav class="nav social">
-			<ul class="flat"><a href="https://github.com/moomou" title="Github"><i data-feather="github"></i></a></ul>
-		</nav>
-	</div>
+	<div class="branding">
+		<h1 class="site-title"><a href="/">moomou</a></h1><span class="site-tagline">(ﾉ≧∇≦)ﾉ ﾐ ┸┸</span></div>
 
 	<nav class="nav">
 		<ul class="flat">
@@ -52,10 +46,10 @@ I am motivated to gain hands-on experience tinkering LLMs so, as much as practic
 			<li>
 				<a href="https://go.mou.dev/resume">Resume</a>
 			</li>
-			
-		</ul>
+			<li><a href="https://github.com/moomou" rel="noopener">github</a></li></ul>
 	</nav>
 </div>
+
 
 
 		<div class="post-header">
@@ -132,86 +126,86 @@ Excited by the idea of a LLM with general audio understanding ability and itchin
   <a href="#sampling-from-scratch" class="heading-anchor">#</a>
 </h3>
 <p>The first step I took is to ensure I can load the base LLM and perform inference correctly. Instead of leveraging transformers library&rsquo;s <a href="https://huggingface.co/docs/transformers/main_classes/text_generation#generation">generation utilities</a>, I implemented my own sampling function to verify my understanding as well as to learn how to sample using embeddings directly, which will come in handy when feeding in audio embeddings.</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#a6e22e">@torch.no_grad</span>
-</span></span><span style="display:flex;"><span><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">sampler</span>(input_ids):
-</span></span><span style="display:flex;"><span>    outputs <span style="color:#f92672">=</span> []
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">for</span> _ <span style="color:#f92672">in</span> range(<span style="color:#ae81ff">50</span>):
-</span></span><span style="display:flex;"><span>        inputs_embeds <span style="color:#f92672">=</span> model<span style="color:#f92672">.</span>llm<span style="color:#f92672">.</span>model<span style="color:#f92672">.</span>embed_tokens(input_ids)
-</span></span><span style="display:flex;"><span>        res <span style="color:#f92672">=</span> model<span style="color:#f92672">.</span>llm(inputs_embeds<span style="color:#f92672">=</span>inputs_embeds)
-</span></span><span style="display:flex;"><span>        <span style="color:#75715e"># res.logits shape is (batch, seq_len, logits)</span>
-</span></span><span style="display:flex;"><span>        <span style="color:#75715e"># sample using multinomial using the last logits </span>
-</span></span><span style="display:flex;"><span>        sampled <span style="color:#f92672">=</span> torch<span style="color:#f92672">.</span>multinomial(res<span style="color:#f92672">.</span>logits[:,<span style="color:#f92672">-</span><span style="color:#ae81ff">1</span>,:]<span style="color:#f92672">.</span>softmax(dim<span style="color:#f92672">=-</span><span style="color:#ae81ff">1</span>), <span style="color:#ae81ff">1</span>)
-</span></span><span style="display:flex;"><span>        <span style="color:#75715e"># repeatedly concat the `sampled` to the `input_ids` for next sampling</span>
-</span></span><span style="display:flex;"><span>        input_ids <span style="color:#f92672">=</span> torch<span style="color:#f92672">.</span>cat((input_ids, sampled), dim<span style="color:#f92672">=-</span><span style="color:#ae81ff">1</span>)
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> input_ids
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="nd">@torch.no_grad</span>
+</span></span><span class="line"><span class="cl"><span class="k">def</span> <span class="nf">sampler</span><span class="p">(</span><span class="n">input_ids</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">    <span class="n">outputs</span> <span class="o">=</span> <span class="p">[]</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">50</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">        <span class="n">inputs_embeds</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">llm</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">embed_tokens</span><span class="p">(</span><span class="n">input_ids</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">        <span class="n">res</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">llm</span><span class="p">(</span><span class="n">inputs_embeds</span><span class="o">=</span><span class="n">inputs_embeds</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">        <span class="c1"># res.logits shape is (batch, seq_len, logits)</span>
+</span></span><span class="line"><span class="cl">        <span class="c1"># sample using multinomial using the last logits </span>
+</span></span><span class="line"><span class="cl">        <span class="n">sampled</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">multinomial</span><span class="p">(</span><span class="n">res</span><span class="o">.</span><span class="n">logits</span><span class="p">[:,</span><span class="o">-</span><span class="mi">1</span><span class="p">,:]</span><span class="o">.</span><span class="n">softmax</span><span class="p">(</span><span class="n">dim</span><span class="o">=-</span><span class="mi">1</span><span class="p">),</span> <span class="mi">1</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">        <span class="c1"># repeatedly concat the `sampled` to the `input_ids` for next sampling</span>
+</span></span><span class="line"><span class="cl">        <span class="n">input_ids</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">cat</span><span class="p">((</span><span class="n">input_ids</span><span class="p">,</span> <span class="n">sampled</span><span class="p">),</span> <span class="n">dim</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="k">return</span> <span class="n">input_ids</span>
 </span></span></code></pre></div><p>Using the <code>tokenizer</code> class obtained from Transformer&rsquo;s <code>AutoTokenizer</code> class, I was able to verify sampling worked as expected! Running</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span>tokenizer<span style="color:#f92672">.</span>decode(sampler(tokenizer(<span style="color:#e6db74">&#34;tell me a story&#34;</span>, return_tensors<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;pt&#34;</span>)<span style="color:#f92672">.</span>input_ids<span style="color:#f92672">.</span>to(<span style="color:#e6db74">&#34;cuda:0&#34;</span>))[<span style="color:#ae81ff">0</span>])
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="n">tokenizer</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="n">sampler</span><span class="p">(</span><span class="n">tokenizer</span><span class="p">(</span><span class="s2">&#34;tell me a story&#34;</span><span class="p">,</span> <span class="n">return_tensors</span><span class="o">=</span><span class="s2">&#34;pt&#34;</span><span class="p">)</span><span class="o">.</span><span class="n">input_ids</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="s2">&#34;cuda:0&#34;</span><span class="p">))[</span><span class="mi">0</span><span class="p">])</span>
 </span></span></code></pre></div><p>yields (as an example output)</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>&#39;&lt;s&gt;tell me a story is a film and video production company, tell me a story is a concept that was created to allow people to come together through the power of storytelling.\n and so, with this massive power in storytelling, the founders and creat&#39;
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-text" data-lang="text"><span class="line"><span class="cl">&#39;&lt;s&gt;tell me a story is a film and video production company, tell me a story is a concept that was created to allow people to come together through the power of storytelling.\n and so, with this massive power in storytelling, the founders and creat&#39;
 </span></span></code></pre></div><h3 id="debugging-nans-and-infs">
   Debugging NaNs and Infs
   <a href="#debugging-nans-and-infs" class="heading-anchor">#</a>
 </h3>
 <p>So far so good. However, I soon noticed that, occasionally, the sampling function would fail by complaining that softmax function encountered an <code>inf</code> or <code>NaN</code>. I followed this <a href="https://github.com/TimDettmers/bitsandbytes/issues/165#issuecomment-1560496240">insightful thread</a> and learnt to identify the source of <code>NaN</code> by using the following adapted Pytorch hooks</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#f92672">import</span> torch
-</span></span><span style="display:flex;"><span><span style="color:#f92672">from</span> functools <span style="color:#f92672">import</span> partial
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>__registered_hook_refs <span style="color:#f92672">=</span> []
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#66d9ef">for</span> h <span style="color:#f92672">in</span> __registered_hook_refs:
-</span></span><span style="display:flex;"><span>    h<span style="color:#f92672">.</span>remove()
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>__global <span style="color:#f92672">=</span> []
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">nan_hook</span>(module, args, output, name<span style="color:#f92672">=</span><span style="color:#66d9ef">None</span>):
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">if</span> <span style="color:#f92672">not</span> isinstance(output, tuple):
-</span></span><span style="display:flex;"><span>        outputs <span style="color:#f92672">=</span> [output]
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">else</span>:
-</span></span><span style="display:flex;"><span>        outputs <span style="color:#f92672">=</span> output
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">for</span> i, out <span style="color:#f92672">in</span> enumerate(outputs):
-</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">if</span> out <span style="color:#f92672">is</span> <span style="color:#66d9ef">None</span>:
-</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">continue</span>
-</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">if</span> isinstance(out, tuple):
-</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">for</span> j, out2 <span style="color:#f92672">in</span> enumerate(out):
-</span></span><span style="display:flex;"><span>                nan_mask <span style="color:#f92672">=</span> torch<span style="color:#f92672">.</span>isnan(out2)
-</span></span><span style="display:flex;"><span>                <span style="color:#66d9ef">if</span> nan_mask<span style="color:#f92672">.</span>any():
-</span></span><span style="display:flex;"><span>                    __global<span style="color:#f92672">.</span>append((module, args, output))
-</span></span><span style="display:flex;"><span>                    <span style="color:#66d9ef">raise</span> <span style="color:#a6e22e">RuntimeError</span>(<span style="color:#e6db74">f</span><span style="color:#e6db74">&#34;In module </span><span style="color:#e6db74">{</span>name<span style="color:#e6db74">}</span><span style="color:#e6db74"> of name </span><span style="color:#e6db74">{</span>module<span style="color:#f92672">.</span>__class__<span style="color:#f92672">.</span>__name__<span style="color:#e6db74">}</span><span style="color:#e6db74">, Found NAN in output </span><span style="color:#e6db74">{</span>j<span style="color:#e6db74">}</span><span style="color:#e6db74"> at indices: &#34;</span>, nan_mask<span style="color:#f92672">.</span>nonzero(), <span style="color:#e6db74">&#34;where:&#34;</span>,
-</span></span><span style="display:flex;"><span>                               out[nan_mask<span style="color:#f92672">.</span>nonzero()[:, <span style="color:#ae81ff">0</span>]<span style="color:#f92672">.</span>unique(sorted<span style="color:#f92672">=</span><span style="color:#66d9ef">True</span>)])
-</span></span><span style="display:flex;"><span>                               
-</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">elif</span> torch<span style="color:#f92672">.</span>is_tensor(out):
-</span></span><span style="display:flex;"><span>            nan_mask <span style="color:#f92672">=</span> torch<span style="color:#f92672">.</span>isnan(out)
-</span></span><span style="display:flex;"><span>            
-</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">if</span> nan_mask<span style="color:#f92672">.</span>any():
-</span></span><span style="display:flex;"><span>                __global<span style="color:#f92672">.</span>append((module, args, output))
-</span></span><span style="display:flex;"><span>                <span style="color:#66d9ef">raise</span> <span style="color:#a6e22e">RuntimeError</span>(<span style="color:#e6db74">f</span><span style="color:#e6db74">&#34;In module </span><span style="color:#e6db74">{</span>name<span style="color:#e6db74">}</span><span style="color:#e6db74"> of name </span><span style="color:#e6db74">{</span>module<span style="color:#f92672">.</span>__class__<span style="color:#f92672">.</span>__name__<span style="color:#e6db74">}</span><span style="color:#e6db74">, Found NAN in output </span><span style="color:#e6db74">{</span>i<span style="color:#e6db74">}</span><span style="color:#e6db74"> at indices: &#34;</span>, nan_mask<span style="color:#f92672">.</span>nonzero(), <span style="color:#e6db74">&#34;where:&#34;</span>,
-</span></span><span style="display:flex;"><span>                                   out[nan_mask<span style="color:#f92672">.</span>nonzero()[:, <span style="color:#ae81ff">0</span>]<span style="color:#f92672">.</span>unique(sorted<span style="color:#f92672">=</span><span style="color:#66d9ef">True</span>)])
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">register_nan_hook</span>(model: torch<span style="color:#f92672">.</span>nn<span style="color:#f92672">.</span>Module):
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">for</span> name, submodule <span style="color:#f92672">in</span> model<span style="color:#f92672">.</span>named_modules():
-</span></span><span style="display:flex;"><span>        new_hook <span style="color:#f92672">=</span> partial(nan_hook, name<span style="color:#f92672">=</span>name<span style="color:#f92672">+</span><span style="color:#e6db74">&#39;.back&#39;</span>)
-</span></span><span style="display:flex;"><span>        hook_ref <span style="color:#f92672">=</span> submodule<span style="color:#f92672">.</span>register_full_backward_hook(new_hook)
-</span></span><span style="display:flex;"><span>        __registered_hook_refs<span style="color:#f92672">.</span>append(hook_ref)
-</span></span><span style="display:flex;"><span>        new_hook <span style="color:#f92672">=</span> partial(nan_hook, name<span style="color:#f92672">=</span>name<span style="color:#f92672">+</span><span style="color:#e6db74">&#39;.fwd&#39;</span>)
-</span></span><span style="display:flex;"><span>        hook_ref <span style="color:#f92672">=</span> submodule<span style="color:#f92672">.</span>register_forward_hook(new_hook)
-</span></span><span style="display:flex;"><span>        __registered_hook_refs<span style="color:#f92672">.</span>append(hook_ref)
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>debug <span style="color:#f92672">=</span> <span style="color:#66d9ef">True</span>
-</span></span><span style="display:flex;"><span>register_nan_hook(model) <span style="color:#66d9ef">if</span> debug <span style="color:#66d9ef">else</span> <span style="color:#66d9ef">None</span>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">torch</span>
+</span></span><span class="line"><span class="cl"><span class="kn">from</span> <span class="nn">functools</span> <span class="kn">import</span> <span class="n">partial</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">__registered_hook_refs</span> <span class="o">=</span> <span class="p">[]</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="k">for</span> <span class="n">h</span> <span class="ow">in</span> <span class="n">__registered_hook_refs</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">    <span class="n">h</span><span class="o">.</span><span class="n">remove</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">__global</span> <span class="o">=</span> <span class="p">[]</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="k">def</span> <span class="nf">nan_hook</span><span class="p">(</span><span class="n">module</span><span class="p">,</span> <span class="n">args</span><span class="p">,</span> <span class="n">output</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">output</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">        <span class="n">outputs</span> <span class="o">=</span> <span class="p">[</span><span class="n">output</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl">    <span class="k">else</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">        <span class="n">outputs</span> <span class="o">=</span> <span class="n">output</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">out</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">outputs</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">        <span class="k">if</span> <span class="n">out</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">            <span class="k">continue</span>
+</span></span><span class="line"><span class="cl">        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">out</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">            <span class="k">for</span> <span class="n">j</span><span class="p">,</span> <span class="n">out2</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">out</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">                <span class="n">nan_mask</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">out2</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">                <span class="k">if</span> <span class="n">nan_mask</span><span class="o">.</span><span class="n">any</span><span class="p">():</span>
+</span></span><span class="line"><span class="cl">                    <span class="n">__global</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">module</span><span class="p">,</span> <span class="n">args</span><span class="p">,</span> <span class="n">output</span><span class="p">))</span>
+</span></span><span class="line"><span class="cl">                    <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&#34;In module </span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2"> of name </span><span class="si">{</span><span class="n">module</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">, Found NAN in output </span><span class="si">{</span><span class="n">j</span><span class="si">}</span><span class="s2"> at indices: &#34;</span><span class="p">,</span> <span class="n">nan_mask</span><span class="o">.</span><span class="n">nonzero</span><span class="p">(),</span> <span class="s2">&#34;where:&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">                               <span class="n">out</span><span class="p">[</span><span class="n">nan_mask</span><span class="o">.</span><span class="n">nonzero</span><span class="p">()[:,</span> <span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="nb">sorted</span><span class="o">=</span><span class="kc">True</span><span class="p">)])</span>
+</span></span><span class="line"><span class="cl">                               
+</span></span><span class="line"><span class="cl">        <span class="k">elif</span> <span class="n">torch</span><span class="o">.</span><span class="n">is_tensor</span><span class="p">(</span><span class="n">out</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">            <span class="n">nan_mask</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">out</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">            
+</span></span><span class="line"><span class="cl">            <span class="k">if</span> <span class="n">nan_mask</span><span class="o">.</span><span class="n">any</span><span class="p">():</span>
+</span></span><span class="line"><span class="cl">                <span class="n">__global</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">module</span><span class="p">,</span> <span class="n">args</span><span class="p">,</span> <span class="n">output</span><span class="p">))</span>
+</span></span><span class="line"><span class="cl">                <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&#34;In module </span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2"> of name </span><span class="si">{</span><span class="n">module</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">, Found NAN in output </span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2"> at indices: &#34;</span><span class="p">,</span> <span class="n">nan_mask</span><span class="o">.</span><span class="n">nonzero</span><span class="p">(),</span> <span class="s2">&#34;where:&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">                                   <span class="n">out</span><span class="p">[</span><span class="n">nan_mask</span><span class="o">.</span><span class="n">nonzero</span><span class="p">()[:,</span> <span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="nb">sorted</span><span class="o">=</span><span class="kc">True</span><span class="p">)])</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="k">def</span> <span class="nf">register_nan_hook</span><span class="p">(</span><span class="n">model</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">    <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">submodule</span> <span class="ow">in</span> <span class="n">model</span><span class="o">.</span><span class="n">named_modules</span><span class="p">():</span>
+</span></span><span class="line"><span class="cl">        <span class="n">new_hook</span> <span class="o">=</span> <span class="n">partial</span><span class="p">(</span><span class="n">nan_hook</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="o">+</span><span class="s1">&#39;.back&#39;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">        <span class="n">hook_ref</span> <span class="o">=</span> <span class="n">submodule</span><span class="o">.</span><span class="n">register_full_backward_hook</span><span class="p">(</span><span class="n">new_hook</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">        <span class="n">__registered_hook_refs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">hook_ref</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">        <span class="n">new_hook</span> <span class="o">=</span> <span class="n">partial</span><span class="p">(</span><span class="n">nan_hook</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="o">+</span><span class="s1">&#39;.fwd&#39;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">        <span class="n">hook_ref</span> <span class="o">=</span> <span class="n">submodule</span><span class="o">.</span><span class="n">register_forward_hook</span><span class="p">(</span><span class="n">new_hook</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">        <span class="n">__registered_hook_refs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">hook_ref</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">debug</span> <span class="o">=</span> <span class="kc">True</span>
+</span></span><span class="line"><span class="cl"><span class="n">register_nan_hook</span><span class="p">(</span><span class="n">model</span><span class="p">)</span> <span class="k">if</span> <span class="n">debug</span> <span class="k">else</span> <span class="kc">None</span>
 </span></span></code></pre></div><p>Leveraging these hooks narrowed down the source of issue to a particular layer and from there I was able to trace the problem to an <code>inf</code> value in the model weights. Digging further, I traced the source of <code>inf</code> to <a href="https://paul.mou.dev/posts/2023-12-27-ohmy">bad RAM sticks</a>! After mitigation, I wrote a small script to verify the model weights and confirmed sampling function worked as expected.</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#75715e"># verify model weight</span>
-</span></span><span style="display:flex;"><span><span style="color:#f92672">from</span> collections <span style="color:#f92672">import</span> Counter
-</span></span><span style="display:flex;"><span>pbytype <span style="color:#f92672">=</span> Counter()
-</span></span><span style="display:flex;"><span><span style="color:#66d9ef">for</span> name, p <span style="color:#f92672">in</span> (model<span style="color:#f92672">.</span>named_parameters()):
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">if</span> torch<span style="color:#f92672">.</span>isinf(p)<span style="color:#f92672">.</span>any() <span style="color:#f92672">or</span> torch<span style="color:#f92672">.</span>isnan(p)<span style="color:#f92672">.</span>any():
-</span></span><span style="display:flex;"><span>        print(name, p)
-</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">raise</span> <span style="color:#a6e22e">ValueError</span>(<span style="color:#e6db74">&#34;invalid weight&#34;</span>)
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">else</span>:
-</span></span><span style="display:flex;"><span>        pbytype[p<span style="color:#f92672">.</span>dtype] <span style="color:#f92672">+=</span> <span style="color:#ae81ff">1</span>
-</span></span><span style="display:flex;"><span>print(<span style="color:#e6db74">&#34;OK&#34;</span>, pbytype)
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="c1"># verify model weight</span>
+</span></span><span class="line"><span class="cl"><span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">Counter</span>
+</span></span><span class="line"><span class="cl"><span class="n">pbytype</span> <span class="o">=</span> <span class="n">Counter</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl"><span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">p</span> <span class="ow">in</span> <span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">named_parameters</span><span class="p">()):</span>
+</span></span><span class="line"><span class="cl">    <span class="k">if</span> <span class="n">torch</span><span class="o">.</span><span class="n">isinf</span><span class="p">(</span><span class="n">p</span><span class="p">)</span><span class="o">.</span><span class="n">any</span><span class="p">()</span> <span class="ow">or</span> <span class="n">torch</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">p</span><span class="p">)</span><span class="o">.</span><span class="n">any</span><span class="p">():</span>
+</span></span><span class="line"><span class="cl">        <span class="nb">print</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">p</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&#34;invalid weight&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="k">else</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">        <span class="n">pbytype</span><span class="p">[</span><span class="n">p</span><span class="o">.</span><span class="n">dtype</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
+</span></span><span class="line"><span class="cl"><span class="nb">print</span><span class="p">(</span><span class="s2">&#34;OK&#34;</span><span class="p">,</span> <span class="n">pbytype</span><span class="p">)</span>
 </span></span></code></pre></div><h3 id="adapting-whisper-to-mistral">
   Adapting Whisper to Mistral
   <a href="#adapting-whisper-to-mistral" class="heading-anchor">#</a>
@@ -220,203 +214,203 @@ Excited by the idea of a LLM with general audio understanding ability and itchin
 <p>OpenAI&rsquo;s Whisper <a href="https://github.com/openai/whisper/blob/ba3f3cd54b0e5b8ce1ab3de13e32122d0d5f98ab/whisper/model.py#L225-L238">model</a> is composed of two major components, an <code>AudioEncoder</code> and a <code>TextDecoder</code>.
 For the purpose of translating audio into embeddings, I only need the <code>AudioEncoder</code> component.</p>
 <p>Therefore, I loaded up a full Whisper model and extracted the <code>AudioEncoder</code> weights using the following snippets</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#f92672">import</span> whisper
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>model <span style="color:#f92672">=</span> whisper<span style="color:#f92672">.</span>load_model(<span style="color:#e6db74">&#34;large-v3&#34;</span>)
-</span></span><span style="display:flex;"><span>audio_encoder <span style="color:#f92672">=</span> model<span style="color:#f92672">.</span>encoder
-</span></span><span style="display:flex;"><span>torch<span style="color:#f92672">.</span>save(
-</span></span><span style="display:flex;"><span>    audio_encoder<span style="color:#f92672">.</span>state_dict(),
-</span></span><span style="display:flex;"><span>    <span style="color:#e6db74">&#34;&lt;output_location&gt;&#34;</span>,
-</span></span><span style="display:flex;"><span>)
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">whisper</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">model</span> <span class="o">=</span> <span class="n">whisper</span><span class="o">.</span><span class="n">load_model</span><span class="p">(</span><span class="s2">&#34;large-v3&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="n">audio_encoder</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">encoder</span>
+</span></span><span class="line"><span class="cl"><span class="n">torch</span><span class="o">.</span><span class="n">save</span><span class="p">(</span>
+</span></span><span class="line"><span class="cl">    <span class="n">audio_encoder</span><span class="o">.</span><span class="n">state_dict</span><span class="p">(),</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">&#34;&lt;output_location&gt;&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl"><span class="p">)</span>
 </span></span></code></pre></div><p>I adapted the Whisper AudioEncoder into a <code>TunableWhisperAudioEncoder</code> with an extra projection layer to map from Whisper&rsquo;s audio embedding (size 1280) to mistral&rsquo;s token embedding (size 4096).</p>
 <p>I ensured <code>proj</code> is the only trainable network by explicitly freezing the audio encoder&rsquo;s parameters. Note that <code>TrainableSubmodule</code> is a hyperparameter and any model that maps the output embedding to size 4096 will work. Later in the post, I will describe what I found to work for me.</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">TunableWhisperAudioEncoder</span>(nn<span style="color:#f92672">.</span>Module):
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">__init__</span>(self, <span style="color:#f92672">*</span>, output_embedding_size<span style="color:#f92672">=</span><span style="color:#ae81ff">4096</span>):
-</span></span><span style="display:flex;"><span>        <span style="color:#e6db74">&#34;&#34;&#34;
-</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">        args
-</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">            output_embedding_size: int = 4096 / mistral default embedding size
-</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">        &#34;&#34;&#34;</span>
-</span></span><span style="display:flex;"><span>        super()<span style="color:#f92672">.</span><span style="color:#a6e22e">__init__</span>()
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>        self<span style="color:#f92672">.</span>audio_encoder <span style="color:#f92672">=</span> load_whisper_v3_audio_encoder()
-</span></span><span style="display:flex;"><span>        self<span style="color:#f92672">.</span>proj <span style="color:#f92672">=</span> TrainableSubmodule(output_embedding_size<span style="color:#f92672">=</span>output_embedding_size)
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>        <span style="color:#75715e"># # Freeze all parameters</span>
-</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">for</span> param <span style="color:#f92672">in</span> audio_encoder<span style="color:#f92672">.</span>parameters():
-</span></span><span style="display:flex;"><span>            param<span style="color:#f92672">.</span>requires_grad <span style="color:#f92672">=</span> <span style="color:#66d9ef">False</span>
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">forward</span>(self, mels):
-</span></span><span style="display:flex;"><span>        res <span style="color:#f92672">=</span> self<span style="color:#f92672">.</span>audio_encoder(mels)
-</span></span><span style="display:flex;"><span>        res <span style="color:#f92672">=</span> self<span style="color:#f92672">.</span>proj(res)
-</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> res
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">load_whisper_v3_audio_encoder</span>(
-</span></span><span style="display:flex;"><span>    <span style="color:#f92672">*</span>,
-</span></span><span style="display:flex;"><span>    n_mels<span style="color:#f92672">=</span><span style="color:#ae81ff">128</span>,
-</span></span><span style="display:flex;"><span>    n_audio_ctx<span style="color:#f92672">=</span><span style="color:#ae81ff">1500</span>,
-</span></span><span style="display:flex;"><span>    n_audio_state<span style="color:#f92672">=</span><span style="color:#ae81ff">1280</span>,
-</span></span><span style="display:flex;"><span>    n_audio_head<span style="color:#f92672">=</span><span style="color:#ae81ff">20</span>,
-</span></span><span style="display:flex;"><span>    n_audio_layer<span style="color:#f92672">=</span><span style="color:#ae81ff">32</span>,
-</span></span><span style="display:flex;"><span>):
-</span></span><span style="display:flex;"><span>    m <span style="color:#f92672">=</span> whisper<span style="color:#f92672">.</span>model<span style="color:#f92672">.</span>AudioEncoder(
-</span></span><span style="display:flex;"><span>        n_mels, n_audio_ctx, n_audio_state, n_audio_head, n_audio_layer
-</span></span><span style="display:flex;"><span>    )
-</span></span><span style="display:flex;"><span>    m<span style="color:#f92672">.</span>load_state_dict(torch<span style="color:#f92672">.</span>load(WHISPER_AUDIO_BIN))
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> m
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="k">class</span> <span class="nc">TunableWhisperAudioEncoder</span><span class="p">(</span><span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">output_embedding_size</span><span class="o">=</span><span class="mi">4096</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">        <span class="s2">&#34;&#34;&#34;
+</span></span></span><span class="line"><span class="cl"><span class="s2">        args
+</span></span></span><span class="line"><span class="cl"><span class="s2">            output_embedding_size: int = 4096 / mistral default embedding size
+</span></span></span><span class="line"><span class="cl"><span class="s2">        &#34;&#34;&#34;</span>
+</span></span><span class="line"><span class="cl">        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="bp">self</span><span class="o">.</span><span class="n">audio_encoder</span> <span class="o">=</span> <span class="n">load_whisper_v3_audio_encoder</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">        <span class="bp">self</span><span class="o">.</span><span class="n">proj</span> <span class="o">=</span> <span class="n">TrainableSubmodule</span><span class="p">(</span><span class="n">output_embedding_size</span><span class="o">=</span><span class="n">output_embedding_size</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="c1"># # Freeze all parameters</span>
+</span></span><span class="line"><span class="cl">        <span class="k">for</span> <span class="n">param</span> <span class="ow">in</span> <span class="n">audio_encoder</span><span class="o">.</span><span class="n">parameters</span><span class="p">():</span>
+</span></span><span class="line"><span class="cl">            <span class="n">param</span><span class="o">.</span><span class="n">requires_grad</span> <span class="o">=</span> <span class="kc">False</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mels</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">        <span class="n">res</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">audio_encoder</span><span class="p">(</span><span class="n">mels</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">        <span class="n">res</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">proj</span><span class="p">(</span><span class="n">res</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">        <span class="k">return</span> <span class="n">res</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="k">def</span> <span class="nf">load_whisper_v3_audio_encoder</span><span class="p">(</span>
+</span></span><span class="line"><span class="cl">    <span class="o">*</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="n">n_mels</span><span class="o">=</span><span class="mi">128</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="n">n_audio_ctx</span><span class="o">=</span><span class="mi">1500</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="n">n_audio_state</span><span class="o">=</span><span class="mi">1280</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="n">n_audio_head</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="n">n_audio_layer</span><span class="o">=</span><span class="mi">32</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl"><span class="p">):</span>
+</span></span><span class="line"><span class="cl">    <span class="n">m</span> <span class="o">=</span> <span class="n">whisper</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">AudioEncoder</span><span class="p">(</span>
+</span></span><span class="line"><span class="cl">        <span class="n">n_mels</span><span class="p">,</span> <span class="n">n_audio_ctx</span><span class="p">,</span> <span class="n">n_audio_state</span><span class="p">,</span> <span class="n">n_audio_head</span><span class="p">,</span> <span class="n">n_audio_layer</span>
+</span></span><span class="line"><span class="cl">    <span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="n">m</span><span class="o">.</span><span class="n">load_state_dict</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">WHISPER_AUDIO_BIN</span><span class="p">))</span>
+</span></span><span class="line"><span class="cl">    <span class="k">return</span> <span class="n">m</span>
 </span></span></code></pre></div><p>Finally, I build up the model I am going to use for training as follows</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">Model</span>(nn<span style="color:#f92672">.</span>Module):
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">__init__</span>(self, audio_encoder: <span style="color:#e6db74">&#34;Whisper.AudioEncoder&#34;</span>, llm: <span style="color:#e6db74">&#34;Mistral&#34;</span>):
-</span></span><span style="display:flex;"><span>        super()<span style="color:#f92672">.</span><span style="color:#a6e22e">__init__</span>()
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>        self<span style="color:#f92672">.</span>audio_encoder <span style="color:#f92672">=</span> audio_encoder
-</span></span><span style="display:flex;"><span>        self<span style="color:#f92672">.</span>llm <span style="color:#f92672">=</span> llm
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>        <span style="color:#75715e"># freeze the LLM weights</span>
-</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">for</span> p <span style="color:#f92672">in</span> self<span style="color:#f92672">.</span>llm<span style="color:#f92672">.</span>parameters():
-</span></span><span style="display:flex;"><span>            p<span style="color:#f92672">.</span>requires_grad <span style="color:#f92672">=</span> <span style="color:#66d9ef">False</span>
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">forward</span>(self, batch):
-</span></span><span style="display:flex;"><span>        audio_mels <span style="color:#f92672">=</span> batch[<span style="color:#e6db74">&#34;audio_mels&#34;</span>]
-</span></span><span style="display:flex;"><span>        <span style="color:#75715e"># caption token ids</span>
-</span></span><span style="display:flex;"><span>        cap_ids <span style="color:#f92672">=</span> batch[<span style="color:#e6db74">&#34;cap_ids&#34;</span>]
-</span></span><span style="display:flex;"><span>        <span style="color:#75715e"># caption attention mask</span>
-</span></span><span style="display:flex;"><span>        cap_ids_attention_mask <span style="color:#f92672">=</span> batch[<span style="color:#e6db74">&#34;cap_attention_mask&#34;</span>]
-</span></span><span style="display:flex;"><span>        prompt_ids <span style="color:#f92672">=</span> batch[<span style="color:#e6db74">&#34;prompt_ids&#34;</span>]
-</span></span><span style="display:flex;"><span>        prompt_ids_attention_mask <span style="color:#f92672">=</span> batch[<span style="color:#e6db74">&#34;prompt_attention_mask&#34;</span>]
-</span></span><span style="display:flex;"><span>        end_prompt_ids <span style="color:#f92672">=</span> batch[<span style="color:#e6db74">&#34;end_prompt_ids&#34;</span>]
-</span></span><span style="display:flex;"><span>        end_prompt_ids_attention_mask <span style="color:#f92672">=</span> batch[<span style="color:#e6db74">&#34;end_prompt_attention_mask&#34;</span>]
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>        audio_embeds <span style="color:#f92672">=</span> self<span style="color:#f92672">.</span>audio_encoder(audio_mels)
-</span></span><span style="display:flex;"><span>        <span style="color:#75715e"># audio_embeds: (batch, audio_seq_len, audio_embedding_size)</span>
-</span></span><span style="display:flex;"><span>        bs, audio_seq <span style="color:#f92672">=</span> audio_embeds<span style="color:#f92672">.</span>shape[:<span style="color:#ae81ff">2</span>]
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>        attention_mask <span style="color:#f92672">=</span> torch<span style="color:#f92672">.</span>concat(
-</span></span><span style="display:flex;"><span>            (
-</span></span><span style="display:flex;"><span>                prompt_ids_attention_mask,
-</span></span><span style="display:flex;"><span>                torch<span style="color:#f92672">.</span>ones(bs, audio_seq)<span style="color:#f92672">.</span>to(cap_ids<span style="color:#f92672">.</span>device),
-</span></span><span style="display:flex;"><span>                end_prompt_ids_attention_mask,
-</span></span><span style="display:flex;"><span>                cap_ids_attention_mask,
-</span></span><span style="display:flex;"><span>            ),
-</span></span><span style="display:flex;"><span>            dim<span style="color:#f92672">=</span><span style="color:#ae81ff">1</span>,
-</span></span><span style="display:flex;"><span>        )
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>        cap_embeds <span style="color:#f92672">=</span> self<span style="color:#f92672">.</span>llm<span style="color:#f92672">.</span>model<span style="color:#f92672">.</span>embed_tokens(cap_ids)
-</span></span><span style="display:flex;"><span>        prompt_embeds <span style="color:#f92672">=</span> self<span style="color:#f92672">.</span>llm<span style="color:#f92672">.</span>model<span style="color:#f92672">.</span>embed_tokens(prompt_ids)
-</span></span><span style="display:flex;"><span>        end_prompt_embeds <span style="color:#f92672">=</span> self<span style="color:#f92672">.</span>llm<span style="color:#f92672">.</span>model<span style="color:#f92672">.</span>embed_tokens(end_prompt_ids)
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>        <span style="color:#75715e"># build the inputs_embeds by concating all the token embeddings</span>
-</span></span><span style="display:flex;"><span>        <span style="color:#75715e"># with audio_embeddings</span>
-</span></span><span style="display:flex;"><span>        inputs_embeds <span style="color:#f92672">=</span> torch<span style="color:#f92672">.</span>concat(
-</span></span><span style="display:flex;"><span>            (
-</span></span><span style="display:flex;"><span>                prompt_embeds,
-</span></span><span style="display:flex;"><span>                audio_embeds<span style="color:#f92672">.</span>to(cap_embeds<span style="color:#f92672">.</span>dtype),
-</span></span><span style="display:flex;"><span>                end_prompt_embeds,
-</span></span><span style="display:flex;"><span>                cap_embeds,
-</span></span><span style="display:flex;"><span>            ),
-</span></span><span style="display:flex;"><span>            dim<span style="color:#f92672">=</span><span style="color:#ae81ff">1</span>,
-</span></span><span style="display:flex;"><span>        )
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>        mout <span style="color:#f92672">=</span> self<span style="color:#f92672">.</span>llm(
-</span></span><span style="display:flex;"><span>            inputs_embeds<span style="color:#f92672">=</span>inputs_embeds,
-</span></span><span style="display:flex;"><span>            attention_mask<span style="color:#f92672">=</span>attention_mask,
-</span></span><span style="display:flex;"><span>        )
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> mout, audio_embeds<span style="color:#f92672">.</span>shape[<span style="color:#ae81ff">1</span>]
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="k">class</span> <span class="nc">Model</span><span class="p">(</span><span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">audio_encoder</span><span class="p">:</span> <span class="s2">&#34;Whisper.AudioEncoder&#34;</span><span class="p">,</span> <span class="n">llm</span><span class="p">:</span> <span class="s2">&#34;Mistral&#34;</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="bp">self</span><span class="o">.</span><span class="n">audio_encoder</span> <span class="o">=</span> <span class="n">audio_encoder</span>
+</span></span><span class="line"><span class="cl">        <span class="bp">self</span><span class="o">.</span><span class="n">llm</span> <span class="o">=</span> <span class="n">llm</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="c1"># freeze the LLM weights</span>
+</span></span><span class="line"><span class="cl">        <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">llm</span><span class="o">.</span><span class="n">parameters</span><span class="p">():</span>
+</span></span><span class="line"><span class="cl">            <span class="n">p</span><span class="o">.</span><span class="n">requires_grad</span> <span class="o">=</span> <span class="kc">False</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">batch</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">        <span class="n">audio_mels</span> <span class="o">=</span> <span class="n">batch</span><span class="p">[</span><span class="s2">&#34;audio_mels&#34;</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl">        <span class="c1"># caption token ids</span>
+</span></span><span class="line"><span class="cl">        <span class="n">cap_ids</span> <span class="o">=</span> <span class="n">batch</span><span class="p">[</span><span class="s2">&#34;cap_ids&#34;</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl">        <span class="c1"># caption attention mask</span>
+</span></span><span class="line"><span class="cl">        <span class="n">cap_ids_attention_mask</span> <span class="o">=</span> <span class="n">batch</span><span class="p">[</span><span class="s2">&#34;cap_attention_mask&#34;</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl">        <span class="n">prompt_ids</span> <span class="o">=</span> <span class="n">batch</span><span class="p">[</span><span class="s2">&#34;prompt_ids&#34;</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl">        <span class="n">prompt_ids_attention_mask</span> <span class="o">=</span> <span class="n">batch</span><span class="p">[</span><span class="s2">&#34;prompt_attention_mask&#34;</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl">        <span class="n">end_prompt_ids</span> <span class="o">=</span> <span class="n">batch</span><span class="p">[</span><span class="s2">&#34;end_prompt_ids&#34;</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl">        <span class="n">end_prompt_ids_attention_mask</span> <span class="o">=</span> <span class="n">batch</span><span class="p">[</span><span class="s2">&#34;end_prompt_attention_mask&#34;</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="n">audio_embeds</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">audio_encoder</span><span class="p">(</span><span class="n">audio_mels</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">        <span class="c1"># audio_embeds: (batch, audio_seq_len, audio_embedding_size)</span>
+</span></span><span class="line"><span class="cl">        <span class="n">bs</span><span class="p">,</span> <span class="n">audio_seq</span> <span class="o">=</span> <span class="n">audio_embeds</span><span class="o">.</span><span class="n">shape</span><span class="p">[:</span><span class="mi">2</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="n">attention_mask</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span>
+</span></span><span class="line"><span class="cl">            <span class="p">(</span>
+</span></span><span class="line"><span class="cl">                <span class="n">prompt_ids_attention_mask</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">                <span class="n">torch</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="n">bs</span><span class="p">,</span> <span class="n">audio_seq</span><span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">cap_ids</span><span class="o">.</span><span class="n">device</span><span class="p">),</span>
+</span></span><span class="line"><span class="cl">                <span class="n">end_prompt_ids_attention_mask</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">                <span class="n">cap_ids_attention_mask</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">            <span class="p">),</span>
+</span></span><span class="line"><span class="cl">            <span class="n">dim</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="n">cap_embeds</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">llm</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">embed_tokens</span><span class="p">(</span><span class="n">cap_ids</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">        <span class="n">prompt_embeds</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">llm</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">embed_tokens</span><span class="p">(</span><span class="n">prompt_ids</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">        <span class="n">end_prompt_embeds</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">llm</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">embed_tokens</span><span class="p">(</span><span class="n">end_prompt_ids</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="c1"># build the inputs_embeds by concating all the token embeddings</span>
+</span></span><span class="line"><span class="cl">        <span class="c1"># with audio_embeddings</span>
+</span></span><span class="line"><span class="cl">        <span class="n">inputs_embeds</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span>
+</span></span><span class="line"><span class="cl">            <span class="p">(</span>
+</span></span><span class="line"><span class="cl">                <span class="n">prompt_embeds</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">                <span class="n">audio_embeds</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">cap_embeds</span><span class="o">.</span><span class="n">dtype</span><span class="p">),</span>
+</span></span><span class="line"><span class="cl">                <span class="n">end_prompt_embeds</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">                <span class="n">cap_embeds</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">            <span class="p">),</span>
+</span></span><span class="line"><span class="cl">            <span class="n">dim</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="n">mout</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">llm</span><span class="p">(</span>
+</span></span><span class="line"><span class="cl">            <span class="n">inputs_embeds</span><span class="o">=</span><span class="n">inputs_embeds</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">            <span class="n">attention_mask</span><span class="o">=</span><span class="n">attention_mask</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="k">return</span> <span class="n">mout</span><span class="p">,</span> <span class="n">audio_embeds</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
 </span></span></code></pre></div><p>The model itself is quite simple in that it simply holds reference to the Mistral LLM and <code>TunableWhisperAudioEncoder</code>. The <code>forward</code> method encapsulates the logic of converting audio mel-spectrogram into audio embeddings, then concatenating the audio embeddings with text/token embeddings to feeding those into Mistral LLM.</p>
 <h3 id="sampling-with-audio-from-scratch">
   Sampling with Audio from Scratch
   <a href="#sampling-with-audio-from-scratch" class="heading-anchor">#</a>
 </h3>
 <p>With the basic model in place, the next step is to try and sample from this model with audio inputs. Here is the audio sampling function I came up with.</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#75715e"># note, full gist is available at https://gist.github.com/moomou/7df8345d79a0063d67d1fa2b4cf55db8</span>
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#a6e22e">@torch.no_grad</span>()
-</span></span><span style="display:flex;"><span><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">sample_with_audio</span>(model, tokenizer, prompt, audio_file, device<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;cuda:0&#34;</span>, iteration<span style="color:#f92672">=</span><span style="color:#ae81ff">50</span>):
-</span></span><span style="display:flex;"><span>    audio_mels <span style="color:#f92672">=</span> load_audio_mels(audio_file)<span style="color:#f92672">.</span>to(device)<span style="color:#f92672">.</span>half()
-</span></span><span style="display:flex;"><span>    end_prompt_ids, end_prompt_attention_mask <span style="color:#f92672">=</span> text_2_ids_and_attention_mask(
-</span></span><span style="display:flex;"><span>        tokenizer,
-</span></span><span style="display:flex;"><span>        end_template(),
-</span></span><span style="display:flex;"><span>        truncate<span style="color:#f92672">=</span><span style="color:#66d9ef">True</span>,
-</span></span><span style="display:flex;"><span>    )
-</span></span><span style="display:flex;"><span>    prompt_ids, prompt_attention_mask <span style="color:#f92672">=</span> text_2_ids_and_attention_mask(
-</span></span><span style="display:flex;"><span>        tokenizer,
-</span></span><span style="display:flex;"><span>        prompt,
-</span></span><span style="display:flex;"><span>    )
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>    prompt_ids <span style="color:#f92672">=</span> prompt_ids<span style="color:#f92672">.</span>to(device)
-</span></span><span style="display:flex;"><span>    prompt_attention_mask <span style="color:#f92672">=</span> prompt_attention_mask<span style="color:#f92672">.</span>to(device)
-</span></span><span style="display:flex;"><span>    end_prompt_attention_mask <span style="color:#f92672">=</span> end_prompt_attention_mask<span style="color:#f92672">.</span>to(device)
-</span></span><span style="display:flex;"><span>    end_prompt_ids <span style="color:#f92672">=</span> end_prompt_ids<span style="color:#f92672">.</span>to(device)
-</span></span><span style="display:flex;"><span>    sampled_ids <span style="color:#f92672">=</span> <span style="color:#66d9ef">None</span>
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>    prompt_embeds <span style="color:#f92672">=</span> <span style="color:#66d9ef">None</span>
-</span></span><span style="display:flex;"><span>    end_prompt_embeds <span style="color:#f92672">=</span> <span style="color:#66d9ef">None</span>
-</span></span><span style="display:flex;"><span>    audio_embeds <span style="color:#f92672">=</span> <span style="color:#66d9ef">None</span>
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">with</span> torch<span style="color:#f92672">.</span>amp<span style="color:#f92672">.</span>autocast(device_type<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;cuda&#34;</span>, dtype<span style="color:#f92672">=</span>torch<span style="color:#f92672">.</span>float16): <span style="color:#75715e"># use float16 to reduce GPU memory</span>
-</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">if</span> audio_embeds <span style="color:#f92672">is</span> <span style="color:#66d9ef">None</span>:
-</span></span><span style="display:flex;"><span>            audio_embeds <span style="color:#f92672">=</span> model<span style="color:#f92672">.</span>audio_encoder(audio_mels)
-</span></span><span style="display:flex;"><span>        bs, audio_seq <span style="color:#f92672">=</span> audio_embeds<span style="color:#f92672">.</span>shape[:<span style="color:#ae81ff">2</span>]
-</span></span><span style="display:flex;"><span>        
-</span></span><span style="display:flex;"><span>        mask_concat_args <span style="color:#f92672">=</span> [
-</span></span><span style="display:flex;"><span>            prompt_attention_mask,
-</span></span><span style="display:flex;"><span>            torch<span style="color:#f92672">.</span>ones(bs, audio_seq)<span style="color:#f92672">.</span>to(audio_embeds<span style="color:#f92672">.</span>device),
-</span></span><span style="display:flex;"><span>            end_prompt_attention_mask,
-</span></span><span style="display:flex;"><span>        ]
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">for</span> _ <span style="color:#f92672">in</span> range(iteration):
-</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">if</span> sampled_ids <span style="color:#f92672">is</span> <span style="color:#f92672">not</span> <span style="color:#66d9ef">None</span>:
-</span></span><span style="display:flex;"><span>                mask_concat_args<span style="color:#f92672">.</span>append(torch<span style="color:#f92672">.</span>ones(bs, sampled_ids<span style="color:#f92672">.</span>shape[<span style="color:#ae81ff">1</span>])<span style="color:#f92672">.</span>to(audio_embeds<span style="color:#f92672">.</span>device))
-</span></span><span style="display:flex;"><span>                
-</span></span><span style="display:flex;"><span>            attention_mask <span style="color:#f92672">=</span> torch<span style="color:#f92672">.</span>concat(
-</span></span><span style="display:flex;"><span>                tuple(mask_concat_args),
-</span></span><span style="display:flex;"><span>                dim<span style="color:#f92672">=</span><span style="color:#ae81ff">1</span>,
-</span></span><span style="display:flex;"><span>            )
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">if</span> prompt_embeds <span style="color:#f92672">is</span> <span style="color:#66d9ef">None</span>:
-</span></span><span style="display:flex;"><span>                prompt_embeds <span style="color:#f92672">=</span> model<span style="color:#f92672">.</span>llm<span style="color:#f92672">.</span>model<span style="color:#f92672">.</span>embed_tokens(prompt_ids)
-</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">if</span> end_prompt_embeds <span style="color:#f92672">is</span> <span style="color:#66d9ef">None</span>:
-</span></span><span style="display:flex;"><span>                end_prompt_embeds <span style="color:#f92672">=</span> model<span style="color:#f92672">.</span>llm<span style="color:#f92672">.</span>model<span style="color:#f92672">.</span>embed_tokens(end_prompt_ids)
-</span></span><span style="display:flex;"><span>                
-</span></span><span style="display:flex;"><span>            sampled_ids_embeds <span style="color:#f92672">=</span> <span style="color:#66d9ef">None</span>
-</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">if</span> sampled_ids <span style="color:#f92672">is</span> <span style="color:#f92672">not</span> <span style="color:#66d9ef">None</span>:
-</span></span><span style="display:flex;"><span>                sampled_ids_embeds <span style="color:#f92672">=</span> model<span style="color:#f92672">.</span>llm<span style="color:#f92672">.</span>model<span style="color:#f92672">.</span>embed_tokens(sampled_ids)
-</span></span><span style="display:flex;"><span>                
-</span></span><span style="display:flex;"><span>            embeds_concat_args <span style="color:#f92672">=</span> [
-</span></span><span style="display:flex;"><span>                prompt_embeds,
-</span></span><span style="display:flex;"><span>                audio_embeds<span style="color:#f92672">.</span>to(prompt_embeds<span style="color:#f92672">.</span>dtype),
-</span></span><span style="display:flex;"><span>                end_prompt_embeds,
-</span></span><span style="display:flex;"><span>            ]
-</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">if</span> sampled_ids_embeds <span style="color:#f92672">is</span> <span style="color:#f92672">not</span> <span style="color:#66d9ef">None</span>:
-</span></span><span style="display:flex;"><span>                embeds_concat_args<span style="color:#f92672">.</span>append(sampled_ids_embeds)
-</span></span><span style="display:flex;"><span>                
-</span></span><span style="display:flex;"><span>            inputs_embeds <span style="color:#f92672">=</span> torch<span style="color:#f92672">.</span>concat(
-</span></span><span style="display:flex;"><span>                tuple(embeds_concat_args),
-</span></span><span style="display:flex;"><span>                dim<span style="color:#f92672">=</span><span style="color:#ae81ff">1</span>,
-</span></span><span style="display:flex;"><span>            )
-</span></span><span style="display:flex;"><span>    
-</span></span><span style="display:flex;"><span>            mout <span style="color:#f92672">=</span> model<span style="color:#f92672">.</span>llm(
-</span></span><span style="display:flex;"><span>                inputs_embeds<span style="color:#f92672">=</span>inputs_embeds,
-</span></span><span style="display:flex;"><span>                attention_mask<span style="color:#f92672">=</span>attention_mask,
-</span></span><span style="display:flex;"><span>            )
-</span></span><span style="display:flex;"><span>    
-</span></span><span style="display:flex;"><span>            logits <span style="color:#f92672">=</span> mout<span style="color:#f92672">.</span>logits
-</span></span><span style="display:flex;"><span>            sampled <span style="color:#f92672">=</span> torch<span style="color:#f92672">.</span>multinomial(logits[:, <span style="color:#f92672">-</span><span style="color:#ae81ff">1</span>, :]<span style="color:#f92672">.</span>softmax(dim<span style="color:#f92672">=-</span><span style="color:#ae81ff">1</span>), <span style="color:#ae81ff">1</span>)
-</span></span><span style="display:flex;"><span>            
-</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">if</span> sampled_ids <span style="color:#f92672">is</span> <span style="color:#66d9ef">None</span>:
-</span></span><span style="display:flex;"><span>                sampled_ids <span style="color:#f92672">=</span> sampled
-</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">else</span>:
-</span></span><span style="display:flex;"><span>                sampled_ids <span style="color:#f92672">=</span> torch<span style="color:#f92672">.</span>cat((sampled_ids, sampled), dim<span style="color:#f92672">=-</span><span style="color:#ae81ff">1</span>)<span style="color:#f92672">.</span>to(device)
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> torch<span style="color:#f92672">.</span>concat((
-</span></span><span style="display:flex;"><span>        prompt_ids, 
-</span></span><span style="display:flex;"><span>        end_prompt_ids,
-</span></span><span style="display:flex;"><span>        sampled_ids,
-</span></span><span style="display:flex;"><span>    ),dim<span style="color:#f92672">=-</span><span style="color:#ae81ff">1</span>)
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="c1"># note, full gist is available at https://gist.github.com/moomou/7df8345d79a0063d67d1fa2b4cf55db8</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="nd">@torch.no_grad</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl"><span class="k">def</span> <span class="nf">sample_with_audio</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">tokenizer</span><span class="p">,</span> <span class="n">prompt</span><span class="p">,</span> <span class="n">audio_file</span><span class="p">,</span> <span class="n">device</span><span class="o">=</span><span class="s2">&#34;cuda:0&#34;</span><span class="p">,</span> <span class="n">iteration</span><span class="o">=</span><span class="mi">50</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">    <span class="n">audio_mels</span> <span class="o">=</span> <span class="n">load_audio_mels</span><span class="p">(</span><span class="n">audio_file</span><span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">device</span><span class="p">)</span><span class="o">.</span><span class="n">half</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">    <span class="n">end_prompt_ids</span><span class="p">,</span> <span class="n">end_prompt_attention_mask</span> <span class="o">=</span> <span class="n">text_2_ids_and_attention_mask</span><span class="p">(</span>
+</span></span><span class="line"><span class="cl">        <span class="n">tokenizer</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="n">end_template</span><span class="p">(),</span>
+</span></span><span class="line"><span class="cl">        <span class="n">truncate</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="n">prompt_ids</span><span class="p">,</span> <span class="n">prompt_attention_mask</span> <span class="o">=</span> <span class="n">text_2_ids_and_attention_mask</span><span class="p">(</span>
+</span></span><span class="line"><span class="cl">        <span class="n">tokenizer</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="n">prompt</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="n">prompt_ids</span> <span class="o">=</span> <span class="n">prompt_ids</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">device</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="n">prompt_attention_mask</span> <span class="o">=</span> <span class="n">prompt_attention_mask</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">device</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="n">end_prompt_attention_mask</span> <span class="o">=</span> <span class="n">end_prompt_attention_mask</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">device</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="n">end_prompt_ids</span> <span class="o">=</span> <span class="n">end_prompt_ids</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">device</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="n">sampled_ids</span> <span class="o">=</span> <span class="kc">None</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="n">prompt_embeds</span> <span class="o">=</span> <span class="kc">None</span>
+</span></span><span class="line"><span class="cl">    <span class="n">end_prompt_embeds</span> <span class="o">=</span> <span class="kc">None</span>
+</span></span><span class="line"><span class="cl">    <span class="n">audio_embeds</span> <span class="o">=</span> <span class="kc">None</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="k">with</span> <span class="n">torch</span><span class="o">.</span><span class="n">amp</span><span class="o">.</span><span class="n">autocast</span><span class="p">(</span><span class="n">device_type</span><span class="o">=</span><span class="s2">&#34;cuda&#34;</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">float16</span><span class="p">):</span> <span class="c1"># use float16 to reduce GPU memory</span>
+</span></span><span class="line"><span class="cl">        <span class="k">if</span> <span class="n">audio_embeds</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">            <span class="n">audio_embeds</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">audio_encoder</span><span class="p">(</span><span class="n">audio_mels</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">        <span class="n">bs</span><span class="p">,</span> <span class="n">audio_seq</span> <span class="o">=</span> <span class="n">audio_embeds</span><span class="o">.</span><span class="n">shape</span><span class="p">[:</span><span class="mi">2</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl">        
+</span></span><span class="line"><span class="cl">        <span class="n">mask_concat_args</span> <span class="o">=</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">            <span class="n">prompt_attention_mask</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">            <span class="n">torch</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="n">bs</span><span class="p">,</span> <span class="n">audio_seq</span><span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">audio_embeds</span><span class="o">.</span><span class="n">device</span><span class="p">),</span>
+</span></span><span class="line"><span class="cl">            <span class="n">end_prompt_attention_mask</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="p">]</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">iteration</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">            <span class="k">if</span> <span class="n">sampled_ids</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">                <span class="n">mask_concat_args</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="n">bs</span><span class="p">,</span> <span class="n">sampled_ids</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">audio_embeds</span><span class="o">.</span><span class="n">device</span><span class="p">))</span>
+</span></span><span class="line"><span class="cl">                
+</span></span><span class="line"><span class="cl">            <span class="n">attention_mask</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span>
+</span></span><span class="line"><span class="cl">                <span class="nb">tuple</span><span class="p">(</span><span class="n">mask_concat_args</span><span class="p">),</span>
+</span></span><span class="line"><span class="cl">                <span class="n">dim</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">            <span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">            <span class="k">if</span> <span class="n">prompt_embeds</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">                <span class="n">prompt_embeds</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">llm</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">embed_tokens</span><span class="p">(</span><span class="n">prompt_ids</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">            <span class="k">if</span> <span class="n">end_prompt_embeds</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">                <span class="n">end_prompt_embeds</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">llm</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">embed_tokens</span><span class="p">(</span><span class="n">end_prompt_ids</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">                
+</span></span><span class="line"><span class="cl">            <span class="n">sampled_ids_embeds</span> <span class="o">=</span> <span class="kc">None</span>
+</span></span><span class="line"><span class="cl">            <span class="k">if</span> <span class="n">sampled_ids</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">                <span class="n">sampled_ids_embeds</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">llm</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">embed_tokens</span><span class="p">(</span><span class="n">sampled_ids</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">                
+</span></span><span class="line"><span class="cl">            <span class="n">embeds_concat_args</span> <span class="o">=</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">                <span class="n">prompt_embeds</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">                <span class="n">audio_embeds</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">prompt_embeds</span><span class="o">.</span><span class="n">dtype</span><span class="p">),</span>
+</span></span><span class="line"><span class="cl">                <span class="n">end_prompt_embeds</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">            <span class="p">]</span>
+</span></span><span class="line"><span class="cl">            <span class="k">if</span> <span class="n">sampled_ids_embeds</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">                <span class="n">embeds_concat_args</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">sampled_ids_embeds</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">                
+</span></span><span class="line"><span class="cl">            <span class="n">inputs_embeds</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span>
+</span></span><span class="line"><span class="cl">                <span class="nb">tuple</span><span class="p">(</span><span class="n">embeds_concat_args</span><span class="p">),</span>
+</span></span><span class="line"><span class="cl">                <span class="n">dim</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">            <span class="p">)</span>
+</span></span><span class="line"><span class="cl">    
+</span></span><span class="line"><span class="cl">            <span class="n">mout</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">llm</span><span class="p">(</span>
+</span></span><span class="line"><span class="cl">                <span class="n">inputs_embeds</span><span class="o">=</span><span class="n">inputs_embeds</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">                <span class="n">attention_mask</span><span class="o">=</span><span class="n">attention_mask</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">            <span class="p">)</span>
+</span></span><span class="line"><span class="cl">    
+</span></span><span class="line"><span class="cl">            <span class="n">logits</span> <span class="o">=</span> <span class="n">mout</span><span class="o">.</span><span class="n">logits</span>
+</span></span><span class="line"><span class="cl">            <span class="n">sampled</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">multinomial</span><span class="p">(</span><span class="n">logits</span><span class="p">[:,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="p">:]</span><span class="o">.</span><span class="n">softmax</span><span class="p">(</span><span class="n">dim</span><span class="o">=-</span><span class="mi">1</span><span class="p">),</span> <span class="mi">1</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">            
+</span></span><span class="line"><span class="cl">            <span class="k">if</span> <span class="n">sampled_ids</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">                <span class="n">sampled_ids</span> <span class="o">=</span> <span class="n">sampled</span>
+</span></span><span class="line"><span class="cl">            <span class="k">else</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">                <span class="n">sampled_ids</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">cat</span><span class="p">((</span><span class="n">sampled_ids</span><span class="p">,</span> <span class="n">sampled</span><span class="p">),</span> <span class="n">dim</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">device</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="k">return</span> <span class="n">torch</span><span class="o">.</span><span class="n">concat</span><span class="p">((</span>
+</span></span><span class="line"><span class="cl">        <span class="n">prompt_ids</span><span class="p">,</span> 
+</span></span><span class="line"><span class="cl">        <span class="n">end_prompt_ids</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="n">sampled_ids</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="p">),</span><span class="n">dim</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
 </span></span></code></pre></div><p>Putting the function to use via</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span>dataloader <span style="color:#f92672">=</span> <span style="color:#f92672">...</span> <span style="color:#75715e"># standard pytorch dataloader</span>
-</span></span><span style="display:flex;"><span>local_batch <span style="color:#f92672">=</span> next(iter(dataloader))
-</span></span><span style="display:flex;"><span>tokenizer<span style="color:#f92672">.</span>decode(sample_with_audio(model, tokenizer, prompt_template_fn(), audio_file, iteration<span style="color:#f92672">=</span><span style="color:#ae81ff">60</span>)[<span style="color:#ae81ff">0</span>])
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="n">dataloader</span> <span class="o">=</span> <span class="o">...</span> <span class="c1"># standard pytorch dataloader</span>
+</span></span><span class="line"><span class="cl"><span class="n">local_batch</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span><span class="nb">iter</span><span class="p">(</span><span class="n">dataloader</span><span class="p">))</span>
+</span></span><span class="line"><span class="cl"><span class="n">tokenizer</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="n">sample_with_audio</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">tokenizer</span><span class="p">,</span> <span class="n">prompt_template_fn</span><span class="p">(),</span> <span class="n">audio_file</span><span class="p">,</span> <span class="n">iteration</span><span class="o">=</span><span class="mi">60</span><span class="p">)[</span><span class="mi">0</span><span class="p">])</span>
 </span></span></code></pre></div><p>produces gibberish as expected since <code>TunableWhisperAudioEncoder</code> projection layer is untrained.</p>
 <pre style="white-space : pre-wrap !important;">
 '&lt;s&gt; &lt;|im_start|&gt;  system\n    You are a helpful AI who follows instruction carefully&lt;|im_end|&gt; &lt;|im_start|&gt;  user\n    Describe the sound of the given file \n    &lt;|im_end|&gt; &lt;|im_start|&gt;  assistant\n     war&lt;|im_end|&gt; clockunits ]andfirst4Iftektime爆R Cur&lt;|im_end|&gt; United&lt;|im_end|&gt; ’daysIn“Never&lt;|im_end|&gt; thenAnd,and VI&lt;|im_end|&gt; Islo&lt;|im_end|&gt; GOkaydown&lt;|im_end|&gt; JainteYoulfailedLabelsEvenfacevC,rest&lt;|im_end|&gt;&lt;|im_end|&gt;&lt;|im_end|&gt;&lt;|im_end|&gt; q&lt;|im_end|&gt; Xs&lt;|im_end|&gt; h&lt;|im_end|&gt;&lt;|im_end|&gt;'
@@ -426,25 +420,25 @@ For the purpose of translating audio into embeddings, I only need the <code>Audi
   <a href="#defining-loss-function" class="heading-anchor">#</a>
 </h3>
 <p>The loss function here is the standard cross entropy loss on the logits output; the only trick is that the loss should only be calculated on the caption portion. Specifically,</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#75715e"># calculate loss</span>
-</span></span><span style="display:flex;"><span><span style="color:#75715e"># local_batch: (b, seq, C)</span>
-</span></span><span style="display:flex;"><span>prompt_ids_seq <span style="color:#f92672">=</span> local_batch[<span style="color:#e6db74">&#34;prompt_ids&#34;</span>]<span style="color:#f92672">.</span>shape[<span style="color:#ae81ff">1</span>]
-</span></span><span style="display:flex;"><span>end_prompt_ids_seq <span style="color:#f92672">=</span> local_batch[<span style="color:#e6db74">&#34;end_prompt_ids&#34;</span>]<span style="color:#f92672">.</span>shape[<span style="color:#ae81ff">1</span>]
-</span></span><span style="display:flex;"><span>logits_start <span style="color:#f92672">=</span> prompt_ids_seq <span style="color:#f92672">+</span> audio_seq <span style="color:#f92672">+</span> end_prompt_ids_seq
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#75715e"># remove the last output</span>
-</span></span><span style="display:flex;"><span>logits <span style="color:#f92672">=</span> <span style="color:#f92672">...</span> <span style="color:#75715e"># model output</span>
-</span></span><span style="display:flex;"><span><span style="color:#75715e"># remove the prompt and audio seq from logits</span>
-</span></span><span style="display:flex;"><span><span style="color:#75715e"># calculation; additionally, remove the final item</span>
-</span></span><span style="display:flex;"><span>logits <span style="color:#f92672">=</span> logits[:, logits_start:<span style="color:#f92672">-</span><span style="color:#ae81ff">1</span>, :]<span style="color:#f92672">.</span>contiguous()
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#75715e"># calculate target using only `cap_ids`</span>
-</span></span><span style="display:flex;"><span>targets <span style="color:#f92672">=</span> batch[<span style="color:#e6db74">&#34;cap_ids&#34;</span>][:]
-</span></span><span style="display:flex;"><span>targets <span style="color:#f92672">=</span> targets[:, <span style="color:#ae81ff">1</span>:]
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>loss <span style="color:#f92672">=</span> nn<span style="color:#f92672">.</span>functional<span style="color:#f92672">.</span>cross_entropy(
-</span></span><span style="display:flex;"><span>    logits<span style="color:#f92672">.</span>view(<span style="color:#f92672">-</span><span style="color:#ae81ff">1</span>, logits<span style="color:#f92672">.</span>shape[<span style="color:#f92672">-</span><span style="color:#ae81ff">1</span>]), targets<span style="color:#f92672">.</span>view(<span style="color:#f92672">-</span><span style="color:#ae81ff">1</span>)
-</span></span><span style="display:flex;"><span>)
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="c1"># calculate loss</span>
+</span></span><span class="line"><span class="cl"><span class="c1"># local_batch: (b, seq, C)</span>
+</span></span><span class="line"><span class="cl"><span class="n">prompt_ids_seq</span> <span class="o">=</span> <span class="n">local_batch</span><span class="p">[</span><span class="s2">&#34;prompt_ids&#34;</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl"><span class="n">end_prompt_ids_seq</span> <span class="o">=</span> <span class="n">local_batch</span><span class="p">[</span><span class="s2">&#34;end_prompt_ids&#34;</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl"><span class="n">logits_start</span> <span class="o">=</span> <span class="n">prompt_ids_seq</span> <span class="o">+</span> <span class="n">audio_seq</span> <span class="o">+</span> <span class="n">end_prompt_ids_seq</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># remove the last output</span>
+</span></span><span class="line"><span class="cl"><span class="n">logits</span> <span class="o">=</span> <span class="o">...</span> <span class="c1"># model output</span>
+</span></span><span class="line"><span class="cl"><span class="c1"># remove the prompt and audio seq from logits</span>
+</span></span><span class="line"><span class="cl"><span class="c1"># calculation; additionally, remove the final item</span>
+</span></span><span class="line"><span class="cl"><span class="n">logits</span> <span class="o">=</span> <span class="n">logits</span><span class="p">[:,</span> <span class="n">logits_start</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="p">:]</span><span class="o">.</span><span class="n">contiguous</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># calculate target using only `cap_ids`</span>
+</span></span><span class="line"><span class="cl"><span class="n">targets</span> <span class="o">=</span> <span class="n">batch</span><span class="p">[</span><span class="s2">&#34;cap_ids&#34;</span><span class="p">][:]</span>
+</span></span><span class="line"><span class="cl"><span class="n">targets</span> <span class="o">=</span> <span class="n">targets</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">:]</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">loss</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">functional</span><span class="o">.</span><span class="n">cross_entropy</span><span class="p">(</span>
+</span></span><span class="line"><span class="cl">    <span class="n">logits</span><span class="o">.</span><span class="n">view</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">logits</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]),</span> <span class="n">targets</span><span class="o">.</span><span class="n">view</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="p">)</span>
 </span></span></code></pre></div><h3 id="training-overfitting-and-debugging-gradients">
   Training, Overfitting and Debugging Gradients
   <a href="#training-overfitting-and-debugging-gradients" class="heading-anchor">#</a>
@@ -453,13 +447,13 @@ For the purpose of translating audio into embeddings, I only need the <code>Audi
 <p>In order to ensure training is setup correctly, I started small and one step at a time. Specifically, I interactively stepped through the training steps manually, recorded and plotted the weight update relative to weight data in <code>TunableWhisperAudioEncoder</code>, and ensured there is no <code>inf</code> or <code>NaN</code> using the Pytorch hooks described previously. These steps were repeated for varous combination of learning rate, model architecture, and optimizer.</p>
 <img src="/weight_update.png" alt="Weight Update"/>
 <p>Keeping the setup as simple as possible, I found Adam (without momentum), a constant learning rate of 1.5e-3, and using the following simple <code>TrainableSubmodule</code>, I achieved stable training.</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">TrainableSubmodule</span>(nn<span style="color:#f92672">.</span>Module):
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">__init__</span>(self, output_embedding_size<span style="color:#f92672">=</span><span style="color:#ae81ff">4096</span>):
-</span></span><span style="display:flex;"><span>        super()<span style="color:#f92672">.</span><span style="color:#a6e22e">__init__</span>()
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>        self<span style="color:#f92672">.</span>pool <span style="color:#f92672">=</span> nn<span style="color:#f92672">.</span>AdaptiveAvgPool1d(<span style="color:#ae81ff">250</span>)
-</span></span><span style="display:flex;"><span>        self<span style="color:#f92672">.</span>proj <span style="color:#f92672">=</span> nn<span style="color:#f92672">.</span>Linear(<span style="color:#ae81ff">1280</span>, output_embedding_size, bias<span style="color:#f92672">=</span><span style="color:#66d9ef">False</span>)
-</span></span><span style="display:flex;"><span>        self<span style="color:#f92672">.</span>ln1 <span style="color:#f92672">=</span> nn<span style="color:#f92672">.</span>LayerNorm(<span style="color:#ae81ff">1280</span>)
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="k">class</span> <span class="nc">TrainableSubmodule</span><span class="p">(</span><span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">output_embedding_size</span><span class="o">=</span><span class="mi">4096</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="bp">self</span><span class="o">.</span><span class="n">pool</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">AdaptiveAvgPool1d</span><span class="p">(</span><span class="mi">250</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">        <span class="bp">self</span><span class="o">.</span><span class="n">proj</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Linear</span><span class="p">(</span><span class="mi">1280</span><span class="p">,</span> <span class="n">output_embedding_size</span><span class="p">,</span> <span class="n">bias</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">        <span class="bp">self</span><span class="o">.</span><span class="n">ln1</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">LayerNorm</span><span class="p">(</span><span class="mi">1280</span><span class="p">)</span>
 </span></span></code></pre></div><p>I ran training over the course of ~4days and by the time I stopped training, the loss was still going down. By the time I stopped, I achieved ~0.46 loss, which translates to approximately 66% probability for the correct token!</p>
 <img src="/avg_loss.png" alt="Average Loss"/>
 <p>Rerunning the <code>sample_with_audio</code> with the same audio file that produced gibberish pretraining, I now obtain</p>
@@ -493,12 +487,12 @@ For the purpose of translating audio into embeddings, I only need the <code>Audi
 			
 		</div>
 		</div>
-	<div class="footer wrapper">
-	<nav class="nav">
-		<div> since 2017 </div>
-	</nav>
+	<div class="footer wrapper container">
+	<div>since 2017</div>
+	<div class="footer-meta">
+		<a href="/index.xml">rss</a>
+	</div>
 </div>
-
 
 <script async src="https://www.googletagmanager.com/gtag/js?id=trackingcode"></script>
 <script>
@@ -506,6 +500,7 @@ For the purpose of translating audio into embeddings, I only need the <code>Audi
   function gtag(){dataLayer.push(arguments);}
   gtag('js', new Date());
   gtag('config', 'trackingcode');
-</script><script>feather.replace()</script>
+</script>
+
 </body>
 </html>

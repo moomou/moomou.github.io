@@ -22,29 +22,23 @@ alias groot=&#39;cd $(git rev-parse --show-toplevel)&#39; Excellent tools such a
 I frequently find myself doing cd ../.. to navigate to sibling folders or jumping to the root of the git directory to navigate and inspect other part of the code base.
 To navigate to the root of the Git repository, I use an alias groot defined as
 alias groot=&#39;cd $(git rev-parse --show-toplevel)&#39; Excellent tools such as fd and fzf help a lot but I want to be able to jump to different part of the repo with a few keystrokes. For example, in a mono repo, I want to be quickly jump from go/src/mou.dev/cmd to schema/proto.">
-<link href="https://fonts.googleapis.com/css?family=Ubuntu:300,400,300italic,400italic|Raleway:200,300" rel="stylesheet">
+<link rel="stylesheet" type="text/css" media="screen" href="/css/normalize.css" />
+	<link rel="stylesheet" type="text/css" media="screen" href="/css/main.css" />
+	<link rel="stylesheet" type="text/css" href="/css/dark.css" media="(prefers-color-scheme: dark)" />
+	<link rel="stylesheet" type="text/css" href="/css/custom.css" />
 
-	<link rel="stylesheet" type="text/css" media="screen" href="/css/normalize.css" />
-	<link rel="stylesheet" type="text/css" media="screen" href="/css/main.css" /><link rel="stylesheet" type="text/css" href="/css/dark.css"  />
-
-	<script src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js"></script>
 	<script src="/js/main.js"></script>
-	<script src="/js/abc.js"></script>
-	<script src="/js/xyz.js"></script>
-	<script src="https://code.jquery.com/jquery-3.4.1.js"></script>
-	
+
 	<link rel="stylesheet" type="text/css" href="/css/anchors.css" />
 
 </head>
 
+
 <body>
 	<div class="container wrapper post">
 		<div class="header">
-	<h1 class="site-title"><a href="/">moomou</a></h1>
-	<div class="site-description"><h2>(ﾉ≧∇≦)ﾉ ﾐ ┸┸</h2><nav class="nav social">
-			<ul class="flat"><a href="https://github.com/moomou" title="Github"><i data-feather="github"></i></a></ul>
-		</nav>
-	</div>
+	<div class="branding">
+		<h1 class="site-title"><a href="/">moomou</a></h1><span class="site-tagline">(ﾉ≧∇≦)ﾉ ﾐ ┸┸</span></div>
 
 	<nav class="nav">
 		<ul class="flat">
@@ -56,10 +50,10 @@ alias groot=&#39;cd $(git rev-parse --show-toplevel)&#39; Excellent tools such a
 			<li>
 				<a href="https://go.mou.dev/resume">Resume</a>
 			</li>
-			
-		</ul>
+			<li><a href="https://github.com/moomou" rel="noopener">github</a></li></ul>
 	</nav>
 </div>
+
 
 
 		<div class="post-header">
@@ -80,25 +74,25 @@ alias groot=&#39;cd $(git rev-parse --show-toplevel)&#39; Excellent tools such a
 <p>Navigating within a mono repo can be tedious.</p>
 <p>I frequently find myself doing <code>cd ../..</code> to navigate to sibling folders or jumping to the root of the git directory to navigate and inspect other part of the code base.</p>
 <p>To navigate to the root of the Git repository, I use an alias <code>groot</code> defined as</p>
-<pre tabindex="0"><code>    alias groot=&#39;cd $(git rev-parse --show-toplevel)&#39;
-</code></pre><p>Excellent tools such as <code>fd</code> and <code>fzf</code> help a lot but I want to be able to jump to different part of the repo with a few keystrokes. For example, in a mono repo, I want to be quickly jump from go/src/mou.dev/cmd to schema/proto.</p>
-<pre tabindex="0"><code>   $ cd mono
-   $ tree
-   .
-   ├── README.md
-   ├── TODO.md
-   ├── conf
-   ├── data
-   ├── datagen
-   ├── git_push_origin.sh
-   ├── go
-   │    ├── src
-   │        └── mou.dev
-   │            └── cmd (CURRENTLY HERE)
-   ├── ts
-   └── schema
-       └── proto
-</code></pre><p>To solve this problem for myself, I built <code>gd</code>, a simple bash script that allows contextual directory navigation within a git repository.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">    alias groot=&#39;cd $(git rev-parse --show-toplevel)&#39;
+</span></span></code></pre></div><p>Excellent tools such as <code>fd</code> and <code>fzf</code> help a lot but I want to be able to jump to different part of the repo with a few keystrokes. For example, in a mono repo, I want to be quickly jump from go/src/mou.dev/cmd to schema/proto.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">   $ cd mono
+</span></span><span class="line"><span class="cl">   $ tree
+</span></span><span class="line"><span class="cl">   .
+</span></span><span class="line"><span class="cl">   ├── README.md
+</span></span><span class="line"><span class="cl">   ├── TODO.md
+</span></span><span class="line"><span class="cl">   ├── conf
+</span></span><span class="line"><span class="cl">   ├── data
+</span></span><span class="line"><span class="cl">   ├── datagen
+</span></span><span class="line"><span class="cl">   ├── git_push_origin.sh
+</span></span><span class="line"><span class="cl">   ├── go
+</span></span><span class="line"><span class="cl">   │    ├── src
+</span></span><span class="line"><span class="cl">   │        └── mou.dev
+</span></span><span class="line"><span class="cl">   │            └── cmd (CURRENTLY HERE)
+</span></span><span class="line"><span class="cl">   ├── ts
+</span></span><span class="line"><span class="cl">   └── schema
+</span></span><span class="line"><span class="cl">       └── proto
+</span></span></code></pre></div><p>To solve this problem for myself, I built <code>gd</code>, a simple bash script that allows contextual directory navigation within a git repository.</p>
 <p>Inside each git repo, <code>gd</code> saves a mapping between a user defined key and a destination directory in <code>.gd</code> files. When one runs <code>gd proto</code>, <code>gd</code> <strong>recursively</strong> looks up for a <code>.gd</code> from current directory up to the git root to find <code>proto=&lt;DST&gt;</code> mapping and navigate to the <code>&lt;DST&gt;</code>.</p>
 <p>I have been using <code>gd</code> for about a year now and I have lost count of keystrokes it has saved me!</p>
 <p>You can find <code>gd</code> at <a href="https://github.com/moomou/gd">https://github.com/moomou/gd</a></p>
@@ -112,12 +106,12 @@ alias groot=&#39;cd $(git rev-parse --show-toplevel)&#39; Excellent tools such a
 			
 		</div>
 		</div>
-	<div class="footer wrapper">
-	<nav class="nav">
-		<div> since 2017 </div>
-	</nav>
+	<div class="footer wrapper container">
+	<div>since 2017</div>
+	<div class="footer-meta">
+		<a href="/index.xml">rss</a>
+	</div>
 </div>
-
 
 <script async src="https://www.googletagmanager.com/gtag/js?id=trackingcode"></script>
 <script>
@@ -125,6 +119,7 @@ alias groot=&#39;cd $(git rev-parse --show-toplevel)&#39; Excellent tools such a
   function gtag(){dataLayer.push(arguments);}
   gtag('js', new Date());
   gtag('config', 'trackingcode');
-</script><script>feather.replace()</script>
+</script>
+
 </body>
 </html>

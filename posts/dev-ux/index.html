@@ -16,29 +16,23 @@
   <meta name="twitter:card" content="summary">
   <meta name="twitter:title" content="Developer Experience">
   <meta name="twitter:description" content="Commandline Productivity and Automation (aka make it easy to repeat) # Developers tend to repeat themselves. A lot. This can be as innocuous as running a test manually after you update a test file or as insidious as deploying a newly built binary into production manually. Nobody likes to repeat themselves over and over again. And for good reasons. Not only does it take time to repeatedly figure out all the parameters in a tricky command line program, it also increases stress when you are trying to fix outages as quickly as possible.">
-<link href="https://fonts.googleapis.com/css?family=Ubuntu:300,400,300italic,400italic|Raleway:200,300" rel="stylesheet">
+<link rel="stylesheet" type="text/css" media="screen" href="/css/normalize.css" />
+	<link rel="stylesheet" type="text/css" media="screen" href="/css/main.css" />
+	<link rel="stylesheet" type="text/css" href="/css/dark.css" media="(prefers-color-scheme: dark)" />
+	<link rel="stylesheet" type="text/css" href="/css/custom.css" />
 
-	<link rel="stylesheet" type="text/css" media="screen" href="/css/normalize.css" />
-	<link rel="stylesheet" type="text/css" media="screen" href="/css/main.css" /><link rel="stylesheet" type="text/css" href="/css/dark.css"  />
-
-	<script src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js"></script>
 	<script src="/js/main.js"></script>
-	<script src="/js/abc.js"></script>
-	<script src="/js/xyz.js"></script>
-	<script src="https://code.jquery.com/jquery-3.4.1.js"></script>
-	
+
 	<link rel="stylesheet" type="text/css" href="/css/anchors.css" />
 
 </head>
 
+
 <body>
 	<div class="container wrapper post">
 		<div class="header">
-	<h1 class="site-title"><a href="/">moomou</a></h1>
-	<div class="site-description"><h2>(ﾉ≧∇≦)ﾉ ﾐ ┸┸</h2><nav class="nav social">
-			<ul class="flat"><a href="https://github.com/moomou" title="Github"><i data-feather="github"></i></a></ul>
-		</nav>
-	</div>
+	<div class="branding">
+		<h1 class="site-title"><a href="/">moomou</a></h1><span class="site-tagline">(ﾉ≧∇≦)ﾉ ﾐ ┸┸</span></div>
 
 	<nav class="nav">
 		<ul class="flat">
@@ -50,10 +44,10 @@
 			<li>
 				<a href="https://go.mou.dev/resume">Resume</a>
 			</li>
-			
-		</ul>
+			<li><a href="https://github.com/moomou" rel="noopener">github</a></li></ul>
 	</nav>
 </div>
+
 
 
 		<div class="post-header">
@@ -80,21 +74,21 @@
 </h3>
 <p>Creating a shell script is the simplest form of automation and arguably also the most effective with immediate productivity gain. After some experimentation, I devised and follow a simple rule: if I need to type more 3 parameters to invoke a complicated command on the shell, I will write a shell script. This simple stratgey saves me time and also gives me a place to document various parameters.</p>
 <p>As a concrete example, I have been writing <code>build_container.sh</code> and <code>run_container.sh</code> to help streamline my Docker workflow.</p>
-<pre tabindex="0"><code># build_container.sh
-#!/bin/sh -xe
-
-docker build -t $1 .
-# removes &lt;none&gt; images
-docker rmi $(docker images --filter &#34;dangling=true&#34; -q --no-trunc)
-</code></pre><pre tabindex="0"><code># run_container.sh
-#!/bin/sh -xe
-
-docker run \
-    -p 9000:9000 \
-    -v REPO_PATH:/CONTAINER_ROOT/REPO_PATH \
-    sample_image \
-    bash
-</code></pre><p>As an added bonus, I have been learning more about shell programming (and all its quirks!) as I am writing more of these scripts.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl"><span class="c1"># build_container.sh</span>
+</span></span><span class="line"><span class="cl"><span class="c1">#!/bin/sh -xe</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">docker build -t <span class="nv">$1</span> .
+</span></span><span class="line"><span class="cl"><span class="c1"># removes &lt;none&gt; images</span>
+</span></span><span class="line"><span class="cl">docker rmi <span class="k">$(</span>docker images --filter <span class="s2">&#34;dangling=true&#34;</span> -q --no-trunc<span class="k">)</span>
+</span></span></code></pre></div><div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl"><span class="c1"># run_container.sh</span>
+</span></span><span class="line"><span class="cl"><span class="c1">#!/bin/sh -xe</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">docker run <span class="se">\
+</span></span></span><span class="line"><span class="cl">    -p 9000:9000 <span class="se">\
+</span></span></span><span class="line"><span class="cl">    -v REPO_PATH:/CONTAINER_ROOT/REPO_PATH <span class="se">\
+</span></span></span><span class="line"><span class="cl">    sample_image <span class="se">\
+</span></span></span><span class="line"><span class="cl">    bash
+</span></span></code></pre></div><p>As an added bonus, I have been learning more about shell programming (and all its quirks!) as I am writing more of these scripts.</p>
 <h3 id="swiss-army-knife">
   Swiss army knife
   <a href="#swiss-army-knife" class="heading-anchor">#</a>
@@ -102,12 +96,12 @@ docker run \
 <p>While automating with one off shell scripts for each specialized task is effective, the effort tend to be duplicated across repos and boilerplates start to add up, leading to increased tech debts and overall increase in complexity.</p>
 <p>To overcome this, I stole the idea of <code>s</code>, a Swiss army knife command line tool, from Smyte. Succinctly, <code>s</code> is a collection of scripts that automates various developer tasks, including deployment, remote server automation, running tests, compilation, and myraids of other things. More than a collection of scripts, <code>s</code> provides a common framework to centralize tool development and minimizes boilerplates.</p>
 <p>Some sample <code>s</code> invocation</p>
-<pre tabindex="0"><code># running tests
-s test.run ABC
-
-# deploying code
-s deploy.roll --commit ABC
-</code></pre><p>Modelling after <code>s</code>, I created a tool called <code>m</code>. To bootstrap <code>m</code>, I use <a href="https://github.com/google/python-fire">python-fire</a> from Google. <code>python-fire</code> is an amazing python library that will turn any python script into a command line program with minimum fuzz and handles command line arguments in an intuitive manner.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl"># running tests
+</span></span><span class="line"><span class="cl">s test.run ABC
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"># deploying code
+</span></span><span class="line"><span class="cl">s deploy.roll --commit ABC
+</span></span></code></pre></div><p>Modelling after <code>s</code>, I created a tool called <code>m</code>. To bootstrap <code>m</code>, I use <a href="https://github.com/google/python-fire">python-fire</a> from Google. <code>python-fire</code> is an amazing python library that will turn any python script into a command line program with minimum fuzz and handles command line arguments in an intuitive manner.</p>
 <p>One of the major downside of <code>s</code> as implemented at Smyte is speed - importing modules in python is not free and these add up as more and more scripts get added. In <code>m</code>, I address this by loading dependencies only at invocation of each subcommand. Doing this has allowed to me to keep top level <code>m</code> invocation at ~250ms on my 2013 Mac Air.</p>
 <p>You can checkout <code>m</code> on my github <a href="https://go.mou.dev/m">here</a>.</p>
 <h3 id="environment-bootstrapping">
@@ -136,12 +130,12 @@ s deploy.roll --commit ABC
 			
 		</div>
 		</div>
-	<div class="footer wrapper">
-	<nav class="nav">
-		<div> since 2017 </div>
-	</nav>
+	<div class="footer wrapper container">
+	<div>since 2017</div>
+	<div class="footer-meta">
+		<a href="/index.xml">rss</a>
+	</div>
 </div>
-
 
 <script async src="https://www.googletagmanager.com/gtag/js?id=trackingcode"></script>
 <script>
@@ -149,6 +143,7 @@ s deploy.roll --commit ABC
   function gtag(){dataLayer.push(arguments);}
   gtag('js', new Date());
   gtag('config', 'trackingcode');
-</script><script>feather.replace()</script>
+</script>
+
 </body>
 </html>

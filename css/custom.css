@@ -1,10 +1,479 @@
-code {
-  background-color: #f4f4f4;
-  border: 1px solid #ddd;
-  border-radius: 3px;
-  color: #d14;
-  font-family: "Monaco", "Menlo", "Ubuntu Mono", monospace;
-  font-size: 0.9em;
-  padding: 2px 4px;
-  white-space: nowrap;
+/*
+ * Modernization layer over the Ezhil theme.
+ * Goal: minimalist, professional engineer aesthetic with a touch of warmth.
+ * Single file, both modes via prefers-color-scheme.
+ */
+
+:root {
+    --bg: #fbfaf7;
+    --fg: #1c1c1c;
+    --fg-muted: #666;
+    --fg-subtle: #999;
+    --accent: #c2410c;       /* warm rust — used sparingly */
+    --link: #1f4e79;
+    --rule: #e5e3df;
+    --code-bg: #f3f1ec;
+    --code-border: #e5e3df;
+    --selection: #ffe3c4;
+    --measure: 68ch;
+
+    --syn-comment: #8a8a8a;
+    --syn-keyword: #6f42c1;
+    --syn-string:  #032f62;
+    --syn-number:  #b58900;
+    --syn-name:    #1c1c1c;
+    --syn-builtin: #005cc5;
+    --syn-deleted: #b31d28;
+    --syn-inserted:#22863a;
+    --syn-error:   #b31d28;
+}
+
+@media (prefers-color-scheme: dark) {
+    :root {
+        --bg: #101113;
+        --fg: #e6e4df;
+        --fg-muted: #9a988f;
+        --fg-subtle: #6b6a64;
+        --accent: #e98a4f;
+        --link: #8ab4f0;
+        --rule: #2a2b2f;
+        --code-bg: #181a1d;
+        --code-border: #2a2b2f;
+        --selection: #3b2a18;
+
+        --syn-comment: #7a7a7a;
+        --syn-keyword: #c39bff;
+        --syn-string:  #b8d4ff;
+        --syn-number:  #e0b96a;
+        --syn-name:    #e6e4df;
+        --syn-builtin: #8ab4f0;
+        --syn-deleted: #ff8b80;
+        --syn-inserted:#7ed492;
+        --syn-error:   #ff8b80;
+    }
+}
+
+html {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+}
+
+body {
+    font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont,
+        "SF Pro Text", "Inter", "Helvetica Neue", Arial, sans-serif;
+    font-weight: 400;
+    font-size: 16px;
+    line-height: 1.65;
+    color: var(--fg);
+    background-color: var(--bg);
+    font-variant-numeric: tabular-nums;
+}
+
+::selection { background: var(--selection); text-shadow: none; }
+::-moz-selection { background: var(--selection); text-shadow: none; }
+
+.container, .wrapper { max-width: var(--measure); }
+.container { margin-top: 56px; }
+
+/* Typography ------------------------------------------------------------- */
+
+h1, h2, h3, h4, h5, h6 {
+    font-family: inherit;
+    font-weight: 600;
+    color: var(--fg);
+    line-height: 1.25;
+    letter-spacing: -0.01em;
+    margin-top: 2em;
+    margin-bottom: 0.6em;
+}
+
+h1 { font-size: 1.75rem; letter-spacing: -0.02em; }
+h2 { font-size: 1.35rem; }
+h3 { font-size: 1.1rem; }
+h4 { font-size: 1rem; }
+h5, h6 { font-size: 0.95rem; color: var(--fg-muted); }
+
+p { margin: 0 0 1em; }
+
+.heading-anchor,
+a.heading-anchor {
+    color: var(--fg-subtle);
+    border: none !important;
+    margin-left: 0.4em;
+    font-weight: 400;
+    opacity: 0;
+    transition: opacity 120ms ease;
+}
+h1:hover .heading-anchor,
+h2:hover .heading-anchor,
+h3:hover .heading-anchor,
+h4:hover .heading-anchor,
+h5:hover .heading-anchor,
+h6:hover .heading-anchor { opacity: 1; }
+.heading-anchor:hover { color: var(--accent) !important; }
+
+/* Links ------------------------------------------------------------------ */
+
+a {
+    color: var(--link);
+    text-decoration: none;
+    border-bottom: 1px dotted color-mix(in srgb, var(--link) 50%, transparent);
+    transition: border-color 120ms ease, color 120ms ease;
+}
+
+a:hover {
+    color: var(--accent);
+    border-bottom: 1px solid var(--accent);
+    opacity: 1;
+}
+
+@supports not (color: color-mix(in srgb, red, blue)) {
+    a { border-bottom-color: var(--rule); }
+}
+
+hr {
+    border: 0;
+    border-top: 1px solid var(--rule);
+    margin: 2rem 0;
+}
+
+blockquote {
+    margin: 1.5rem 0;
+    padding: 0.1rem 0 0.1rem 1.1rem;
+    border-left: 2px solid var(--accent);
+    color: var(--fg-muted);
+    font-family: ui-serif, Georgia, "Iowan Old Style", "Apple Garamond",
+        "Palatino Linotype", "Times New Roman", serif;
+    font-style: italic;
+    font-size: 1.02rem;
+    line-height: 1.6;
+}
+
+blockquote em { font-style: normal; }
+blockquote strong { color: var(--fg); font-weight: 600; }
+blockquote :not(pre) > code { font-style: normal; }
+
+/* Header ----------------------------------------------------------------- */
+
+.header {
+    margin-bottom: 48px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid var(--rule);
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 8px 16px;
+}
+
+.header .branding {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.header h1.site-title {
+    font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas,
+        "JetBrains Mono", "Liberation Mono", monospace;
+    font-size: 1rem;
+    font-weight: 600;
+    margin: 0;
+    letter-spacing: 0;
+}
+
+.header h1.site-title a::before {
+    content: "~/";
+    color: var(--fg-subtle);
+    margin-right: 1px;
+}
+
+.site-title a,
+.site-title a:hover {
+    color: var(--fg);
+    border: none;
+}
+.site-title a:hover::before { color: var(--accent); }
+
+.header .site-tagline {
+    font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+    font-size: 0.85rem;
+    color: var(--fg-subtle);
+}
+
+.header .site-description { display: none; }
+
+.header nav { margin: 0; border: none; }
+.header nav ul.flat { padding: 0; margin: 0; }
+.header nav ul.flat li {
+    margin: 0 0 0 18px;
+    text-transform: none;
+}
+.header nav ul.flat li a {
+    color: var(--fg-muted);
+    font-size: 0.95rem;
+    border-bottom-color: transparent;
+}
+.header nav ul.flat li a:hover {
+    color: var(--accent);
+    border-bottom-color: var(--accent);
+}
+
+/* Section headers -------------------------------------------------------- */
+
+.section .section-header { display: none; }
+
+.page-title {
+    font-size: 1.35rem;
+    margin: 0 0 32px;
+    color: var(--fg);
+}
+
+/* Post index ------------------------------------------------------------- */
+
+.recent-posts .posts .post,
+.list .posts .post {
+    margin-bottom: 8px;
+    padding: 0;
+    display: grid;
+    grid-template-columns: 6.5em 1fr;
+    column-gap: 1.25em;
+    align-items: baseline;
+}
+
+.recent-posts .posts .post .meta,
+.list .posts .post .meta {
+    color: var(--fg-subtle);
+    font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+    font-size: 0.825rem;
+    font-variant-numeric: tabular-nums;
+    margin: 0;
+    padding: 0;
+    white-space: nowrap;
+}
+
+.recent-posts .posts .post .title,
+.list .posts .post a {
+    color: var(--fg);
+    border-bottom-color: transparent;
+}
+.recent-posts .posts .post .title:hover,
+.list .posts .post a:hover {
+    color: var(--accent);
+    border-bottom: 1px solid var(--accent);
+}
+
+.recent-posts .posts .post .description { display: none; }
+
+ul.posts { list-style: none; padding: 0; margin: 0; }
+ul.posts li.post { list-style: none; }
+
+/* Post body -------------------------------------------------------------- */
+
+.post .post-header { margin-bottom: 32px; }
+
+.post .post-header .title {
+    font-size: 1.75rem;
+    margin: 0;
+}
+
+.post .post-header .meta {
+    color: var(--fg-subtle);
+    font-size: 0.875rem;
+    margin-top: 8px;
+    padding-left: 0;
+}
+
+.post .draft-label {
+    color: var(--accent);
+    background: transparent;
+    border: 1px solid currentColor;
+    padding: 1px 6px;
+    border-radius: 3px;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+#table-of-contents {
+    border-left: 2px solid var(--rule);
+    padding: 0.25em 0 0.25em 1em;
+    margin: 1.5em 0;
+    color: var(--fg-muted);
+    font-size: 0.95rem;
+}
+#table-of-contents ul { padding-left: 1em; list-style: none; }
+#table-of-contents a { color: var(--fg-muted); border: none; }
+#table-of-contents a:hover { color: var(--accent); border: none; }
+
+/* Tags ------------------------------------------------------------------- */
+
+.post-tags .tags a {
+    border: 1px solid var(--rule);
+    color: var(--fg-muted);
+    border-radius: 3px;
+    padding: 1px 8px;
+    font-size: 0.75rem;
+}
+.post-tags .tags a:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+}
+
+/* Code ------------------------------------------------------------------- */
+
+code, pre, kbd, samp {
+    font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas,
+        "JetBrains Mono", "Liberation Mono", monospace;
+    font-size: 0.9em;
+}
+
+:not(pre) > code {
+    background: var(--code-bg);
+    padding: 0.1em 0.35em;
+    border-radius: 3px;
+    border: 1px solid var(--code-border);
+    font-size: 0.875em;
+}
+
+/* Hugo emits:
+ *   <div class="highlight"><pre class="chroma"><code><span class="line"><span class="cl">...</span></span>...
+ * Default Chroma CSS sets display:flex on .line which causes spurious
+ * horizontal scrollbars even on short blocks. Force block layout for lines.
+ */
+
+.highlight {
+    background: var(--code-bg) !important;
+    border: 1px solid var(--code-border);
+    border-radius: 4px;
+    margin: 1.25rem 0;
+    overflow: hidden;
+}
+
+.highlight pre,
+pre.chroma {
+    background: transparent !important;
+    border: none;
+    margin: 0;
+    padding: 14px 16px;
+    overflow-x: auto;
+    line-height: 1.5;
+    scrollbar-width: thin;
+    color: var(--fg);
+}
+
+pre {
+    background: var(--code-bg);
+    border: 1px solid var(--code-border);
+    border-radius: 4px;
+    padding: 14px 16px;
+    overflow-x: auto;
+    line-height: 1.5;
+    margin: 1.25rem 0;
+    scrollbar-width: thin;
+}
+
+pre code,
+.highlight code {
+    background: transparent;
+    border: none;
+    padding: 0;
+    font-size: 0.875rem;
+    color: inherit;
+}
+
+.chroma .line,
+.chroma .cl { display: block; }
+.chroma .line { padding: 0; }
+
+.chroma { color: var(--fg); background: transparent; }
+.chroma .err { color: var(--syn-error); }
+.chroma .k, .chroma .kc, .chroma .kd, .chroma .kn,
+.chroma .kp, .chroma .kr, .chroma .kt { color: var(--syn-keyword); font-weight: 500; }
+.chroma .o, .chroma .ow { color: var(--fg); }
+.chroma .c, .chroma .ch, .chroma .cm, .chroma .cp,
+.chroma .cpf, .chroma .c1, .chroma .cs { color: var(--syn-comment); font-style: italic; }
+.chroma .gd { color: var(--syn-deleted); }
+.chroma .gi { color: var(--syn-inserted); }
+.chroma .gs { font-weight: 600; }
+.chroma .ge { font-style: italic; }
+.chroma .nb, .chroma .bp { color: var(--syn-builtin); }
+.chroma .nc, .chroma .nf, .chroma .fm { color: var(--syn-name); font-weight: 500; }
+.chroma .nd { color: var(--syn-builtin); }
+.chroma .ne, .chroma .nl, .chroma .nn, .chroma .nx { color: var(--syn-name); }
+.chroma .nt { color: var(--syn-keyword); }
+.chroma .nv, .chroma .vc, .chroma .vg, .chroma .vi { color: var(--fg); }
+.chroma .s, .chroma .sa, .chroma .sb, .chroma .sc,
+.chroma .dl, .chroma .sd, .chroma .s2, .chroma .se,
+.chroma .sh, .chroma .si, .chroma .sx, .chroma .sr,
+.chroma .s1, .chroma .ss { color: var(--syn-string); }
+.chroma .m, .chroma .mb, .chroma .mf, .chroma .mh,
+.chroma .mi, .chroma .il, .chroma .mo { color: var(--syn-number); }
+.chroma .lnt, .chroma .ln { color: var(--fg-subtle); padding-right: 0.7em; }
+
+/* Tables ----------------------------------------------------------------- */
+
+table { border-collapse: collapse; margin: 1.5rem 0; }
+
+table th, table td {
+    padding: 8px 14px;
+    border: 1px solid var(--rule);
+    text-align: left;
+}
+
+table th {
+    background: var(--code-bg);
+    font-weight: 600;
+}
+
+img { border-radius: 2px; }
+
+/* Footer ----------------------------------------------------------------- */
+
+.footer {
+    text-align: left;
+    color: var(--fg-subtle);
+    font-size: 0.8rem;
+    border-top: 1px solid var(--rule);
+    padding: 24px 0;
+    margin-top: 64px;
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+}
+
+.footer a {
+    color: var(--fg-subtle);
+    border: none;
+}
+.footer a:hover {
+    color: var(--accent);
+    border: none;
+}
+
+/* Pagination ------------------------------------------------------------- */
+
+.pagination {
+    margin-top: 48px;
+    padding-top: 16px;
+    border-top: 1px solid var(--rule);
+    list-style: none;
+}
+.pagination a { color: var(--fg-muted); }
+
+/* Responsive ------------------------------------------------------------- */
+
+@media (max-width: 640px) {
+    body { padding: 16px; }
+    .container { margin-top: 24px; }
+    .post .post-header .title { font-size: 1.45rem; }
+
+    .recent-posts .posts .post,
+    .list .posts .post {
+        grid-template-columns: 5.5em 1fr;
+        column-gap: 0.85em;
+    }
+
+    .header .site-tagline { display: none; }
 }
