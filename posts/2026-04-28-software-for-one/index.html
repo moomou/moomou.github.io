@@ -67,6 +67,7 @@ WinGroup # WinGroup is a Mission Control–style window overlay and a per-app ho
     <li><a href="#introduction">Introduction</a></li>
     <li><a href="#wingroup">WinGroup</a></li>
     <li><a href="#jingpian">Jingpian</a></li>
+    <li><a href="#zumi">Zumi</a></li>
     <li><a href="#what-i-have-learned">What I have learned</a></li>
     <li><a href="#reflection">Reflection</a></li>
   </ul>
@@ -135,6 +136,33 @@ token storage, no provider abstraction, no fallback when one model is
 rate-limited. A version of this meant for other people would have to
 do all of that, plus a data-handling policy for screen pixels going to
 a third party.</p>
+<h2 id="zumi">
+  Zumi
+  <a href="#zumi" class="heading-anchor">#</a>
+</h2>
+<p>Zumi is a Flutter video player that streams from the SMB share on my
+home NAS and runs on an old Android tablet I keep by the couch. It
+exists because I could not find a single player that had all the
+features I wanted in one place. It does pinch-to-zoom and two-finger
+pan on the video itself with the same gesture vocabulary as Photos,
+and it runs per-scene loudness normalization through mpv&rsquo;s <code>loudnorm</code>
+filter at the EBU R128 target of -16 LUFS.</p>
+<p>Another feature is closed captions, generated on-device with Whisper. The tablet
+downloads a quantized model the first time I toggle CC on, then
+transcribes the currently-playing file in chunks biased toward the
+segment around the playhead. The CC overlay is a custom widget anchored to the
+real video frame edge rather than the black letterbox, and it&rsquo;s
+draggable.</p>
+<p>The &ldquo;for one&rdquo; angle is everywhere. There is no library, no metadata
+scraper, no account, no transcoding server. The app assumes exactly
+one SMB host, and the Whisper model choice and loudnorm target are
+baked in.</p>
+<p>I had not written Flutter before this either. The first build
+streamed video from SMB on day one, and everything since has been
+the same loop as WinGroup: I notice an annoyance, point an agent at
+it, read the diff, push back when the fix looks wrong, and ship a
+new APK over <code>adb</code> to the tablet. The cycle from &ldquo;this bugs me&rdquo; to
+&ldquo;fixed on the device in my hand&rdquo; is usually under an hour.</p>
 <h2 id="what-i-have-learned">
   What I have learned
   <a href="#what-i-have-learned" class="heading-anchor">#</a>
@@ -166,10 +194,11 @@ all of them. There are still plenty of categories where buying or
 installing the existing thing is correct, but enough that I keep
 noticing.</p>
 <p>WinGroup alone would have been months of yak-shaving without an
-agent, and jingpian would have felt like a chore. With agents, both
-became things I now use and depend on every day. This is the start of
-the era of software for one, and I am excited to be building more of
-it.</p>
+agent, jingpian would have felt like a chore, and Zumi would not have
+happened at all because no sane person writes their own video player.
+With agents, all three became things I now use and depend on every
+day. This is the start of the era of software for one, and I am
+excited to be building more of it.</p>
 
 		</div>
 
