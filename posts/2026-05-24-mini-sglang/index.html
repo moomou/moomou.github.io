@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8" />
+	<meta http-equiv="X-UA-Compatible" content="IE=edge"><title>Building a mini_sglang from scratch - moomou</title><link rel="icon" type="image/png" href=favicon.ico /><meta name="viewport" content="width=device-width, initial-scale=1">
+	<meta property="og:url" content="/posts/2026-05-24-mini-sglang/">
+  <meta property="og:site_name" content="moomou">
+  <meta property="og:title" content="Building a mini_sglang from scratch">
+  <meta property="og:description" content="Why # I have been using sglang and vLLM as black boxes for a while. Paged KV cache, continuous batching, prefill/decode split — I could repeat the words but not actually draw the boxes. So I sat down with a coding agent and rebuilt the smallest possible serving engine that still has all of the real pieces, one lesson at a time.
+The result is mini_sglang, a minimal inference engine that loads Qwen3 with a working radix KV cache that provides continuous batching.">
+  <meta property="og:locale" content="en_us">
+  <meta property="og:type" content="article">
+    <meta property="article:section" content="posts">
+    <meta property="article:published_time" content="2026-05-24T00:00:00+00:00">
+    <meta property="article:modified_time" content="2026-05-24T00:00:00+00:00">
+
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="Building a mini_sglang from scratch">
+  <meta name="twitter:description" content="Why # I have been using sglang and vLLM as black boxes for a while. Paged KV cache, continuous batching, prefill/decode split — I could repeat the words but not actually draw the boxes. So I sat down with a coding agent and rebuilt the smallest possible serving engine that still has all of the real pieces, one lesson at a time.
+The result is mini_sglang, a minimal inference engine that loads Qwen3 with a working radix KV cache that provides continuous batching.">
+<link rel="stylesheet" type="text/css" media="screen" href="/css/normalize.css" />
+	<link rel="stylesheet" type="text/css" media="screen" href="/css/main.css" />
+	<link rel="stylesheet" type="text/css" href="/css/dark.css" media="(prefers-color-scheme: dark)" />
+	<link rel="stylesheet" type="text/css" href="/css/custom.css" />
+
+	<script src="/js/main.js"></script>
+
+	<link rel="stylesheet" type="text/css" href="/css/anchors.css" />
+
+</head>
+
+
+<body>
+	<div class="container wrapper post">
+		<div class="header">
+	<div class="branding">
+		<h1 class="site-title"><a href="/">moomou</a></h1><span class="site-tagline">(ﾉ≧∇≦)ﾉ ﾐ ┸┸</span></div>
+
+	<nav class="nav">
+		<ul class="flat">
+			
+			<li>
+				<a href="/">All posts</a>
+			</li>
+			
+			<li>
+				<a href="https://go.mou.dev/resume">Resume</a>
+			</li>
+			<li><a href="https://github.com/moomou" rel="noopener">github</a></li></ul>
+	</nav>
+</div>
+
+
+
+		<div class="post-header">
+			<h1 class="title">Building a mini_sglang from scratch</h1>
+      
+      <div class="meta">Posted at &mdash; May 24, 2026</div>
+      
+      
+		</div>
+
+    
+    <div id="table-of-contents">
+        <nav id="TableOfContents">
+  <ul>
+    <li><a href="#why">Why</a></li>
+    <li><a href="#the-lessons">The lessons</a></li>
+    <li><a href="#what-i-actually-learned">What I actually learned</a></li>
+    <li><a href="#on-using-an-agent-to-learn">On using an agent to learn</a></li>
+    <li><a href="#where-to-start">Where to start</a></li>
+  </ul>
+</nav>
+    </div>
+    
+
+		<div class="markdown">
+			<h2 id="why">
+  Why
+  <a href="#why" class="heading-anchor">#</a>
+</h2>
+<p>I have been using sglang and vLLM as black boxes for a while. Paged KV
+cache, continuous batching, prefill/decode split — I could repeat the
+words but not actually draw the boxes. So I sat down with a coding
+agent and rebuilt the smallest possible serving engine that still has
+all of the real pieces, one lesson at a time.</p>
+<p>The result is <a href="https://github.com/moomou/mini_sglang">mini_sglang</a>, a
+minimal inference engine that loads Qwen3 with a working radix KV
+cache that provides continuous batching.</p>
+<blockquote>
+<p><strong>tl;dr</strong> Nine lessons (L0–L8) that take you from an empty package
+to a FastAPI server serving Qwen3-8B with paged KV, continuous
+batching, incremental detokenization, and a radix prefix cache.
+Lesson site is hosted <a href="/mini_sglang/">here</a>. Code on
+<a href="https://github.com/moomou/mini_sglang">github.com/moomou/mini_sglang</a>.</p>
+</blockquote>
+<h2 id="the-lessons">
+  The lessons
+  <a href="#the-lessons" class="heading-anchor">#</a>
+</h2>
+<p>Each lesson builds one module and keeps the smoke test green.</p>
+<ul>
+<li><strong><a href="/mini_sglang/L0-architecture.html">L0 — Architecture overview</a>.</strong>
+The seven things every serving engine does. Module map. Why &ldquo;paged&rdquo;
+and not &ldquo;continuous&rdquo;. What we intentionally skip.</li>
+<li><strong><a href="/mini_sglang/L1-model-weights.html">L1 — Model &amp; weight loading</a>.</strong>
+Qwen3-8B from spec: RMSNorm, SwiGLU, RoPE, GQA. safetensors loader.
+Eager forward pass using <code>F.scaled_dot_product_attention</code>. This is
+the baseline the rest of the lessons replace piece by piece.</li>
+<li><strong><a href="/mini_sglang/L2-paged-kv.html">L2 — Paged KV cache</a>.</strong> Block
+allocator, page tables, the <code>ForwardMeta</code> struct. Token-flat vs
+block-tensor storage and why L3 forces the switch.</li>
+<li><strong><a href="/mini_sglang/L3-paged-attention.html">L3 — Paged attention kernel</a>.</strong>
+Block-table-aware attention. Three metadata tensors (cu_seqlens_q,
+cu_seqlens_k, block_table). Optionally flash-attn varlen if you have
+nvcc and ten minutes to compile.</li>
+<li><strong><a href="/mini_sglang/L4-sampler.html">L4 — Sampler</a>.</strong> Greedy, temperature,
+top-p. The canonical pipeline order (logit processors → temperature →
+top-k/p → sample) and the disabled-default sentinels worth memorizing.</li>
+<li><strong><a href="/mini_sglang/L5-scheduler.html">L5 — Scheduler / continuous batching</a>.</strong>
+Two queues, four scheduling decisions, the <code>Req</code> state machine,
+per-request sampling params. This is the lesson where the engine
+stops being a script and starts being a server.</li>
+<li><strong><a href="/mini_sglang/L6-tokenizer.html">L6 — Tokenizer + incremental detokenize</a>.</strong>
+The window-diff algorithm and the subtle UTF-8 bug that bites every
+implementation that tries to detokenize one token at a time.</li>
+<li><strong><a href="/mini_sglang/L7-server.html">L7 — HTTP server</a>.</strong> FastAPI
+<code>/generate</code>, the Engine class, the SSE streaming protocol. The
+scheduler runs in its own thread; the HTTP layer just queues requests
+and drains output.</li>
+<li><strong><a href="/mini_sglang/L8-radix-cache.html">L8 — Radix prefix cache</a>.</strong> A
+radix tree of token sequences over the paged KV pool, with block
+refcounting as the central invariant. Match is one <code>_common_prefix_len</code>
+per descent; eviction is descending-level, LRU-within-level. This
+is the lesson that turns &ldquo;shared system prompt&rdquo; from a 30%-of-prefill
+tax into a cache hit.</li>
+</ul>
+<h2 id="what-i-actually-learned">
+  What I actually learned
+  <a href="#what-i-actually-learned" class="heading-anchor">#</a>
+</h2>
+<p>A few things that stuck with me and that I would not have internalized
+from reading sglang source.</p>
+<p><strong>Paged KV is mostly an allocator problem.</strong> The L3 kernel change is
+real but small. The bulk of paged KV is bookkeeping: who owns which
+blocks, when to free them, how to gather a block_table into a flat
+tensor the kernel can index. Once L2&rsquo;s allocator exists, L3 feels
+mechanical.</p>
+<p><strong>Continuous batching is a scheduling decision, not a kernel feature.</strong>
+The kernels do not know about batching; they take whatever batch you
+hand them. The scheduler decides every step whether to admit a new
+prefill, continue decoding, or evict — and the magic is that those
+decisions happen every step instead of once per request.</p>
+<p><strong>Incremental detokenization is harder than the model.</strong> L6 is the
+shortest lesson and the one I burned the most time on. BPE has no
+clean one-token-to-one-piece-of-text mapping, so you keep a sliding
+window of recent tokens, detok the window, and diff against the
+previous one. Get the window size wrong and you split a UTF-8
+codepoint, and the stream starts emitting <code>\ufffd</code>.</p>
+<p><strong>The HTTP server is mostly cooperative queueing.</strong> Once the engine
+exists, the &ldquo;server&rdquo; is a thread that drains a request queue and an
+<code>asyncio.Queue</code> per request for streaming output. The interesting
+design choice is where the event loop lives, not what the routes
+look like.</p>
+<p><strong>Prefix caching is refcounting and not just a tree.</strong> The radix
+tree is the obvious part; the part that took longer to internalize
+is that it only works because every cached block carries a refcount
+the scheduler bumps and drops at exactly the right moments (admit,
+finish, evict). Get the refcounting wrong and you either leak blocks
+or free one another request is still reading.</p>
+<h2 id="on-using-an-agent-to-learn">
+  On using an agent to learn
+  <a href="#on-using-an-agent-to-learn" class="heading-anchor">#</a>
+</h2>
+<p>Each lesson started as a chat: ask the agent to explain a concept,
+probe and ask for a clearer explanation, then ask for a design and
+snippets. I wrote most of the code myself, with the agent for
+cross-referencing real sglang and vLLM source when I got stuck. The
+lesson HTML in <code>docs/</code> is a cleaned-up writeup of each session,
+including the Q&amp;A blocks and a &ldquo;pitfalls&rdquo; / &ldquo;debug log&rdquo; section of
+bugs we actually hit — those are the parts most worth reading.</p>
+<p>This is the same loop as my <a href="/posts/2025-12-29-learning-ct-with-gemini/">CT scan post</a>:
+the agent collapses the discovery loop, but the only way to actually
+learn the material is to refuse the agent&rsquo;s offer to just write the
+thing for you. Build the smallest version yourself; let the agent
+explain and review.</p>
+<h2 id="where-to-start">
+  Where to start
+  <a href="#where-to-start" class="heading-anchor">#</a>
+</h2>
+<p>If you want to read: the lesson site is <a href="/mini_sglang/">here</a>.</p>
+<p>If you want to build: clone
+<a href="https://github.com/moomou/mini_sglang">mini_sglang</a>, <code>uv sync</code>, and
+run <code>python -m scripts.l1_smoke</code>. Then start at L1 and delete code
+until you can put it back yourself.</p>
+
+		</div>
+
+		<div class="post-tags">
+			
+				
+			
+		</div>
+		</div>
+	<div class="footer wrapper container">
+	<div>since 2017</div>
+	<div class="footer-meta">
+		<a href="/index.xml">rss</a>
+	</div>
+</div>
+
+<script async src="https://www.googletagmanager.com/gtag/js?id=trackingcode"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'trackingcode');
+</script>
+
+</body>
+</html>

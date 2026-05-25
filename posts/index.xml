@@ -7,8 +7,15 @@
     <generator>Hugo</generator>
     <language>en-us</language>
     <copyright>since 2017</copyright>
-    <lastBuildDate>Tue, 28 Apr 2026 00:00:00 +0000</lastBuildDate>
+    <lastBuildDate>Sun, 24 May 2026 00:00:00 +0000</lastBuildDate>
     <atom:link href="/posts/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Building a mini_sglang from scratch</title>
+      <link>/posts/2026-05-24-mini-sglang/</link>
+      <pubDate>Sun, 24 May 2026 00:00:00 +0000</pubDate>
+      <guid>/posts/2026-05-24-mini-sglang/</guid>
+      <description>&lt;h2 id=&#34;why&#34;&gt;&#xA;  Why&#xA;  &lt;a href=&#34;#why&#34; class=&#34;heading-anchor&#34;&gt;#&lt;/a&gt;&#xA;&lt;/h2&gt;&#xA;&lt;p&gt;I have been using sglang and vLLM as black boxes for a while. Paged KV&#xA;cache, continuous batching, prefill/decode split — I could repeat the&#xA;words but not actually draw the boxes. So I sat down with a coding&#xA;agent and rebuilt the smallest possible serving engine that still has&#xA;all of the real pieces, one lesson at a time.&lt;/p&gt;&#xA;&lt;p&gt;The result is &lt;a href=&#34;https://github.com/moomou/mini_sglang&#34;&gt;mini_sglang&lt;/a&gt;, a&#xA;minimal inference engine that loads Qwen3 with a working radix KV&#xA;cache that provides continuous batching.&lt;/p&gt;</description>
+    </item>
     <item>
       <title>Software for One</title>
       <link>/posts/2026-04-28-software-for-one/</link>
