@@ -68,6 +68,7 @@ WinGroup # WinGroup is a Mission Control–style window overlay and a per-app ho
     <li><a href="#wingroup">WinGroup</a></li>
     <li><a href="#jingpian">Jingpian</a></li>
     <li><a href="#zumi">Zumi</a></li>
+    <li><a href="#xeil">Xeil</a></li>
     <li><a href="#what-i-have-learned">What I have learned</a></li>
     <li><a href="#reflection">Reflection</a></li>
   </ul>
@@ -163,11 +164,36 @@ the same loop as WinGroup: I notice an annoyance, point an agent at
 it, read the diff, push back when the fix looks wrong, and ship a
 new APK over <code>adb</code> to the tablet. The cycle from &ldquo;this bugs me&rdquo; to
 &ldquo;fixed on the device in my hand&rdquo; is usually under an hour.</p>
+<h2 id="xeil">
+  Xeil
+  <a href="#xeil" class="heading-anchor">#</a>
+</h2>
+<p><em>Added 2026-05-27.</em></p>
+<p>Xeil is a native macOS PDF reader I built to replace Skim. I read a lot
+of papers, and the one feature I had wanted for years and never found
+was a dark mode that actually preserved figures: invert the text, but
+leave images, charts, and photo-like regions in their original colors.
+Every PDF reader I tried either did a full-page color inversion (which
+turns every diagram into a negative) or didn&rsquo;t have dark mode at all.</p>
+<p>Xeil does this by drawing the page normally into a Core Graphics
+context, applying a <code>.difference</code> blend with white over the whole
+page to invert it, then walking the PDF content stream with a
+<code>CGPDFScanner</code> to find every Image XObject rect and applying
+<code>.difference</code> + white a second time over just those rectangles. Two
+inversions cancel, so images come back in their original colors while
+text stays inverted and subpixel-sharp at any zoom level. No
+intermediate bitmap, no per-pixel CPU work.</p>
+<p>The rest of Xeil is Skim&rsquo;s annotation workflow rebuilt the way I want
+it: a floating draggable tool palette with sticky tool modes
+(highlight, underline, strikethrough, sticky note, eraser), drag-select
+to auto-apply, individual-pick eraser, undo/redo, and a ⌘F find bar
+with regex, fzf-style fuzzy match, and Firefox-style tick marks down
+the scrollbar that you can click to jump to a hit.</p>
 <h2 id="what-i-have-learned">
   What I have learned
   <a href="#what-i-have-learned" class="heading-anchor">#</a>
 </h2>
-<p>A few patterns I noticed across these two.</p>
+<p>A few patterns I noticed across these.</p>
 <p>The product surface shrinks a lot. WinGroup has no preferences window.
 Jingpian has one hotkey. The configuration that would normally live in
 a settings UI lives in the source code, and I rebuild when I want to
@@ -194,10 +220,11 @@ all of them. There are still plenty of categories where buying or
 installing the existing thing is correct, but enough that I keep
 noticing.</p>
 <p>WinGroup alone would have been months of yak-shaving without an
-agent, jingpian would have felt like a chore, and Zumi would not have
-happened at all because no sane person writes their own video player.
-With agents, all three became things I now use and depend on every
-day. This is the start of the era of software for one, and I am
+agent, jingpian would have felt like a chore, Zumi would not have
+happened at all because no sane person writes their own video player,
+and Xeil would have stayed a &ldquo;someday I&rsquo;ll learn PDFKit&rdquo; note in my
+inbox forever. With agents, all four became things I now use and
+depend on every day. This is the start of the era of software for one, and I am
 excited to be building more of it.</p>
 
 		</div>
