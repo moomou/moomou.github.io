@@ -1,0 +1,45 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 300" font-family="ui-sans-serif, system-ui, sans-serif" font-size="13">
+<rect x="0.5" y="0.5" width="759" height="299" rx="10" fill="#fbfaf7" stroke="#d9d6cf"/>
+<text x="20" y="28" text-anchor="start" fill="#1c1c1c" font-size="15" font-family="ui-sans-serif, system-ui, sans-serif" font-weight="600">Paged KV: a block_table indirection</text>
+<text x="20" y="62" text-anchor="start" fill="#666" font-size="12" font-family="ui-sans-serif, system-ui, sans-serif" font-weight="normal">logical tokens (one request)</text>
+<rect x="20" y="72" width="40" height="30" rx="6" fill="#f3f1ec" stroke="#1c1c1c" stroke-width="1.2"/>
+<text x="40.0" y="90.8" text-anchor="middle" fill="#1c1c1c" font-size="11" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-weight="normal">t0</text>
+<rect x="64" y="72" width="40" height="30" rx="6" fill="#f3f1ec" stroke="#1c1c1c" stroke-width="1.2"/>
+<text x="84.0" y="90.8" text-anchor="middle" fill="#1c1c1c" font-size="11" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-weight="normal">t1</text>
+<rect x="108" y="72" width="40" height="30" rx="6" fill="#f3f1ec" stroke="#1c1c1c" stroke-width="1.2"/>
+<text x="128.0" y="90.8" text-anchor="middle" fill="#1c1c1c" font-size="11" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-weight="normal">t2</text>
+<rect x="152" y="72" width="40" height="30" rx="6" fill="#f3f1ec" stroke="#1c1c1c" stroke-width="1.2"/>
+<text x="172.0" y="90.8" text-anchor="middle" fill="#1c1c1c" font-size="11" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-weight="normal">t3</text>
+<rect x="196" y="72" width="40" height="30" rx="6" fill="#f3f1ec" stroke="#1c1c1c" stroke-width="1.2"/>
+<text x="216.0" y="90.8" text-anchor="middle" fill="#1c1c1c" font-size="11" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-weight="normal">t4</text>
+<rect x="240" y="72" width="40" height="30" rx="6" fill="#f3f1ec" stroke="#1c1c1c" stroke-width="1.2"/>
+<text x="260.0" y="90.8" text-anchor="middle" fill="#1c1c1c" font-size="11" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-weight="normal">t5</text>
+<rect x="284" y="72" width="40" height="30" rx="6" fill="#f3f1ec" stroke="#1c1c1c" stroke-width="1.2"/>
+<text x="304.0" y="90.8" text-anchor="middle" fill="#1c1c1c" font-size="11" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-weight="normal">t6</text>
+<rect x="328" y="72" width="40" height="30" rx="6" fill="#f3f1ec" stroke="#1c1c1c" stroke-width="1.2"/>
+<text x="348.0" y="90.8" text-anchor="middle" fill="#1c1c1c" font-size="11" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-weight="normal">t7</text>
+<rect x="372" y="72" width="40" height="30" rx="6" fill="#fff" stroke="#1c1c1c" stroke-width="1.2"/>
+<text x="392.0" y="90.8" text-anchor="middle" fill="#1c1c1c" font-size="11" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-weight="normal">t8</text>
+<text x="20" y="124" text-anchor="start" fill="#c2410c" font-size="12" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-weight="600">block_table = [ 7, 2, 5 ]   (block_size = 4)</text>
+<text x="20" y="168" text-anchor="start" fill="#666" font-size="12" font-family="ui-sans-serif, system-ui, sans-serif" font-weight="normal">physical block pool (shared, non-contiguous)</text>
+<rect x="20" y="180" width="120" height="56" rx="6" fill="#f3f1ec" stroke="#666" stroke-width="1.2"/>
+<text x="80.0" y="204.8" text-anchor="middle" fill="#666" font-size="11" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-weight="normal">blk0</text>
+<text x="80.0" y="218.8" text-anchor="middle" fill="#666" font-size="11" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-weight="normal">free</text>
+<rect x="170" y="180" width="120" height="56" rx="6" fill="#f6efe6" stroke="#c2410c" stroke-width="1.2"/>
+<text x="230.0" y="204.8" text-anchor="middle" fill="#c2410c" font-size="11" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-weight="normal">blk2</text>
+<text x="230.0" y="218.8" text-anchor="middle" fill="#c2410c" font-size="11" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-weight="normal">ref 2</text>
+<rect x="320" y="180" width="120" height="56" rx="6" fill="#f6efe6" stroke="#c2410c" stroke-width="1.2"/>
+<text x="380.0" y="204.8" text-anchor="middle" fill="#c2410c" font-size="11" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-weight="normal">blk5</text>
+<text x="380.0" y="218.8" text-anchor="middle" fill="#c2410c" font-size="11" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-weight="normal">ref 1</text>
+<rect x="470" y="180" width="120" height="56" rx="6" fill="#f6efe6" stroke="#c2410c" stroke-width="1.2"/>
+<text x="530.0" y="204.8" text-anchor="middle" fill="#c2410c" font-size="11" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-weight="normal">blk7</text>
+<text x="530.0" y="218.8" text-anchor="middle" fill="#c2410c" font-size="11" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-weight="normal">ref 1</text>
+<rect x="620" y="180" width="120" height="56" rx="6" fill="#f3f1ec" stroke="#666" stroke-width="1.2"/>
+<text x="680.0" y="204.8" text-anchor="middle" fill="#666" font-size="11" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-weight="normal">blk9</text>
+<text x="680.0" y="218.8" text-anchor="middle" fill="#666" font-size="11" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-weight="normal">free</text>
+<defs><marker id="arrow1f4e79" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#1f4e79"/></marker></defs><line x1="86.0" y1="130" x2="530" y2="178" stroke="#1f4e79" stroke-width="1.4" stroke-dasharray="4 3" marker-end="url(#arrow1f4e79)"/>
+<defs><marker id="arrow1f4e79" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#1f4e79"/></marker></defs><line x1="262.0" y1="130" x2="230" y2="178" stroke="#1f4e79" stroke-width="1.4" stroke-dasharray="4 3" marker-end="url(#arrow1f4e79)"/>
+<defs><marker id="arrow1f4e79" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#1f4e79"/></marker></defs><line x1="372.0" y1="130" x2="380" y2="178" stroke="#1f4e79" stroke-width="1.4" stroke-dasharray="4 3" marker-end="url(#arrow1f4e79)"/>
+<text x="540" y="138" text-anchor="start" fill="#666" font-size="11" font-family="ui-sans-serif, system-ui, sans-serif" font-weight="normal">alloc hands out free blocks;</text>
+<text x="540" y="154" text-anchor="start" fill="#666" font-size="11" font-family="ui-sans-serif, system-ui, sans-serif" font-weight="normal">decref frees on refcount 0</text>
+</svg>

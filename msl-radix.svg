@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 320" font-family="ui-sans-serif, system-ui, sans-serif" font-size="13">
+<rect x="0.5" y="0.5" width="759" height="319" rx="10" fill="#fbfaf7" stroke="#d9d6cf"/>
+<text x="20" y="28" text-anchor="start" fill="#1c1c1c" font-size="15" font-family="ui-sans-serif, system-ui, sans-serif" font-weight="600">Radix prefix cache over the block pool</text>
+<rect x="300" y="50" width="160" height="40" rx="6" fill="#f6efe6" stroke="#c2410c" stroke-width="1.2"/>
+<text x="380.0" y="67.0" text-anchor="middle" fill="#c2410c" font-size="10" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-weight="600">system prompt</text>
+<text x="380.0" y="80.0" text-anchor="middle" fill="#c2410c" font-size="10" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-weight="600">blk[..]  ref 2</text>
+<rect x="140" y="150" width="180" height="44" rx="6" fill="#f3f1ec" stroke="#1f4e79" stroke-width="1.2"/>
+<text x="230.0" y="169.0" text-anchor="middle" fill="#1c1c1c" font-size="10" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-weight="normal">...user A turn</text>
+<text x="230.0" y="182.0" text-anchor="middle" fill="#1c1c1c" font-size="10" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-weight="normal">blk[..]  ref 1</text>
+<rect x="440" y="150" width="180" height="44" rx="6" fill="#f3f1ec" stroke="#3a7d44" stroke-width="1.2"/>
+<text x="530.0" y="169.0" text-anchor="middle" fill="#1c1c1c" font-size="10" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-weight="normal">...user B turn</text>
+<text x="530.0" y="182.0" text-anchor="middle" fill="#1c1c1c" font-size="10" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-weight="normal">blk[..]  ref 1</text>
+<rect x="440" y="240" width="180" height="44" rx="6" fill="#f3f1ec" stroke="#3a7d44" stroke-width="1.2"/>
+<text x="530.0" y="259.0" text-anchor="middle" fill="#1c1c1c" font-size="10" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-weight="normal">...+ tool reply</text>
+<text x="530.0" y="272.0" text-anchor="middle" fill="#1c1c1c" font-size="10" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-weight="normal">blk[..]  ref 1</text>
+<defs><marker id="arrowc2410c" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#c2410c"/></marker></defs><line x1="360" y1="90" x2="230" y2="148" stroke="#c2410c" stroke-width="1.4" marker-end="url(#arrowc2410c)"/>
+<defs><marker id="arrowc2410c" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#c2410c"/></marker></defs><line x1="400" y1="90" x2="530" y2="148" stroke="#c2410c" stroke-width="1.4" marker-end="url(#arrowc2410c)"/>
+<defs><marker id="arrow3a7d44" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#3a7d44"/></marker></defs><line x1="530" y1="194" x2="530" y2="238" stroke="#3a7d44" stroke-width="1.4" marker-end="url(#arrow3a7d44)"/>
+<text x="636" y="70" text-anchor="start" fill="#1c1c1c" font-size="12" font-family="ui-sans-serif, system-ui, sans-serif" font-weight="600">match():</text>
+<text x="636" y="88" text-anchor="start" fill="#666" font-size="11" font-family="ui-sans-serif, system-ui, sans-serif" font-weight="normal">descend, one</text>
+<text x="625" y="104" text-anchor="start" fill="#666" font-size="10" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-weight="normal">_common_prefix_len</text>
+<text x="636" y="120" text-anchor="start" fill="#666" font-size="11" font-family="ui-sans-serif, system-ui, sans-serif" font-weight="normal">per node; incref hits</text>
+<text x="20" y="70" text-anchor="start" fill="#666" font-size="11" font-family="ui-sans-serif, system-ui, sans-serif" font-weight="normal">shared prefix =</text>
+<text x="20" y="86" text-anchor="start" fill="#666" font-size="11" font-family="ui-sans-serif, system-ui, sans-serif" font-weight="normal">cache hit, not a</text>
+<text x="20" y="102" text-anchor="start" fill="#c2410c" font-size="11" font-family="ui-sans-serif, system-ui, sans-serif" font-weight="600">re-prefill tax</text>
+<text x="640" y="250" text-anchor="start" fill="#1c1c1c" font-size="12" font-family="ui-sans-serif, system-ui, sans-serif" font-weight="600">evict():</text>
+<text x="640" y="268" text-anchor="start" fill="#666" font-size="11" font-family="ui-sans-serif, system-ui, sans-serif" font-weight="normal">deepest level first,</text>
+<text x="640" y="284" text-anchor="start" fill="#666" font-size="11" font-family="ui-sans-serif, system-ui, sans-serif" font-weight="normal">LRU within level</text>
+</svg>

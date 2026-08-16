@@ -429,6 +429,23 @@ table th {
 
 img { border-radius: 2px; }
 
+.post-diagram {
+    width: min(920px, calc(100vw - 32px));
+    margin: 2rem 50%;
+    transform: translateX(-50%);
+    overflow-x: auto;
+    border-radius: 14px;
+    -webkit-overflow-scrolling: touch;
+}
+
+.post-diagram img {
+    width: 100%;
+    min-width: 760px;
+    max-width: none;
+    margin: 0;
+    border-radius: 14px;
+}
+
 /* Footer ----------------------------------------------------------------- */
 
 .footer {

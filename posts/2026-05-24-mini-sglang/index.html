@@ -2,12 +2,12 @@
 <html>
 <head>
 	<meta charset="utf-8" />
-	<meta http-equiv="X-UA-Compatible" content="IE=edge"><title>Building a mini_sglang from scratch - moomou</title><link rel="icon" type="image/png" href=favicon.ico /><meta name="viewport" content="width=device-width, initial-scale=1">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge"><title>Building mini_sglang from Scratch - moomou</title><link rel="icon" type="image/png" href=favicon.ico /><meta name="viewport" content="width=device-width, initial-scale=1">
 	<meta property="og:url" content="/posts/2026-05-24-mini-sglang/">
   <meta property="og:site_name" content="moomou">
-  <meta property="og:title" content="Building a mini_sglang from scratch">
-  <meta property="og:description" content="Why # I have been using sglang and vLLM as black boxes for a while. Paged KV cache, continuous batching, prefill/decode split — I could repeat the words but not actually draw the boxes. So I sat down with a coding agent and rebuilt the smallest possible serving engine that still has all of the real pieces, one lesson at a time.
-The result is mini_sglang, a minimal inference engine that loads Qwen3 with a working radix KV cache that provides continuous batching.">
+  <meta property="og:title" content="Building mini_sglang from Scratch">
+  <meta property="og:description" content="Overview # I have been experimenting with SGLang and vLLM for hosting Qwen for local AI. While I felt comfortable running and benchmarking these systems, I did not really understand the internals of a production grade inference engine.
+With coding agents, I set out to correct that by working through a series of LLM guided lessons to build a mini sglang from scratch; specifically, I implemented a minimal inference engine that serves Qwen3 with paged KV cache, continuous batching, streaming output and a radix prefix cache.">
   <meta property="og:locale" content="en_us">
   <meta property="og:type" content="article">
     <meta property="article:section" content="posts">
@@ -15,17 +15,19 @@ The result is mini_sglang, a minimal inference engine that loads Qwen3 with a wo
     <meta property="article:modified_time" content="2026-05-24T00:00:00+00:00">
 
   <meta name="twitter:card" content="summary">
-  <meta name="twitter:title" content="Building a mini_sglang from scratch">
-  <meta name="twitter:description" content="Why # I have been using sglang and vLLM as black boxes for a while. Paged KV cache, continuous batching, prefill/decode split — I could repeat the words but not actually draw the boxes. So I sat down with a coding agent and rebuilt the smallest possible serving engine that still has all of the real pieces, one lesson at a time.
-The result is mini_sglang, a minimal inference engine that loads Qwen3 with a working radix KV cache that provides continuous batching.">
+  <meta name="twitter:title" content="Building mini_sglang from Scratch">
+  <meta name="twitter:description" content="Overview # I have been experimenting with SGLang and vLLM for hosting Qwen for local AI. While I felt comfortable running and benchmarking these systems, I did not really understand the internals of a production grade inference engine.
+With coding agents, I set out to correct that by working through a series of LLM guided lessons to build a mini sglang from scratch; specifically, I implemented a minimal inference engine that serves Qwen3 with paged KV cache, continuous batching, streaming output and a radix prefix cache.">
 <link rel="stylesheet" type="text/css" media="screen" href="/css/normalize.css" />
 	<link rel="stylesheet" type="text/css" media="screen" href="/css/main.css" />
 	<link rel="stylesheet" type="text/css" href="/css/dark.css" media="(prefers-color-scheme: dark)" />
 	<link rel="stylesheet" type="text/css" href="/css/custom.css" />
 
 	<script src="/js/main.js"></script>
+	<script src="/js/scroll-nav.js"></script>
 
 	<link rel="stylesheet" type="text/css" href="/css/anchors.css" />
+<link rel="stylesheet" type="text/css" href="/css/scroll-nav.css" />
 
 </head>
 
@@ -53,7 +55,7 @@ The result is mini_sglang, a minimal inference engine that loads Qwen3 with a wo
 
 
 		<div class="post-header">
-			<h1 class="title">Building a mini_sglang from scratch</h1>
+			<h1 class="title">Building mini_sglang from Scratch</h1>
       
       <div class="meta">Posted at &mdash; May 24, 2026</div>
       
@@ -64,135 +66,261 @@ The result is mini_sglang, a minimal inference engine that loads Qwen3 with a wo
     <div id="table-of-contents">
         <nav id="TableOfContents">
   <ul>
-    <li><a href="#why">Why</a></li>
-    <li><a href="#the-lessons">The lessons</a></li>
-    <li><a href="#what-i-actually-learned">What I actually learned</a></li>
-    <li><a href="#on-using-an-agent-to-learn">On using an agent to learn</a></li>
-    <li><a href="#where-to-start">Where to start</a></li>
+    <li><a href="#overview">Overview</a></li>
+    <li><a href="#background">Background</a></li>
+    <li><a href="#architecture">Architecture</a></li>
+    <li><a href="#one-mini-step-at-a-time">One Mini Step at a Time</a></li>
+    <li><a href="#paged-kv-cache">Paged KV Cache</a></li>
+    <li><a href="#continuous-batching">Continuous Batching</a></li>
+    <li><a href="#incremental-detokenization">Incremental Detokenization</a></li>
+    <li><a href="#radix-prefix-cache">Radix Prefix Cache</a></li>
+    <li><a href="#learning-with-a-coding-agent">Learning with a Coding Agent</a></li>
+    <li><a href="#running-it">Running It</a></li>
   </ul>
 </nav>
     </div>
     
 
 		<div class="markdown">
-			<h2 id="why">
-  Why
-  <a href="#why" class="heading-anchor">#</a>
+			<h2 id="overview">
+  Overview
+  <a href="#overview" class="heading-anchor">#</a>
 </h2>
-<p>I have been using sglang and vLLM as black boxes for a while. Paged KV
-cache, continuous batching, prefill/decode split — I could repeat the
-words but not actually draw the boxes. So I sat down with a coding
-agent and rebuilt the smallest possible serving engine that still has
-all of the real pieces, one lesson at a time.</p>
-<p>The result is <a href="https://github.com/moomou/mini_sglang">mini_sglang</a>, a
-minimal inference engine that loads Qwen3 with a working radix KV
-cache that provides continuous batching.</p>
-<blockquote>
-<p><strong>tl;dr</strong> Nine lessons (L0–L8) that take you from an empty package
-to a FastAPI server serving Qwen3-8B with paged KV, continuous
-batching, incremental detokenization, and a radix prefix cache.
-Lesson site is hosted <a href="/mini_sglang/">here</a>. Code on
-<a href="https://github.com/moomou/mini_sglang">github.com/moomou/mini_sglang</a>.</p>
-</blockquote>
-<h2 id="the-lessons">
-  The lessons
-  <a href="#the-lessons" class="heading-anchor">#</a>
+<p>I have been experimenting with SGLang and vLLM for hosting Qwen for local AI.
+While I felt comfortable running and benchmarking these systems, I did not really understand the internals of a production grade inference engine.</p>
+<p>With coding agents, I set out to correct that by working through a series of LLM guided lessons to build a mini sglang from scratch; specifically, I implemented a minimal
+inference engine that serves Qwen3 with paged KV cache, continuous
+batching, streaming output and a radix prefix cache.</p>
+<p>The LLM generated lessons along with some of my questions is at <a href="/mini_sglang/">mini_sglang</a> and the code is on <a href="https://github.com/moomou/mini_sglang">GitHub</a>. The rest of this blog provides a short walk-through and highlights that I found most interesting.</p>
+<h2 id="background">
+  Background
+  <a href="#background" class="heading-anchor">#</a>
 </h2>
-<p>Each lesson builds one module and keeps the smoke test green.</p>
+<p>Stripped of optimizations, an LLM inference server repeatedly does the
+following:</p>
+<ol>
+<li>Tokenize the input text.</li>
+<li>Decide which waiting and running requests should be in the next
+batch.</li>
+<li>Reserve KV cache space for the tokens in that batch.</li>
+<li>Run the model and write the new keys and values into the cache.</li>
+<li>Sample one output token for each request.</li>
+<li>Incrementally turn those token IDs back into text.</li>
+<li>Stream the text to the clients and repeat until each request is
+finished.</li>
+</ol>
+<p>The purpose of mini_sglang is to keep these pieces visible. It is
+single-GPU and does not implement tensor parallelism, quantization,
+speculative decoding or CUDA graphs. Those are important for a
+production engine, but they would have made it harder for me to see
+the basic request lifecycle.</p>
+<h2 id="architecture">
+  Architecture
+  <a href="#architecture" class="heading-anchor">#</a>
+</h2>
+<p>The server is split across two threads. FastAPI runs on the asyncio
+event-loop thread while the scheduler and model run on a dedicated
+engine thread. This separation is necessary because
+<code>scheduler.step()</code> launches GPU work and blocks; running it directly
+inside an async request handler would also block every other HTTP
+request.</p>
+<figure class="post-diagram">
+  <img src="/msl-arch.svg" alt="Architecture diagram showing a request crossing from FastAPI into the mini_sglang engine thread, through the scheduler and Qwen3, then streaming generated text back to the client"/>
+</figure>
+<p>When a request arrives, the HTTP handler tokenizes the prompt, creates
+an output <code>asyncio.Queue</code> for that request and puts a <code>GenRequest</code> on a
+thread-safe pending queue. The engine thread drains the pending queue
+and gives the request to the scheduler.</p>
+<p>For every step, the scheduler selects a mixture of waiting prefills
+and running decodes, reserves blocks and builds a <code>ForwardMeta</code>
+instance. The model only sees the input token IDs, the metadata and the
+shared KV pool; it does not need to know anything about HTTP requests.
+After sampling, the engine updates each request and sends decoded text
+back to the event loop with <code>loop.call_soon_threadsafe</code>. The FastAPI
+handler simply waits on its output queue and yields SSE chunks.</p>
+<p>Keeping all scheduler and cache state on the engine thread also made
+the implementation much easier to reason about. The only objects
+crossing the thread boundary are new requests and generated text.</p>
+<h2 id="one-mini-step-at-a-time">
+  One Mini Step at a Time
+  <a href="#one-mini-step-at-a-time" class="heading-anchor">#</a>
+</h2>
+<p>I organized the project so that each lesson adds one new idea:</p>
 <ul>
-<li><strong><a href="/mini_sglang/L0-architecture.html">L0 — Architecture overview</a>.</strong>
-The seven things every serving engine does. Module map. Why &ldquo;paged&rdquo;
-and not &ldquo;continuous&rdquo;. What we intentionally skip.</li>
-<li><strong><a href="/mini_sglang/L1-model-weights.html">L1 — Model &amp; weight loading</a>.</strong>
-Qwen3-8B from spec: RMSNorm, SwiGLU, RoPE, GQA. safetensors loader.
-Eager forward pass using <code>F.scaled_dot_product_attention</code>. This is
-the baseline the rest of the lessons replace piece by piece.</li>
-<li><strong><a href="/mini_sglang/L2-paged-kv.html">L2 — Paged KV cache</a>.</strong> Block
-allocator, page tables, the <code>ForwardMeta</code> struct. Token-flat vs
-block-tensor storage and why L3 forces the switch.</li>
-<li><strong><a href="/mini_sglang/L3-paged-attention.html">L3 — Paged attention kernel</a>.</strong>
-Block-table-aware attention. Three metadata tensors (cu_seqlens_q,
-cu_seqlens_k, block_table). Optionally flash-attn varlen if you have
-nvcc and ten minutes to compile.</li>
-<li><strong><a href="/mini_sglang/L4-sampler.html">L4 — Sampler</a>.</strong> Greedy, temperature,
-top-p. The canonical pipeline order (logit processors → temperature →
-top-k/p → sample) and the disabled-default sentinels worth memorizing.</li>
-<li><strong><a href="/mini_sglang/L5-scheduler.html">L5 — Scheduler / continuous batching</a>.</strong>
-Two queues, four scheduling decisions, the <code>Req</code> state machine,
-per-request sampling params. This is the lesson where the engine
-stops being a script and starts being a server.</li>
-<li><strong><a href="/mini_sglang/L6-tokenizer.html">L6 — Tokenizer + incremental detokenize</a>.</strong>
-The window-diff algorithm and the subtle UTF-8 bug that bites every
-implementation that tries to detokenize one token at a time.</li>
-<li><strong><a href="/mini_sglang/L7-server.html">L7 — HTTP server</a>.</strong> FastAPI
-<code>/generate</code>, the Engine class, the SSE streaming protocol. The
-scheduler runs in its own thread; the HTTP layer just queues requests
-and drains output.</li>
-<li><strong><a href="/mini_sglang/L8-radix-cache.html">L8 — Radix prefix cache</a>.</strong> A
-radix tree of token sequences over the paged KV pool, with block
-refcounting as the central invariant. Match is one <code>_common_prefix_len</code>
-per descent; eviction is descending-level, LRU-within-level. This
-is the lesson that turns &ldquo;shared system prompt&rdquo; from a 30%-of-prefill
-tax into a cache hit.</li>
+<li><strong><a href="/mini_sglang/L0-architecture.html">L0: Architecture overview</a></strong>
+follows one request through the seven steps above and defines the
+small set of data structures shared by the engine.</li>
+<li><strong><a href="/mini_sglang/L1-model-weights.html">L1: Model and weight loading</a></strong>
+implements Qwen3 from its config, including RMSNorm, SwiGLU, RoPE
+and grouped-query attention, then loads the Hugging Face
+safetensors.</li>
+<li><strong><a href="/mini_sglang/L2-paged-kv.html">L2: Paged KV cache</a></strong> replaces a
+contiguous per-request cache with a shared pool and block allocator.</li>
+<li><strong><a href="/mini_sglang/L3-paged-attention.html">L3: Paged attention</a></strong>
+changes attention to read history through block tables. There is a
+pure PyTorch implementation first and an optional flash-attn path.</li>
+<li><strong><a href="/mini_sglang/L4-sampler.html">L4: Sampler</a></strong> adds greedy,
+temperature, top-k, top-p and repetition-penalty sampling.</li>
+<li><strong><a href="/mini_sglang/L5-scheduler.html">L5: Scheduler</a></strong> adds waiting and
+running queues and combines prefill and decode requests in the same
+forward call.</li>
+<li><strong><a href="/mini_sglang/L6-tokenizer.html">L6: Incremental detokenization</a></strong>
+streams text without decoding the complete output on every token.</li>
+<li><strong><a href="/mini_sglang/L7-server.html">L7: HTTP server</a></strong> connects the
+engine thread to FastAPI and streams results over SSE.</li>
+<li><strong><a href="/mini_sglang/L8-radix-cache.html">L8: Radix prefix cache</a></strong> reuses
+KV blocks when requests share a prompt prefix.</li>
 </ul>
-<h2 id="what-i-actually-learned">
-  What I actually learned
-  <a href="#what-i-actually-learned" class="heading-anchor">#</a>
+<p>Every lesson keeps the same basic contract: greedily generate 20
+tokens for <code>&quot;The capital of France is&quot;</code> and compare the token IDs
+against <code>transformers.AutoModelForCausalLM.generate</code>. Having this small
+end-to-end test was useful because most of my bugs did not produce an
+exception. An off-by-one position or an incorrect cache slot simply
+caused the model to produce different text several tokens later.</p>
+<h2 id="paged-kv-cache">
+  Paged KV Cache
+  <a href="#paged-kv-cache" class="heading-anchor">#</a>
 </h2>
-<p>A few things that stuck with me and that I would not have internalized
-from reading sglang source.</p>
-<p><strong>Paged KV is mostly an allocator problem.</strong> The L3 kernel change is
-real but small. The bulk of paged KV is bookkeeping: who owns which
-blocks, when to free them, how to gather a block_table into a flat
-tensor the kernel can index. Once L2&rsquo;s allocator exists, L3 feels
-mechanical.</p>
-<p><strong>Continuous batching is a scheduling decision, not a kernel feature.</strong>
-The kernels do not know about batching; they take whatever batch you
-hand them. The scheduler decides every step whether to admit a new
-prefill, continue decoding, or evict — and the magic is that those
-decisions happen every step instead of once per request.</p>
-<p><strong>Incremental detokenization is harder than the model.</strong> L6 is the
-shortest lesson and the one I burned the most time on. BPE has no
-clean one-token-to-one-piece-of-text mapping, so you keep a sliding
-window of recent tokens, detok the window, and diff against the
-previous one. Get the window size wrong and you split a UTF-8
-codepoint, and the stream starts emitting <code>\ufffd</code>.</p>
-<p><strong>The HTTP server is mostly cooperative queueing.</strong> Once the engine
-exists, the &ldquo;server&rdquo; is a thread that drains a request queue and an
-<code>asyncio.Queue</code> per request for streaming output. The interesting
-design choice is where the event loop lives, not what the routes
-look like.</p>
-<p><strong>Prefix caching is refcounting and not just a tree.</strong> The radix
-tree is the obvious part; the part that took longer to internalize
-is that it only works because every cached block carries a refcount
-the scheduler bumps and drops at exactly the right moments (admit,
-finish, evict). Get the refcounting wrong and you either leak blocks
-or free one another request is still reading.</p>
-<h2 id="on-using-an-agent-to-learn">
-  On using an agent to learn
-  <a href="#on-using-an-agent-to-learn" class="heading-anchor">#</a>
+<p>The first implementation in L1 uses a contiguous KV tensor. This is
+fine for one request, but a server would have to reserve the maximum
+sequence length for every request and pad batches to the longest
+sequence.</p>
+<p>With paging, the KV pool is divided into fixed-size blocks. If the
+block size is 16, a request with 73 tokens needs five blocks. The
+physical blocks do not need to be next to each other:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-text" data-lang="text"><span class="line"><span class="cl">logical tokens:  0 .............. 72
+</span></span><span class="line"><span class="cl">request.blocks:  [7, 2, 19, 4, 11]
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">KvPool[layer].shape =
+</span></span><span class="line"><span class="cl">    [num_blocks, block_size, num_kv_heads, head_dim]
+</span></span></code></pre></div><p><code>Request.blocks</code> describes ownership while <code>ForwardMeta</code> describes the
+current model call. In particular, <code>slot_mapping</code> says where the new K
+and V tensors should be written, while <code>block_table</code> and
+<code>seq_lens_kv</code> tell attention where to read the existing history.</p>
+<p>I initially expected the attention kernel to be the difficult part.
+Most of the work was actually keeping the allocator, request length,
+slot indices and metadata consistent. A common bug was to increment
+<code>cur_len</code> by one after every forward call. That is correct for decode,
+but a prefill of 32 tokens must advance it by 32.</p>
+<h2 id="continuous-batching">
+  Continuous Batching
+  <a href="#continuous-batching" class="heading-anchor">#</a>
 </h2>
-<p>Each lesson started as a chat: ask the agent to explain a concept,
-probe and ask for a clearer explanation, then ask for a design and
-snippets. I wrote most of the code myself, with the agent for
-cross-referencing real sglang and vLLM source when I got stuck. The
-lesson HTML in <code>docs/</code> is a cleaned-up writeup of each session,
-including the Q&amp;A blocks and a &ldquo;pitfalls&rdquo; / &ldquo;debug log&rdquo; section of
-bugs we actually hit — those are the parts most worth reading.</p>
-<p>This is the same loop as my <a href="/posts/2025-12-29-learning-ct-with-gemini/">CT scan post</a>:
-the agent collapses the discovery loop, but the only way to actually
-learn the material is to refuse the agent&rsquo;s offer to just write the
-thing for you. Build the smallest version yourself; let the agent
-explain and review.</p>
-<h2 id="where-to-start">
-  Where to start
-  <a href="#where-to-start" class="heading-anchor">#</a>
+<p>The scheduler rebuilds the
+batch before every model call, so a new prefill can run beside requests
+that are already decoding:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-text" data-lang="text"><span class="line"><span class="cl">step 0:  prefill A (8 query tokens)
+</span></span><span class="line"><span class="cl">step 1:  decode A (1) + prefill B (32)
+</span></span><span class="line"><span class="cl">step 2:  decode A (1) + decode B (1) + prefill C (5)
+</span></span><span class="line"><span class="cl">step 3:  decode A (1) + decode B (1) + decode C (1)
+</span></span></code></pre></div><p>The query tokens are packed into one flat tensor instead of padded into
+a conventional batch. Suppose three requests contribute 5, 1 and 3
+query tokens:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="n">q_lens</span> <span class="o">=</span> <span class="p">[</span><span class="mi">5</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl"><span class="n">cu_seqlens_q</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">9</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl"><span class="n">last_logit_rows</span> <span class="o">=</span> <span class="p">[</span><span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">8</span><span class="p">]</span>
+</span></span></code></pre></div><p>The model returns logits with shape <code>[9, vocab]</code>. Rows 4, 5 and 8 are
+the final query positions for the three requests, so those are the
+rows sent to the sampler. Walking through this example made
+<code>cu_seqlens_q</code> much less mysterious to me. Continuous batching is
+possible because each request can have a different query length while
+sharing one forward call.</p>
+<h2 id="incremental-detokenization">
+  Incremental Detokenization
+  <a href="#incremental-detokenization" class="heading-anchor">#</a>
 </h2>
-<p>If you want to read: the lesson site is <a href="/mini_sglang/">here</a>.</p>
-<p>If you want to build: clone
-<a href="https://github.com/moomou/mini_sglang">mini_sglang</a>, <code>uv sync</code>, and
-run <code>python -m scripts.l1_smoke</code>. Then start at L1 and delete code
-until you can put it back yourself.</p>
+<p>One part I did not expect to spend much time on was turning generated
+token IDs back into streaming text. Decoding each token independently
+does not work because a multi-byte UTF-8 character can span several BPE
+tokens. Decoding the entire history after each token is correct but
+becomes O(N²).</p>
+<p>The solution is to decode a small window and emit the difference from
+the previous window. The subtle case is when a token completes a
+character that previously decoded as one or more Unicode replacement
+characters. Checking only whether the current window ends in <code>\ufffd</code>
+is not enough:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="n">decoded_window</span> <span class="o">=</span> <span class="n">tokenizer</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="n">window</span><span class="p">,</span> <span class="n">skip_special_tokens</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="k">if</span> <span class="n">decoded_window</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">&#34;</span><span class="se">\ufffd</span><span class="s2">&#34;</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">    <span class="k">return</span> <span class="s2">&#34;&#34;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">prefix_text</span> <span class="o">=</span> <span class="n">tokenizer</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="n">window</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">skip_special_tokens</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="k">if</span> <span class="s2">&#34;</span><span class="se">\ufffd</span><span class="s2">&#34;</span> <span class="ow">in</span> <span class="n">prefix_text</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">    <span class="n">full_text</span> <span class="o">=</span> <span class="n">tokenizer</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="n">tokens</span><span class="p">,</span> <span class="n">skip_special_tokens</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="n">new_text</span> <span class="o">=</span> <span class="n">full_text</span><span class="p">[</span><span class="n">emitted_len</span><span class="p">:]</span>
+</span></span><span class="line"><span class="cl"><span class="k">else</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">    <span class="n">new_text</span> <span class="o">=</span> <span class="n">decoded_window</span><span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="n">prefix_text</span><span class="p">):]</span>
+</span></span></code></pre></div><p>For Qwen3, the emoji <code>🫨</code> is split into three tokens. The first two
+pushes produce replacement characters and emit nothing. On the third
+token, the fallback above compares against the amount of text actually
+emitted and returns the emoji. Without it, the replacement characters
+make the prefix appear longer than the final decoded string and the
+emoji does not appear until the stream is flushed.</p>
+<p>This ended up being one of the more useful debugging exercises in the
+project because the first implementation looked reasonable and passed
+ASCII-only tests.</p>
+<h2 id="radix-prefix-cache">
+  Radix Prefix Cache
+  <a href="#radix-prefix-cache" class="heading-anchor">#</a>
+</h2>
+<p>The last lesson adds a radix tree keyed by token IDs. Chat requests
+often begin with the same system prompt, so recomputing its KV on every
+request is wasteful. A new request searches for the longest cached
+prefix and starts prefilling at the first unmatched token.</p>
+<p>The tree itself was not the hard part. The difficult part was defining
+who owns a physical KV block. After adding the cache, a block may be
+referenced by both active requests and radix-tree nodes:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-text" data-lang="text"><span class="line"><span class="cl">block refcount =
+</span></span><span class="line"><span class="cl">    active requests holding the block
+</span></span><span class="line"><span class="cl">    + radix nodes holding the block
+</span></span></code></pre></div><p>A cache hit increments the refcount because the new request now shares
+the blocks. Finishing a request decrements its references, but the
+blocks stay alive if the radix tree still owns them. Eviction removes
+the tree&rsquo;s references, and a block only returns to the free list when
+its refcount reaches zero.</p>
+<p>The cache also stores only block-aligned prefixes. If two prompts share
+97 tokens and the block size is 16, only the first 96 tokens can be
+reused. Rounding this value up is especially bad: the request silently
+reads a KV block containing a different token. This was another bug
+where the model still ran but produced incorrect output.</p>
+<p>In the L8 smoke test, a request with a 97-token shared prefix and a
+small unmatched tail processed 25 query tokens instead of 121 over 20
+steps. The cache avoided 96 query tokens, or about 79% of the work in
+that test, while producing the same output as the uncached run.</p>
+<h2 id="learning-with-a-coding-agent">
+  Learning with a Coding Agent
+  <a href="#learning-with-a-coding-agent" class="heading-anchor">#</a>
+</h2>
+<p>The process was similar to my earlier experience
+<a href="/posts/2025-12-29-learning-ct-with-gemini/">learning about CT scans with Gemini</a>.
+At the beginning of each lesson, I asked the agent to explain one
+concept and then kept asking questions until I could restate the data
+flow myself. I used it to cross-reference the real SGLang and vLLM
+implementations and to review my code, but I tried to write the
+implementation before looking at a complete solution.</p>
+<p>This distinction mattered. The agent could generate an allocator or a
+scheduler immediately, but reading that code did not give me the same
+understanding as debugging why my own <code>cur_len</code> was wrong or why an
+emoji disappeared from the token stream. The lesson pages preserve the
+questions, failed implementations and pitfalls for this reason. Those
+parts are more representative of how I learnt the material than the
+final source code.</p>
+<p>I still do not understand every optimization inside a production
+serving engine, but I can now follow a request from the HTTP handler to
+the paged attention kernel and back. That was the gap I wanted to
+close.</p>
+<h2 id="running-it">
+  Running It
+  <a href="#running-it" class="heading-anchor">#</a>
+</h2>
+<p>The lesson site starts at
+<a href="/mini_sglang/L0-architecture.html">L0: Architecture overview</a>. To run
+the code locally:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">git clone https://github.com/moomou/mini_sglang
+</span></span><span class="line"><span class="cl"><span class="nb">cd</span> mini_sglang
+</span></span><span class="line"><span class="cl">uv sync
+</span></span><span class="line"><span class="cl">uv run python -m scripts.l1_smoke
+</span></span></code></pre></div><p>From there, each lesson has its own smoke test and builds on the same
+Qwen3 implementation.</p>
 
 		</div>
 
