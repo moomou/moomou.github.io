@@ -7,8 +7,15 @@
     <generator>Hugo</generator>
     <language>en-us</language>
     <copyright>since 2017</copyright>
-    <lastBuildDate>Sun, 24 May 2026 00:00:00 +0000</lastBuildDate>
+    <lastBuildDate>Sun, 16 Aug 2026 00:00:00 +0000</lastBuildDate>
     <atom:link href="/posts/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Tiny World Model</title>
+      <link>/posts/2026-08-16-twm/</link>
+      <pubDate>Sun, 16 Aug 2026 00:00:00 +0000</pubDate>
+      <guid>/posts/2026-08-16-twm/</guid>
+      <description>&lt;h2 id=&#34;overview&#34;&gt;&#xA;  Overview&#xA;  &lt;a href=&#34;#overview&#34; class=&#34;heading-anchor&#34;&gt;#&lt;/a&gt;&#xA;&lt;/h2&gt;&#xA;&lt;p&gt;After coming across Ha &amp;amp; Schmidhuber&amp;rsquo;s 2018 paper&#xA;&lt;a href=&#34;https://arxiv.org/abs/1803.10122&#34;&gt;World Models&lt;/a&gt; earlier this year, I&#xA;have been working on building a &amp;ldquo;tiny world model&amp;rdquo; on a clone of&#xA;Chrome&amp;rsquo;s Dino game.&lt;/p&gt;&#xA;&lt;p&gt;The final model is small: a variational autoencoder (VAE), a recurrent&#xA;world model and a two-layer actor. Getting the three pieces to work&#xA;together required many rounds of debugging. There were many mistakes&#xA;along the way: plausible-looking images hid a broken latent&#xA;representation, a weighted loss hid a data problem, and a controller&#xA;kept improving in an imagined world while getting worse in the real&#xA;one.&lt;/p&gt;</description>
+    </item>
     <item>
       <title>Building mini_sglang from Scratch</title>
       <link>/posts/2026-05-24-mini-sglang/</link>

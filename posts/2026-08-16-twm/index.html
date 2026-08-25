@@ -1,0 +1,667 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8" />
+	<meta http-equiv="X-UA-Compatible" content="IE=edge"><title>Tiny World Model - moomou</title><link rel="icon" type="image/png" href=favicon.ico /><meta name="viewport" content="width=device-width, initial-scale=1">
+	<meta property="og:url" content="/posts/2026-08-16-twm/">
+  <meta property="og:site_name" content="moomou">
+  <meta property="og:title" content="Tiny World Model">
+  <meta property="og:description" content="Overview # After coming across Ha &amp; Schmidhuber’s 2018 paper World Models earlier this year, I have been working on building a “tiny world model” on a clone of Chrome’s Dino game.
+The final model is small: a variational autoencoder (VAE), a recurrent world model and a two-layer actor. Getting the three pieces to work together required many rounds of debugging. There were many mistakes along the way: plausible-looking images hid a broken latent representation, a weighted loss hid a data problem, and a controller kept improving in an imagined world while getting worse in the real one.">
+  <meta property="og:locale" content="en_us">
+  <meta property="og:type" content="article">
+    <meta property="article:section" content="posts">
+    <meta property="article:published_time" content="2026-08-16T00:00:00+00:00">
+    <meta property="article:modified_time" content="2026-08-16T00:00:00+00:00">
+
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="Tiny World Model">
+  <meta name="twitter:description" content="Overview # After coming across Ha &amp; Schmidhuber’s 2018 paper World Models earlier this year, I have been working on building a “tiny world model” on a clone of Chrome’s Dino game.
+The final model is small: a variational autoencoder (VAE), a recurrent world model and a two-layer actor. Getting the three pieces to work together required many rounds of debugging. There were many mistakes along the way: plausible-looking images hid a broken latent representation, a weighted loss hid a data problem, and a controller kept improving in an imagined world while getting worse in the real one.">
+<link rel="stylesheet" type="text/css" media="screen" href="/css/normalize.css" />
+	<link rel="stylesheet" type="text/css" media="screen" href="/css/main.css" />
+	<link rel="stylesheet" type="text/css" href="/css/dark.css" media="(prefers-color-scheme: dark)" />
+	<link rel="stylesheet" type="text/css" href="/css/custom.css" />
+
+	<script src="/js/main.js"></script>
+	<script src="/js/scroll-nav.js"></script>
+
+	<link rel="stylesheet" type="text/css" href="/css/anchors.css" />
+<link rel="stylesheet" type="text/css" href="/css/scroll-nav.css" />
+
+</head>
+
+
+<body>
+	<div class="container wrapper post">
+		<div class="header">
+	<div class="branding">
+		<h1 class="site-title"><a href="/">moomou</a></h1><span class="site-tagline">(ﾉ≧∇≦)ﾉ ﾐ ┸┸</span></div>
+
+	<nav class="nav">
+		<ul class="flat">
+			
+			<li>
+				<a href="/">All posts</a>
+			</li>
+			
+			<li>
+				<a href="https://go.mou.dev/resume">Resume</a>
+			</li>
+			<li><a href="https://github.com/moomou" rel="noopener">github</a></li></ul>
+	</nav>
+</div>
+
+
+
+		<div class="post-header">
+			<h1 class="title">Tiny World Model</h1>
+      
+      <div class="meta">Posted at &mdash; Aug 16, 2026</div>
+      
+      
+		</div>
+
+    
+    <div id="table-of-contents">
+        <nav id="TableOfContents">
+  <ul>
+    <li><a href="#overview">Overview</a></li>
+    <li><a href="#background">Background</a></li>
+    <li><a href="#tiny-dino-world">Tiny Dino World</a></li>
+    <li><a href="#variational-autoencoder">Variational Autoencoder</a>
+      <ul>
+        <li><a href="#mse-or-bce">MSE or BCE?</a></li>
+      </ul>
+    </li>
+    <li><a href="#world-model">World Model</a>
+      <ul>
+        <li><a href="#state-representation-z-or-mu">State Representation: <code>z</code> or <code>mu</code>?</a></li>
+        <li><a href="#done-prediction"><code>done</code> Prediction</a></li>
+        <li><a href="#exposure-bias">Exposure Bias</a></li>
+      </ul>
+    </li>
+    <li><a href="#actor-model">Actor Model</a>
+      <ul>
+        <li><a href="#training-in-a-dream">Training in a Dream</a></li>
+        <li><a href="#dream-vs-reality">Dream vs. Reality</a></li>
+      </ul>
+    </li>
+    <li><a href="#voila">Voila!</a></li>
+    <li><a href="#conclusion">Conclusion</a></li>
+    <li><a href="#references">References</a></li>
+  </ul>
+</nav>
+    </div>
+    
+
+		<div class="markdown">
+			<h2 id="overview">
+  Overview
+  <a href="#overview" class="heading-anchor">#</a>
+</h2>
+<p>After coming across Ha &amp; Schmidhuber&rsquo;s 2018 paper
+<a href="https://arxiv.org/abs/1803.10122">World Models</a> earlier this year, I
+have been working on building a &ldquo;tiny world model&rdquo; on a clone of
+Chrome&rsquo;s Dino game.</p>
+<p>The final model is small: a variational autoencoder (VAE), a recurrent
+world model and a two-layer actor. Getting the three pieces to work
+together required many rounds of debugging. There were many mistakes
+along the way: plausible-looking images hid a broken latent
+representation, a weighted loss hid a data problem, and a controller
+kept improving in an imagined world while getting worse in the real
+one.</p>
+<blockquote>
+<p><strong>tl;dr</strong> I followed the V-M-C recipe from World Models on a clone of
+Chrome&rsquo;s Dino game, but trained the controller from scratch with
+Group Relative Policy Optimization (GRPO). The controller learnt
+entirely inside the world model and transferred to the real game.
+The most important lesson was to give every component an independent,
+honest metric before trusting the full pipeline.</p>
+</blockquote>
+<h2 id="background">
+  Background
+  <a href="#background" class="heading-anchor">#</a>
+</h2>
+<p>Mentioning a world model in 2026 might evoke systems such as
+<a href="https://deepmind.google/blog/genie-3-a-new-frontier-for-world-models/">Genie 3</a>,
+<a href="https://gamengen.github.io/">GameNGen</a> or
+<a href="https://www.microsoft.com/en-us/research/project/wham/wham/">WHAM</a>:
+models that generate rich, interactive worlds from simple text descriptions.
+Those systems are impressive, but the core idea is much smaller.</p>
+<p>A world model is a statistical model that predicts how a world changes.
+Given a representation of the current state and an action, it predicts
+a distribution over the next state:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-text" data-lang="text"><span class="line"><span class="cl">M(s_t, a_t) -&gt; P(s_(t+1), d_(t+1))
+</span></span></code></pre></div><p>Here, <code>M</code> is the world model, <code>s_t</code> is the state at time step <code>t</code>, and
+<code>a_t</code> is the action taken at that step. The output is <code>P</code>, a
+probability distribution over the next state <code>s_(t+1)</code> and whether the
+game has ended, <code>d_(t+1)</code>. A state can be the rendered frame itself or,
+as we will see later, a compressed representation of the frame.</p>
+<p>Why predict a distribution instead of a single next state? Even a
+small game can have more than one valid future. Given the same Dino
+frame and the same action, a new obstacle may or may not spawn at the
+edge of the screen. M needs to assign probability to both outcomes.</p>
+<p>In the original World Models paper, the authors split the problem into
+three components:</p>
+<ol>
+<li><strong>V</strong>, a VAE that compresses each frame into a latent representation.</li>
+<li><strong>M</strong>, a mixture density network recurrent neural network (MDN-RNN)
+that predicts the next latent and terminal state.</li>
+<li><strong>C</strong>, a small controller trained inside the world imagined by M.</li>
+</ol>
+<p>They applied the recipe to CarRacing and Doom and optimized the
+controller with an evolutionary algorithm. I adapted the same recipe
+to a Dino game clone and, instead of using an evolutionary algorithm,
+used GRPO, a reinforcement learning algorithm, to train the controller.</p>
+<p>The rest of the post will discuss each component in detail.</p>
+<h2 id="tiny-dino-world">
+  Tiny Dino World
+  <a href="#tiny-dino-world" class="heading-anchor">#</a>
+</h2>
+<p>In case you are not familiar with Chrome&rsquo;s Dino game, it is a simple
+side-scroller where the dino jumps over cacti and ducks under birds.</p>
+<img src="/twm/dino-world.png" alt="Three frames from the Tiny Dino environment showing the dino running, jumping, and ducking"/>
+<p>The world scrolls forward and procedurally spawns obstacles. The score
+increases while the dino stays alive and an episode ends when the dino
+hits an obstacle. It is simple, stochastic and, in theory, infinite, making it an ideal learning
+environment for a small world model.</p>
+<p>I built the underlying environment as a deterministic 16 by 24 tile
+grid. Given the same seed and actions, it produces the same trajectory.
+Rendering is a pure function of the grid and frame tick, which made it
+possible to use the exact same pixels for training and playback.</p>
+<p>Each rendered frame is a monochrome 512 by 768 image stored as a
+<code>(512, 768, 3)</code> RGB array. The action is one of three values:
+<code>idle</code>, <code>jump</code> or <code>duck</code>. I represent these as the one-hot vectors
+<code>(1, 0, 0)</code>, <code>(0, 1, 0)</code> and <code>(0, 0, 1)</code> respectively. Finally, the
+environment has a boolean <code>done</code> state indicating that the dino
+collided with an obstacle.</p>
+<p>I initially collected 10,000 transitions with a uniformly random
+policy. Each transition contains:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-text" data-lang="text"><span class="line"><span class="cl">(s_t, a_t, r_t, d_(t+1), s_(t+1))
+</span></span></code></pre></div><p>The subscript <code>t</code> means &ldquo;at the current time step.&rdquo; After taking action
+<code>a_t</code> in state <code>s_t</code>, the environment returns reward <code>r_t</code>, the next
+state <code>s_(t+1)</code>, and <code>d_(t+1)</code> indicating whether that transition ended
+the episode.</p>
+<p>I deliberately used a random policy for this first dataset. It is bad
+at the game, but that means the data contains both normal transitions
+and collisions. The 10,000 transitions included 206 collisions and
+covered both cactus sizes and low birds. A good heuristic policy
+almost never dies, which would give the <code>done</code> classifier very few
+positive examples to learn from.</p>
+<h2 id="variational-autoencoder">
+  Variational Autoencoder
+  <a href="#variational-autoencoder" class="heading-anchor">#</a>
+</h2>
+<p>The first part of the recipe is a VAE that compresses a game frame into
+a compact latent space. I downsampled each frame by four, from
+<code>(512, 768, 3)</code> to <code>(128, 192, 3)</code>, then passed it through a small
+residual convolutional encoder.</p>
+<p>The encoder emits <code>mu</code> and <code>logvar</code>, the parameters of a diagonal
+Gaussian. A latent <code>z</code> is sampled with the reparameterization trick:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="k">def</span> <span class="nf">reparameterize</span><span class="p">(</span><span class="n">mu</span><span class="p">,</span> <span class="n">logvar</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">    <span class="n">std</span> <span class="o">=</span> <span class="p">(</span><span class="mf">0.5</span> <span class="o">*</span> <span class="n">logvar</span><span class="p">)</span><span class="o">.</span><span class="n">exp</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">    <span class="n">epsilon</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">randn_like</span><span class="p">(</span><span class="n">std</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="k">return</span> <span class="n">mu</span> <span class="o">+</span> <span class="n">std</span> <span class="o">*</span> <span class="n">epsilon</span>
+</span></span></code></pre></div><p>The decoder performs the reverse operation, expanding the 128-value
+latent back into an image. The complete path is:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-text" data-lang="text"><span class="line"><span class="cl">Image (3 x 128 x 192)
+</span></span><span class="line"><span class="cl">  -&gt; Conv + [ResBlock x 2, Downsample] x 3
+</span></span><span class="line"><span class="cl">  -&gt; mu, logvar (128 dim each)
+</span></span><span class="line"><span class="cl">  -&gt; z = mu + sigma * epsilon
+</span></span><span class="line"><span class="cl">  -&gt; Linear + [ResBlock x 2, Upsample] x 3
+</span></span><span class="line"><span class="cl">  -&gt; sigmoid
+</span></span><span class="line"><span class="cl">  -&gt; reconstructed image
+</span></span></code></pre></div><p>The VAE objective combines reconstruction error with KL divergence:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-text" data-lang="text"><span class="line"><span class="cl">L_VAE = reconstruction(x_hat, x)
+</span></span><span class="line"><span class="cl">        + beta * KL(q(z|x) || Normal(0, I))
+</span></span></code></pre></div><p>The reconstruction term forces the latent to retain enough information
+to draw a Dino frame. The KL term pulls the posterior toward a standard
+Gaussian so that a random sample can also be decoded into a plausible
+frame. I used <code>beta = 2</code>.</p>
+<p>The limiting cases helped me understand this objective. If beta is
+large, both <code>mu</code> and <code>logvar</code> are forced to be closer to 0 (<code>sigma</code> approaches
+1), so the latent carries little information about the input. If beta
+is zero, the model becomes an ordinary autoencoder: reconstruction can
+be excellent, but arbitrary samples from a standard Gaussian are no
+longer guaranteed to decode cleanly.</p>
+<h3 id="mse-or-bce">
+  MSE or BCE?
+  <a href="#mse-or-bce" class="heading-anchor">#</a>
+</h3>
+<p>I tried mean squared error (MSE) and binary cross entropy (BCE) for
+reconstruction. The renderer is almost binary: most pixels are either
+the off-white background or dark foreground. BCE therefore matches the
+data reasonably well as a Bernoulli likelihood and strongly penalizes
+a confident prediction on the wrong side of an edge. MSE corresponds
+to a fixed-variance Gaussian likelihood and made it easier for this
+model to settle on faint intermediate pixels.</p>
+<img src="/twm/vae-objectives.png" alt="Normalized VAE reconstruction loss curves and representative final reconstructions for MSE and BCE runs"/>
+<p>The BCE reconstructions were sharper in my runs, so I kept BCE. This
+was not a clean A/B test: the losses have different units and some
+architecture details changed between runs. While not a true apple to apple comparison, BCE converged faster and looked better so it&rsquo;s the reconstruction loss I used.</p>
+<p>As a final sanity check, I sampled <code>z</code> from a standard Gaussian and
+decoded it without an input image:</p>
+<img src="/twm/vae-samples.png" alt="Eight Dino frames decoded from random standard-normal latent vectors"/>
+<p>The samples are not perfect, but the ground, mountains, cacti, birds
+and dino are all recognizable. At this point I froze V and moved on to
+the world model.</p>
+<h2 id="world-model">
+  World Model
+  <a href="#world-model" class="heading-anchor">#</a>
+</h2>
+<p>M needs to predict the next latent and whether the episode ends. I used
+an LSTM followed by a five-component mixture-density head and a
+separate binary <code>done</code> head:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="k">class</span> <span class="nc">MdRnn</span><span class="p">(</span><span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">z_dim</span><span class="o">=</span><span class="mi">128</span><span class="p">,</span> <span class="n">action_dim</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">                 <span class="n">hidden_dim</span><span class="o">=</span><span class="mi">512</span><span class="p">,</span> <span class="n">n_mixtures</span><span class="o">=</span><span class="mi">5</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">        <span class="bp">self</span><span class="o">.</span><span class="n">rnn</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">LSTM</span><span class="p">(</span>
+</span></span><span class="line"><span class="cl">            <span class="n">z_dim</span> <span class="o">+</span> <span class="n">action_dim</span><span class="p">,</span> <span class="n">hidden_dim</span><span class="p">,</span> <span class="n">batch_first</span><span class="o">=</span><span class="kc">True</span>
+</span></span><span class="line"><span class="cl">        <span class="p">)</span>
+</span></span><span class="line"><span class="cl">        <span class="bp">self</span><span class="o">.</span><span class="n">mdn</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Linear</span><span class="p">(</span>
+</span></span><span class="line"><span class="cl">            <span class="n">hidden_dim</span><span class="p">,</span> <span class="n">n_mixtures</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">z_dim</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">        <span class="p">)</span>
+</span></span><span class="line"><span class="cl">        <span class="bp">self</span><span class="o">.</span><span class="n">done_head</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Linear</span><span class="p">(</span><span class="n">hidden_dim</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">z</span><span class="p">,</span> <span class="n">action</span><span class="p">,</span> <span class="n">hidden</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">        <span class="n">x</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">cat</span><span class="p">([</span><span class="n">z</span><span class="p">,</span> <span class="n">action</span><span class="p">],</span> <span class="n">dim</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">        <span class="n">x</span><span class="p">,</span> <span class="n">hidden</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">rnn</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">hidden</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">mdn</span><span class="p">(</span><span class="n">x</span><span class="p">),</span> <span class="n">hidden</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">done_head</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+</span></span></code></pre></div><p>The output of <code>self.mdn</code> is one long vector containing the mixture
+logits, means and log standard deviations. The following helper splits
+that vector into the actual parameters:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">math</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="k">def</span> <span class="nf">get_mdn_params</span><span class="p">(</span><span class="n">mdn_output</span><span class="p">,</span> <span class="n">n_mixtures</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">z_dim</span><span class="o">=</span><span class="mi">128</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">    <span class="n">B</span><span class="p">,</span> <span class="n">T</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">mdn_output</span><span class="o">.</span><span class="n">shape</span>
+</span></span><span class="line"><span class="cl">    <span class="n">K</span> <span class="o">=</span> <span class="n">n_mixtures</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="n">pi_logits</span> <span class="o">=</span> <span class="n">mdn_output</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="p">:</span><span class="n">K</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl">    <span class="n">mu</span> <span class="o">=</span> <span class="n">mdn_output</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="n">K</span><span class="p">:</span><span class="n">K</span> <span class="o">+</span> <span class="n">K</span><span class="o">*</span><span class="n">z_dim</span><span class="p">]</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">B</span><span class="p">,</span> <span class="n">T</span><span class="p">,</span> <span class="n">K</span><span class="p">,</span> <span class="n">z_dim</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="n">log_sigma</span> <span class="o">=</span> <span class="n">mdn_output</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="n">K</span> <span class="o">+</span> <span class="n">K</span><span class="o">*</span><span class="n">z_dim</span><span class="p">:]</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">B</span><span class="p">,</span> <span class="n">T</span><span class="p">,</span> <span class="n">K</span><span class="p">,</span> <span class="n">z_dim</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="n">pi</span> <span class="o">=</span> <span class="n">F</span><span class="o">.</span><span class="n">softmax</span><span class="p">(</span><span class="n">pi_logits</span><span class="p">,</span> <span class="n">dim</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="n">log_sigma</span> <span class="o">=</span> <span class="n">log_sigma</span><span class="o">.</span><span class="n">clamp</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="mf">0.1</span><span class="p">),</span> <span class="n">math</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="mf">5.0</span><span class="p">))</span>
+</span></span><span class="line"><span class="cl">    <span class="n">sigma</span> <span class="o">=</span> <span class="n">log_sigma</span><span class="o">.</span><span class="n">exp</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">    <span class="k">return</span> <span class="n">pi</span><span class="p">,</span> <span class="n">mu</span><span class="p">,</span> <span class="n">sigma</span>
+</span></span></code></pre></div><p><code>pi</code> is the probability of selecting each of the five mixture
+components. Each component then has its own 128-dimensional <code>mu</code> and
+<code>sigma</code>. These are M&rsquo;s candidate distributions for the next latent,
+not the <code>mu</code> and <code>sigma</code> produced by the VAE encoder. This lets M
+describe several possible next states instead of averaging every
+future into one point. The clamp keeps <code>sigma</code> between 0.1 and 5.
+Without it, unused mixture components grew standard deviations into
+the thousands while other components became overconfident.</p>
+<h3 id="state-representation-z-or-mu">
+  State Representation: <code>z</code> or <code>mu</code>?
+  <a href="#state-representation-z-or-mu" class="heading-anchor">#</a>
+</h3>
+<p>Before training M, I had to choose which VAE output would represent a
+game state. The two obvious choices were the sampled latent <code>z</code> and
+the deterministic posterior mean <code>mu</code>. I started with <code>z</code>, and this
+choice caused most of the early world-model problems.</p>
+<p>For the first latent dataset, I materialized one sampled <code>z</code> for every
+trajectory frame:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-text" data-lang="text"><span class="line"><span class="cl">z_t = mu_t + sigma_t * epsilon_t
+</span></span></code></pre></div><p>That single draw was saved to disk and M was trained to predict the
+next saved draw. At first the training looked encouraging. Loss went
+down and samples from M decoded into recognizable Dino frames.</p>
+<p>I only realized something was wrong when I rolled M forward and tried to
+train the actor inside it. The frames had little temporal consistency
+and the actor collapsed because there was no stable sequence of states
+to learn from. The TensorBoard images looked good, but the model was
+not usable.</p>
+<p>To investigate further, I added two metrics.</p>
+<p>First, I added R-squared (<code>R2</code>), which measures how
+much of the variation in the true next latent is explained by M. <code>R2=1</code>
+is a perfect prediction. <code>R2=0</code> is no better than always predicting the
+average next latent. The sampled-<code>z</code> model finished at roughly
+<code>R2=0.04</code>, so it explained only about 4% of the held-out variation.</p>
+<p>For a world model, this is a fundamental failure. The current <code>z</code> and
+action contained almost no usable information for predicting the saved
+next <code>z</code>. M could generate an individually plausible latent, but it
+could not preserve the relationship between one game state and the
+next. An actor trained on such rollouts sees a sequence of
+recognizable but mostly unrelated frames.</p>
+<p>The second metric was open-loop MSE. I first gave the LSTM a few real
+states to initialize its hidden state. I then stopped supplying real
+latents and repeatedly fed M&rsquo;s own prediction back as the next input.
+The sampled-<code>z</code> data had variance close to 1, so an MSE around 1 was
+roughly as bad as always predicting the average latent. The error
+stayed around 1 from horizon one through horizon eight.</p>
+<p>Why did these bad predictions still decode into plausible frames? The
+VAE decoder had already learnt to turn samples from a broad standard
+Gaussian into something Dino-like. M only had to land somewhere in
+that broad region to produce a recognizable image. It had learnt the
+appearance of the game without learning how one frame leads to the
+next.</p>
+<p>The VAE equation made the problem clear:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-text" data-lang="text"><span class="line"><span class="cl">z = mu + sigma * epsilon,       epsilon ~ Normal(0, I)
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">Var(z) = Var(mu) + E[sigma^2]
+</span></span><span class="line"><span class="cl">       = 0.29    + 0.71
+</span></span><span class="line"><span class="cl">       ≈ 1.00
+</span></span></code></pre></div><p><code>Var(mu)=0.29</code> is the variation in the deterministic posterior means
+across the encoded frames. <code>E[sigma^2]=0.71</code> is the average variance
+added when sampling from each frame&rsquo;s posterior. Since <code>epsilon</code> is
+independent for every frame, about 29% of the stored <code>z</code> variance came
+from the frame-dependent signal and 71% came from newly sampled noise.</p>
+<p>On 171 consecutive frames, lag-1 correlation was <code>0.204</code> for <code>mu</code> but
+only <code>0.052</code> for sampled <code>z</code>. More decisively, an episode-split linear
+model could explain about 83% of next-<code>mu</code> variance but only about 7%
+of next-<code>z</code> variance.</p>
+<img src="/twm/latent-signal.png" alt="Bar chart comparing lag-one correlation and one-step linear R squared for sampled z and posterior mean mu"/>
+<p>I had initially assumed that, because the VAE was trained one frame at
+a time and had no explicit time input, its latents did not need to be
+correlated across time. This was wrong. Consecutive game frames are
+visually related, so their deterministic encodings should also be
+related. <code>mu</code> preserved part of this relationship. Sampled <code>z</code> did not
+because every <code>z</code> also contained a new, independent noise term
+<code>sigma * epsilon</code>. That noise accounted for roughly 71% of <code>z</code>&rsquo;s
+variance and overwhelmed the temporal relationship carried by <code>mu</code>.</p>
+<p>Ha &amp; Schmidhuber&rsquo;s original implementation stored <code>mu</code> and <code>logvar</code>
+and resampled during RNN training. I had instead encoded each frame
+once and permanently stored that one sample in a dataset of only
+10,000 frames. Unlike resampling, this permanently attached one random
+<code>epsilon</code> to every frame. I was asking M to predict the particular
+noise drawn during preprocessing.</p>
+<p>I regenerated the dataset using <code>mu</code> for both the current and next
+state. M&rsquo;s mixture head still models uncertainty in the game, such as
+whether an obstacle will spawn, but it no longer has to model noise
+introduced by the VAE encoder.</p>
+<p>The effect was immediate. Validation R2 rose to <code>0.906</code>, meaning M
+explained about 91% of held-out next-latent variation. Train and
+validation R2 stayed close to one another. Validation negative log
+likelihood (NLL), which measures how much probability M assigns to the
+true next latent, improved from <code>-48</code> to about <code>-249</code>. Lower is better;
+for continuous probability densities, NLL can be negative. Open-loop
+MSE changed from roughly <code>1.03 -&gt; 1.15</code> over eight steps to
+<code>0.052 -&gt; 0.114</code>.</p>
+<img src="/twm/world-model-z-vs-mu.png" alt="World-model validation R squared and open-loop rollout MSE comparing sampled z with posterior mean mu"/>
+<p>The image below compares the two models more directly. The left column
+is M trained on sampled <code>z</code>; the right column is M trained on <code>mu</code>.
+Within each column, the top panel contains the actual next frames and
+the bottom panel contains M&rsquo;s predictions for those same examples.</p>
+<img src="/twm/world-model-reconstructions.png" alt="Two-column comparison of actual and predicted next frames for world models trained on sampled z and mu"/>
+<p>The sampled-<code>z</code> predictions still look like the game, but details from
+the actual next frames are missing or misplaced. The <code>mu</code> predictions
+track the dino and obstacle positions much more closely.</p>
+<h3 id="done-prediction">
+  <code>done</code> Prediction
+  <a href="#done-prediction" class="heading-anchor">#</a>
+</h3>
+<p>The next issue was the <code>done</code> head. In the original 10,000-transition
+dataset, only 206 transitions were terminal. The validation windows
+contained just 19 positive examples.</p>
+<p>At first I tried the standard class-imbalance fix:
+<code>pos_weight ~= negative / positive</code> in binary cross entropy. Recall
+reached 1.0, but precision was only 0.11. The model predicted too many
+collisions and was badly calibrated. That matters when training C in
+the dream: a false terminal prediction cuts off a trajectory and
+changes its reward.</p>
+<p>I started exploring threshold calibration, then realized I was working
+around the wrong problem. If the concern was insufficient terminal
+data, the clean fix was to collect more terminal data.</p>
+<p>Because collisions are rare, accuracy is not very useful: a model that
+always predicts &ldquo;not done&rdquo; would be more than 99% accurate. I tracked
+precision, recall, F1 and area under the precision-recall curve (AUPRC)
+instead. Precision asks how often a predicted collision is correct;
+recall asks how many real collisions the model catches. F1 is their
+harmonic mean. AUPRC summarizes the precision/recall tradeoff over all
+possible decision thresholds; for a random classifier, it is roughly
+the positive-example rate.</p>
+<p>I expanded training to 50,000 transitions and validation to 5,000,
+giving the model 1,106 and 115 collision examples respectively. With
+enough positives, I removed the large class weight and trained with
+plain BCE. Held-out AUPRC reached <code>0.991</code>; at <code>P(done) &gt; 0.5</code>,
+precision was <code>1.0</code> and recall was <code>0.991</code>.</p>
+<img src="/twm/done-head.png" alt="Terminal example counts and done classifier precision, recall, F1, and AUPRC before and after expanding the dataset"/>
+<p>In this case, collecting better data was much more effective than
+tuning loss weights and classification thresholds.</p>
+<h3 id="exposure-bias">
+  Exposure Bias
+  <a href="#exposure-bias" class="heading-anchor">#</a>
+</h3>
+<p>The initial RNN was trained with teacher forcing: at every position it
+received the real <code>mu_t</code> and predicted <code>mu_(t+1)</code>. During a dream,
+however, the next input is its own previous prediction. Small errors
+move the model onto states it never saw during training, and those
+errors compound. This train/inference mismatch is called exposure bias.</p>
+<p>To quantify the exposure bias, I warmed up the LSTM on four real
+states, then ran M in a free-running or open-loop mode for eight steps:
+after the warmup, each predicted latent became the input to the next
+step. I measured the error at each horizon.</p>
+<p>I tried two corrections:</p>
+<ol>
+<li>Add Gaussian noise to training inputs while keeping targets clean,
+teaching M to recover from a slightly wrong input.</li>
+<li>Unroll M during training, feed its own prediction back, and
+backpropagate through the consequences.</li>
+</ol>
+<p>The second method looks roughly like this:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="n">prev</span> <span class="o">=</span> <span class="kc">None</span>
+</span></span><span class="line"><span class="cl"><span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">sequence_length</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">    <span class="n">z_in</span> <span class="o">=</span> <span class="n">z_true</span><span class="p">[:,</span> <span class="n">t</span><span class="p">:</span><span class="n">t</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span> <span class="k">if</span> <span class="n">prev</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">prev</span>
+</span></span><span class="line"><span class="cl">    <span class="n">mdn</span><span class="p">,</span> <span class="n">hidden</span><span class="p">,</span> <span class="n">done</span> <span class="o">=</span> <span class="n">model</span><span class="p">(</span><span class="n">z_in</span><span class="p">,</span> <span class="n">action</span><span class="p">[:,</span> <span class="n">t</span><span class="p">:</span><span class="n">t</span><span class="o">+</span><span class="mi">1</span><span class="p">],</span> <span class="n">hidden</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="n">pi</span><span class="p">,</span> <span class="n">mu</span><span class="p">,</span> <span class="n">sigma</span> <span class="o">=</span> <span class="n">get_mdn_params</span><span class="p">(</span><span class="n">mdn</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="n">loss</span> <span class="o">=</span> <span class="n">loss</span> <span class="o">+</span> <span class="n">mdn_nll</span><span class="p">(</span><span class="n">pi</span><span class="p">,</span> <span class="n">mu</span><span class="p">,</span> <span class="n">sigma</span><span class="p">,</span> <span class="n">z_next</span><span class="p">[:,</span> <span class="n">t</span><span class="p">:</span><span class="n">t</span><span class="o">+</span><span class="mi">1</span><span class="p">])</span>
+</span></span><span class="line"><span class="cl">    <span class="n">prev</span> <span class="o">=</span> <span class="n">mixture_mean</span><span class="p">(</span><span class="n">pi</span><span class="p">,</span> <span class="n">mu</span><span class="p">)</span>  <span class="c1"># not detached: BPTT through rollout</span>
+</span></span></code></pre></div><p>Starting training with an eight-step free-running rollout is unstable
+because the model&rsquo;s early predictions are poor and each bad prediction
+becomes the next input. To mitigate this, I tried curriculum training:
+pure teacher forcing, then free-run only the last <code>K=2</code>, <code>K=4</code> and
+<code>K=8</code> positions.
+The input-noise experiment flattened the error curve but raised the
+entire curve. Direct rollout training helped modestly at <code>K=2</code>,
+reducing eight-step MSE from <code>0.101</code> to <code>0.087</code>; longer <code>K=4</code> and
+<code>K=8</code> stages did not continue the improvement. As the curriculum moved
+to four and then eight free-running steps, eight-step MSE climbed back
+to approximately <code>0.101</code>. The best checkpoint was therefore in the
+<code>K=2</code> stage, not at the end of training. To understand why the longer
+curriculum did not help, I looked more closely at what long-horizon MSE
+was measuring.</p>
+<img src="/twm/rollout-training.png" alt="Eight-step rollout MSE curves for teacher forcing, input-noise training, and the best K equals 2 rollout-loss checkpoint"/>
+<p>I had been interpreting any increase in long-horizon MSE as model
+degradation. That was too simple. Obstacle spawning is
+stochastic. From the same state, several future cactus layouts can all
+be valid. MSE against one recorded trajectory penalizes a valid
+alternate branch.</p>
+<p>To validate this, I decoded several samples from the same starting state:</p>
+<img src="/twm/world-model-branches.png" alt="Recorded future and four sampled world-model dreams across horizons one, three, five, and eight, showing different valid obstacle branches"/>
+<p>The dreams agree early, then branch into different obstacle
+configurations while remaining recognizable. On a representative
+batch, the decoded-frame Structural Similarity Index Measure (SSIM)
+stayed near 1.0 even while latent MSE rose. SSIM compares local
+brightness, contrast and image structure; 1.0 means two images are
+identical. The mostly blank background makes SSIM overly generous for
+this game, so I use it in combination with the filmstrip and rollout MSE.</p>
+<p>I kept MSE as a useful metric, but stopped treating distance to one
+recorded future as the complete evaluation of a stochastic model.</p>
+<h2 id="actor-model">
+  Actor Model
+  <a href="#actor-model" class="heading-anchor">#</a>
+</h2>
+<p>With V and M frozen, the last component is the controller. It is
+deliberately small:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="k">class</span> <span class="nc">Actor</span><span class="p">(</span><span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">        <span class="bp">self</span><span class="o">.</span><span class="n">net</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Sequential</span><span class="p">(</span>
+</span></span><span class="line"><span class="cl">            <span class="n">nn</span><span class="o">.</span><span class="n">Linear</span><span class="p">(</span><span class="mi">128</span><span class="p">,</span> <span class="mi">128</span><span class="p">),</span>
+</span></span><span class="line"><span class="cl">            <span class="n">nn</span><span class="o">.</span><span class="n">Tanh</span><span class="p">(),</span>
+</span></span><span class="line"><span class="cl">            <span class="n">nn</span><span class="o">.</span><span class="n">Linear</span><span class="p">(</span><span class="mi">128</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span>
+</span></span><span class="line"><span class="cl">        <span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">z</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">net</span><span class="p">(</span><span class="n">z</span><span class="p">)</span>  <span class="c1"># logits for idle, jump, duck</span>
+</span></span></code></pre></div><h3 id="training-in-a-dream">
+  Training in a Dream
+  <a href="#training-in-a-dream" class="heading-anchor">#</a>
+</h3>
+<p>A dream starts from a real encoded frame. The actor chooses an action,
+M predicts the next latent and <code>done</code>, and that predicted latent is fed
+back to the actor. The reward is one for every step entered alive, so
+maximizing return means surviving as long as possible.</p>
+<p>Training inside M means the loop no longer needs to render pixels or
+step the real Python environment. Once M has learnt the dynamics, the
+actor can generate many training episodes cheaply in imagination.</p>
+<p>The reward is non-differentiable through the sampled action and
+terminal decision. The original paper used an evolutionary algorithm.
+I took this opportunity to learn and apply GRPO, introduced in
+<a href="https://arxiv.org/abs/2402.03300">DeepSeekMath</a>.</p>
+<p>For each starting latent, I sampled a group of eight rollouts. A
+trajectory&rsquo;s advantage is its return relative to the other rollouts
+from the same start:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="n">batch_size</span><span class="p">,</span> <span class="n">horizon</span> <span class="o">=</span> <span class="n">rewards</span><span class="o">.</span><span class="n">shape</span>
+</span></span><span class="line"><span class="cl"><span class="n">returns</span> <span class="o">=</span> <span class="n">rewards</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="n">grouped</span> <span class="o">=</span> <span class="n">returns</span><span class="o">.</span><span class="n">view</span><span class="p">(</span><span class="n">n_starts</span><span class="p">,</span> <span class="n">group_size</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">advantage</span> <span class="o">=</span> <span class="n">grouped</span> <span class="o">-</span> <span class="n">grouped</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">keepdim</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="n">advantage</span> <span class="o">=</span> <span class="n">advantage</span> <span class="o">/</span> <span class="p">(</span><span class="n">grouped</span><span class="o">.</span><span class="n">std</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">keepdim</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span> <span class="o">+</span> <span class="mf">1e-8</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="n">advantage_t</span> <span class="o">=</span> <span class="n">advantage</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">batch_size</span><span class="p">)</span><span class="o">.</span><span class="n">unsqueeze</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">expand</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">horizon</span><span class="p">)</span>
+</span></span></code></pre></div><p>There is no critic. If one rollout survives longer than its siblings,
+the actions in that rollout receive positive advantage; shorter
+rollouts receive negative advantage.</p>
+<p>I reused each rollout for four gradient epochs. After the first update,
+the data is technically stale because it was sampled by the old
+policy. The PPO-style likelihood ratio and clipping keep those repeated
+updates bounded:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="n">ratio</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="n">new_logprob</span> <span class="o">-</span> <span class="n">old_logprob</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="n">surrogate</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">minimum</span><span class="p">(</span>
+</span></span><span class="line"><span class="cl">    <span class="n">ratio</span> <span class="o">*</span> <span class="n">advantage_t</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="n">torch</span><span class="o">.</span><span class="n">clamp</span><span class="p">(</span><span class="n">ratio</span><span class="p">,</span> <span class="mi">1</span> <span class="o">-</span> <span class="n">clip_eps</span><span class="p">,</span> <span class="mi">1</span> <span class="o">+</span> <span class="n">clip_eps</span><span class="p">)</span> <span class="o">*</span> <span class="n">advantage_t</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl"><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="n">loss</span> <span class="o">=</span> <span class="o">-</span><span class="p">(</span><span class="n">surrogate</span> <span class="o">*</span> <span class="n">alive_mask</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span> <span class="o">/</span> <span class="n">alive_mask</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl"><span class="n">loss</span> <span class="o">=</span> <span class="n">loss</span> <span class="o">-</span> <span class="n">entropy_coef</span> <span class="o">*</span> <span class="n">entropy</span>
+</span></span></code></pre></div><p><code>alive_mask</code> prevents padded steps after death from affecting the
+gradient. I tracked approximate KL, clip fraction, entropy, gradient
+norm and action fractions to make sure the optimizer itself remained
+healthy.</p>
+<h3 id="dream-vs-reality">
+  Dream vs. Reality
+  <a href="#dream-vs-reality" class="heading-anchor">#</a>
+</h3>
+<p>For the final run, each update contained 32 starting states, eight
+rollouts per state and a maximum dream horizon of 256. Every 25
+updates, I evaluated the actor in the real <code>DinoEnv</code> over 20 fixed
+seeds.</p>
+<img src="/twm/actor-training.png" alt="GRPO controller training showing dream and real survival plus idle, jump, and duck action fractions"/>
+<p>At the first evaluation, the actor survived an average of 47.6 real
+steps. After 25 GRPO updates it survived 195.7, and at update 50 it
+peaked at 262.4. The world model was providing a genuinely useful
+training signal.</p>
+<p>Training longer was not better. Dream return remained around 220 to
+240, while real survival eventually fell to 161.0. At the same time,
+the fraction of jump actions gradually dropped toward 0.25. The policy
+had found behavior that M considered safe but the real environment did
+not.</p>
+<p>This is model exploitation: C becomes better at the learned world than
+at the world we care about. Approximate KL and clip fraction remained
+small, entropy did not collapse and gradients were stable. GRPO was
+doing its job; its objective had become a poor proxy for reality.</p>
+<p>This means I should select the actor checkpoint using real-environment
+survival, not dream return. Other defenses would be to make dreams more
+stochastic, penalize disagreement between an ensemble of world models,
+or periodically collect trajectories from the current actor and
+refresh M on the states it now visits.</p>
+<h2 id="voila">
+  Voila!
+  <a href="#voila" class="heading-anchor">#</a>
+</h2>
+<p>Putting everything together, here is the trained actor running against
+the real environment.
+While one good run is not a replacement for the multi-seed result
+above, watching a controller trained entirely in M&rsquo;s dreams make the
+correct jump and duck decisions in the real environment shows that
+the complete V-M-C pipeline works end to end.</p>
+<img src="/twm/actor-real.gif" alt="The trained actor jumping and ducking in the real Tiny Dino environment"/>
+<h2 id="conclusion">
+  Conclusion
+  <a href="#conclusion" class="heading-anchor">#</a>
+</h2>
+<p>The most important lesson from this project was not a particular
+architecture. It was the need to define what success means for every
+component before composing them.</p>
+<ul>
+<li>For V, reconstruction and random samples both mattered.</li>
+<li>For M, held-out latent R2, NLL and open-loop rollouts mattered; a
+nice decoded frame did not.</li>
+<li>For <code>done</code>, AUPRC, precision and recall mattered more than BCE.</li>
+<li>For C, real-environment survival was the metric; dream return alone
+eventually rewarded exploitation.</li>
+</ul>
+<p>The project also helped me understand the difference between
+representing a distribution and selecting one outcome. I first
+encountered this in the VAE: <code>mu</code> and <code>logvar</code> describe a distribution
+around each frame rather than one fixed point, and the decoder must
+handle samples from that distribution. This posterior describes a
+neighborhood around one observed frame. M&rsquo;s distribution serves a
+different purpose: it assigns probability to several possible future
+states.</p>
+<p>C has a different objective. It searches for one sequence of actions
+with high reward. M needs to cover the plausible future modes, while C
+is mode seeking. Given enough optimization, C will seek not only good
+behavior but also any error in M that looks rewarding.</p>
+<p>I think it is important to point out that this learning path was highly
+nonlinear. I first blamed the recurrent model when the real problem was
+VAE sampling noise. I tried calibrating a classifier when the real fix
+was more collision data. I treated long-horizon MSE as ground truth
+until visualizing valid branches. I also celebrated rising dream return
+before checking that the actor was getting worse in reality.</p>
+<p>This has been a highly rewarding exercise. I can now trace the complete
+V-M-C path: V compresses pixels into a latent distribution, M predicts
+how that distribution evolves, and C learns inside the predicted
+future. More importantly, I learnt where each component can quietly
+fail and which metrics make those failures visible.</p>
+<h2 id="references">
+  References
+  <a href="#references" class="heading-anchor">#</a>
+</h2>
+<ul>
+<li>David Ha and Jürgen Schmidhuber,
+<a href="https://arxiv.org/abs/1803.10122">World Models</a>, 2018.</li>
+<li>Zhihong Shao et al.,
+<a href="https://arxiv.org/abs/2402.03300">DeepSeekMath: Pushing the Limits of Mathematical Reasoning in Open Language Models</a>,
+2024.</li>
+<li>Samy Bengio et al.,
+<a href="https://arxiv.org/abs/1506.03099">Scheduled Sampling for Sequence Prediction with Recurrent Neural Networks</a>,
+2015.</li>
+<li>Dani Valevski et al.,
+<a href="https://arxiv.org/abs/2408.14837">Diffusion Models Are Real-Time Game Engines</a>,
+2024.</li>
+<li>Google DeepMind,
+<a href="https://deepmind.google/blog/genie-3-a-new-frontier-for-world-models/">Genie 3: A New Frontier for World Models</a>,
+2025.</li>
+<li>Anssi Kanervisto et al.,
+<a href="https://www.nature.com/articles/s41586-025-08600-3">World and Human Action Models towards gameplay ideation</a>,
+2025.</li>
+</ul>
+
+		</div>
+
+		<div class="post-tags">
+			
+				
+			
+		</div>
+		</div>
+	<div class="footer wrapper container">
+	<div>since 2017</div>
+	<div class="footer-meta">
+		<a href="/index.xml">rss</a>
+	</div>
+</div>
+
+<script async src="https://www.googletagmanager.com/gtag/js?id=trackingcode"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'trackingcode');
+</script>
+
+</body>
+</html>
