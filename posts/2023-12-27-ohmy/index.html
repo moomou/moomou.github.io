@@ -4,20 +4,20 @@
 	<meta charset="utf-8" />
 	<meta http-equiv="X-UA-Compatible" content="IE=edge"><title>Learning to Debug Gibberish - moomou</title><link rel="icon" type="image/png" href=favicon.ico /><meta name="viewport" content="width=device-width, initial-scale=1">
 	<meta property="og:url" content="/posts/2023-12-27-ohmy/">
-  <meta property="og:site_name" content="moomou">
-  <meta property="og:title" content="Learning to Debug Gibberish">
-  <meta property="og:description" content="Overview # Recently, I went down a rabbit hole of debugging opensource LLM spewing gibberish on my PC. The investigation was the one of the most difficult (but interesting) debugging experience I have encountered so far.
+	<meta property="og:site_name" content="moomou">
+	<meta property="og:title" content="Learning to Debug Gibberish">
+	<meta property="og:description" content="Overview # Recently, I went down a rabbit hole of debugging opensource LLM spewing gibberish on my PC. The investigation was the one of the most difficult (but interesting) debugging experience I have encountered so far.
 This blog will chronicle the problem I encountered, debugging steps I took, and finally, the resolution and workaround I adopted.
 tl;dr I traced down the source of LLM spewing gibberish to faulty RAM sticks after getting different sha256 checksums on a static file on different runs. I was then able to salvage ~40% of the faulty RAM stick capacity after discovering Linux kernl parameter memtest=.">
-  <meta property="og:locale" content="en_us">
-  <meta property="og:type" content="article">
-    <meta property="article:section" content="posts">
-    <meta property="article:published_time" content="2023-12-27T00:00:00+00:00">
-    <meta property="article:modified_time" content="2023-12-27T00:00:00+00:00">
+	<meta property="og:locale" content="en_us">
+	<meta property="og:type" content="article">
+		<meta property="article:section" content="posts">
+		<meta property="article:published_time" content="2023-12-27T00:00:00+00:00">
+		<meta property="article:modified_time" content="2023-12-27T00:00:00+00:00">
 
-  <meta name="twitter:card" content="summary">
-  <meta name="twitter:title" content="Learning to Debug Gibberish">
-  <meta name="twitter:description" content="Overview # Recently, I went down a rabbit hole of debugging opensource LLM spewing gibberish on my PC. The investigation was the one of the most difficult (but interesting) debugging experience I have encountered so far.
+	<meta name="twitter:card" content="summary">
+	<meta name="twitter:title" content="Learning to Debug Gibberish">
+	<meta name="twitter:description" content="Overview # Recently, I went down a rabbit hole of debugging opensource LLM spewing gibberish on my PC. The investigation was the one of the most difficult (but interesting) debugging experience I have encountered so far.
 This blog will chronicle the problem I encountered, debugging steps I took, and finally, the resolution and workaround I adopted.
 tl;dr I traced down the source of LLM spewing gibberish to faulty RAM sticks after getting different sha256 checksums on a static file on different runs. I was then able to salvage ~40% of the faulty RAM stick capacity after discovering Linux kernl parameter memtest=.">
 <link rel="stylesheet" type="text/css" media="screen" href="/css/normalize.css" />
