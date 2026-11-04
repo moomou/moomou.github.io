@@ -9,7 +9,7 @@
   body {
     padding: 2px !important;
     margin: 0;
-    height: 100vh !important;
+    height: auto !important;
   }
   .print-only {
     display: block;
@@ -53,6 +53,9 @@
   }
   .group {
     margin: 8px;
+  }
+  .education-group {
+    margin-top: 16px;
   }
   .skill {
     line-height: normal !important;

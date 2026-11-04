@@ -204,6 +204,11 @@ ul {
   list-style: none;
 }
 
+.compact-detail {
+  line-height: 1.4;
+  margin: 0;
+}
+
 .project-icon {
   background-clip: padding-box;
   background-position: center center;
@@ -444,7 +449,7 @@ ul {
   body {
     padding: 2px !important;
     margin: 0;
-    height: 100vh !important;
+    height: auto !important;
   }
   .print-only {
     display: block;
@@ -488,6 +493,9 @@ ul {
   }
   .group {
     margin: 8px;
+  }
+  .education-group {
+    margin-top: 16px;
   }
   .skill {
     line-height: normal !important;

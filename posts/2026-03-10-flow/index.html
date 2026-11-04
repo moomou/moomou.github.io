@@ -6,7 +6,7 @@
 	<meta property="og:url" content="/posts/2026-03-10-flow/">
 	<meta property="og:site_name" content="moomou">
 	<meta property="og:title" content="Building Flow Matching Models from Scratch">
-	<meta property="og:description" content="Introduction # Continuing the path of learning about deep learning, I have been working on building a diffusion/flow matching models from scratch on and off for a while. My initial goal was to build a flow-matching or diffusion model for audio with mel-spectrograms inputs. However, after struggling with eyeballing generated melspectrogram to determine if it’s good or bad and the added complexity of dealing with melspectrogram to audio conversion, I decided to pivot to the image domain first to make sure I learn the diffusion modeling aspect properly before tackling audio. Specifically, I chose to go with with the classic celebrity datasets, allowing me to focus on the core mechanics of generation.">
+	<meta property="og:description" content="Introduction # As part of my ongoing effort to learn more about deep learning, I have been building diffusion and flow-matching models from scratch. My initial goal was to build a model for audio using mel-spectrogram inputs. However, evaluating generated mel-spectrograms by eye was difficult, and converting them back to audio added another layer of complexity. I decided to pivot to images first so I could focus on learning the core mechanics of generative modeling. Specifically, I chose a classic celebrity image dataset.">
 	<meta property="og:locale" content="en_us">
 	<meta property="og:type" content="article">
 		<meta property="article:section" content="posts">
@@ -15,7 +15,7 @@
 
 	<meta name="twitter:card" content="summary">
 	<meta name="twitter:title" content="Building Flow Matching Models from Scratch">
-	<meta name="twitter:description" content="Introduction # Continuing the path of learning about deep learning, I have been working on building a diffusion/flow matching models from scratch on and off for a while. My initial goal was to build a flow-matching or diffusion model for audio with mel-spectrograms inputs. However, after struggling with eyeballing generated melspectrogram to determine if it’s good or bad and the added complexity of dealing with melspectrogram to audio conversion, I decided to pivot to the image domain first to make sure I learn the diffusion modeling aspect properly before tackling audio. Specifically, I chose to go with with the classic celebrity datasets, allowing me to focus on the core mechanics of generation.">
+	<meta name="twitter:description" content="Introduction # As part of my ongoing effort to learn more about deep learning, I have been building diffusion and flow-matching models from scratch. My initial goal was to build a model for audio using mel-spectrogram inputs. However, evaluating generated mel-spectrograms by eye was difficult, and converting them back to audio added another layer of complexity. I decided to pivot to images first so I could focus on learning the core mechanics of generative modeling. Specifically, I chose a classic celebrity image dataset.">
 <link rel="stylesheet" type="text/css" media="screen" href="/css/normalize.css" />
 	<link rel="stylesheet" type="text/css" media="screen" href="/css/main.css" />
 	<link rel="stylesheet" type="text/css" href="/css/dark.css" media="(prefers-color-scheme: dark)" />
@@ -65,12 +65,12 @@
         <nav id="TableOfContents">
   <ul>
     <li><a href="#introduction">Introduction</a></li>
-    <li><a href="#flow-matching-and-back-to-basics-paper">Flow Matching and Back to Basics Paper</a></li>
-    <li><a href="#highlight">Highlight</a>
+    <li><a href="#flow-matching-and-the-back-to-basics-paper">Flow Matching and the Back to Basics Paper</a></li>
+    <li><a href="#highlights">Highlights</a>
       <ul>
         <li><a href="#image-to-patch-tokens">Image to Patch Tokens</a></li>
         <li><a href="#noise-sampling-schedule">Noise Sampling Schedule</a></li>
-        <li><a href="#solving-ode-with-euler">Solving ODE with Euler</a></li>
+        <li><a href="#solving-an-ode-with-eulers-method">Solving an ODE with Euler&rsquo;s Method</a></li>
       </ul>
     </li>
     <li><a href="#results">Results</a></li>
@@ -85,17 +85,17 @@
   Introduction
   <a href="#introduction" class="heading-anchor">#</a>
 </h2>
-<p>Continuing the path of learning about deep learning, I have been working on building a diffusion/flow matching models from scratch on and off for a while. My initial goal was to build a flow-matching or diffusion model for audio with mel-spectrograms inputs. However, after struggling with eyeballing generated melspectrogram to determine if it&rsquo;s good or bad and the added complexity of dealing with melspectrogram to audio conversion, I decided to pivot to the image domain first to make sure I learn the diffusion modeling aspect properly before tackling audio. Specifically, I chose to go with with the classic celebrity datasets, allowing me to focus on the core mechanics of generation.</p>
+<p>As part of my ongoing effort to learn more about deep learning, I have been building diffusion and flow-matching models from scratch. My initial goal was to build a model for audio using mel-spectrogram inputs. However, evaluating generated mel-spectrograms by eye was difficult, and converting them back to audio added another layer of complexity. I decided to pivot to images first so I could focus on learning the core mechanics of generative modeling. Specifically, I chose a classic celebrity image dataset.</p>
 <blockquote>
-<p><strong>tl;dr</strong> In this blog post, I discuss building a flow matching image generator from scratch by following
-the papers <a href="https://arxiv.org/abs/2511.13720">Back to Basics: Let Denoising Generative Models Denoise</a>.
-Python Notebook with full implementation is <a href="https://github.com/moomou/moomou.github.io/blob/master/20260311_diffusion_blog.ipynb">here</a></p>
+<p><strong>tl;dr</strong> In this post, I build a flow-matching image generator from scratch by following
+<a href="https://arxiv.org/abs/2511.13720">Back to Basics: Let Denoising Generative Models Denoise</a>.
+A Python notebook with the full implementation is available <a href="https://github.com/moomou/moomou.github.io/blob/master/20260311_diffusion_blog.ipynb">here</a>.</p>
 </blockquote>
-<h2 id="flow-matching-and-back-to-basics-paper">
-  Flow Matching and Back to Basics Paper
-  <a href="#flow-matching-and-back-to-basics-paper" class="heading-anchor">#</a>
+<h2 id="flow-matching-and-the-back-to-basics-paper">
+  Flow Matching and the Back to Basics Paper
+  <a href="#flow-matching-and-the-back-to-basics-paper" class="heading-anchor">#</a>
 </h2>
-<p>Flow matching and diffusion models is about building a model to generate images by progressively &ldquo;cleaning&rdquo; a noisy version of the image until it&rsquo;s clean. Suppose x<sub>0</sub> represents pure noise, and x<sub>1</sub> represents clean image (our target), the model learns to progressively transform x<sub>0</sub> to x<sub>1</sub> via an equation simliar to</p>
+<p>Flow matching and diffusion models generate images by progressively transforming noise into clean data. Suppose x<sub>0</sub> represents pure noise and x<sub>1</sub> represents a clean image. The model learns to transform x<sub>0</sub> into x<sub>1</sub> through updates similar to:</p>
 <math xmlns="http://www.w3.org/1998/Math/MathML" display="block">
   <msub>
     <mi>x</mi>
@@ -109,7 +109,7 @@ Python Notebook with full implementation is <a href="https://github.com/moomou/m
   <mo>=</mo>
   <msub>
     <mi>x</mi>
-    <mi>0</mi>
+    <mi>t</mi>
   </msub>
   <mo>+</mo>
   <msub>
@@ -119,7 +119,7 @@ Python Notebook with full implementation is <a href="https://github.com/moomou/m
   <mo stretchy="false">(</mo>
   <msub>
     <mi>x</mi>
-    <mi>0</mi>
+    <mi>t</mi>
   </msub>
   <mo>,</mo>
   <mi>t</mi>
@@ -128,7 +128,7 @@ Python Notebook with full implementation is <a href="https://github.com/moomou/m
   <mi>&Delta;</mi>
   <mi>t</mi>
 </math>
-<p>In most common formulations, models are trained to predict noise ϵ. In this framework, the model estimates the specific noise residual that was added to the data to reach the current state x(t) at timestep t. By calculating this predicted noise, we can iteratively move toward a cleaner image by &ldquo;subtracting&rdquo; the predicted noise at each step.</p>
+<p>In many diffusion formulations, models are trained to predict noise ϵ. In this framework, the model estimates the noise residual that was added to the data to reach the current state x(t) at time step t. By calculating this predicted noise, we can iteratively move toward a cleaner image by &ldquo;subtracting&rdquo; the predicted noise at each step.</p>
 <math xmlns="http://www.w3.org/1998/Math/MathML" display="block">
   <msub>
     <mi>x</mi>
@@ -160,53 +160,56 @@ Python Notebook with full implementation is <a href="https://github.com/moomou/m
   <mi>t</mi>
   <mo stretchy="false">)</mo>
 </math>
-<p>A recent paper that I came cross, <a href="https://arxiv.org/abs/2511.13720">Back to Basics</a>, suggests learning is most effective when model focuses on data distribution rather than the noise distribution. Specifically, the paper suggested building a model to predict <code>x</code> (image) when given <code>t</code> and <code>z</code>, where <code>z</code> is a noisy version of the image and using the predicted velocity mean squared error (MSE) as the loss function.</p>
-<p>This paper was eye opening for me because of how simple the formulation is and this is the implementation I converged upon. Straight from the paper, where JiT means Just Image Transformer</p>
+<p>A recent paper I came across, <a href="https://arxiv.org/abs/2511.13720">Back to Basics</a>, suggests that denoising models learn more effectively when they focus on the data distribution rather than the noise distribution. Specifically, it proposes predicting the clean image <code>x</code> from <code>t</code> and a noisy input <code>z</code>, then computing mean squared error (MSE) in velocity space.</p>
+<p>The simplicity of this formulation was eye-opening, and it became the basis for my implementation. The algorithm below comes directly from the paper; JiT stands for Just Image Transformer.</p>
 <img src="/algo1.png" alt="Back to Basics Algorithm 1">
 <p>This algorithm will serve as the blueprint for the implementation in this post.</p>
-<h2 id="highlight">
-  Highlight
-  <a href="#highlight" class="heading-anchor">#</a>
+<h2 id="highlights">
+  Highlights
+  <a href="#highlights" class="heading-anchor">#</a>
 </h2>
-<p>You can find the full notebook with dataloading, model, training loop and sampling <a href="https://github.com/moomou/moomou.github.io/blob/master/20260311_diffusion_blog.ipynb">here</a></p>
-<p>Instead of copying and pasting the notebook verbatim in this blog, I will cover a high level overview and deep dive into a few areas I found interesting from building this project.</p>
-<p>I used a standard transformer architecture with <a href="https://arxiv.org/abs/1706.03762">self attention</a>, with some modern tweaks such as <a href="https://arxiv.org/abs/2302.05442">QK norm</a>, <a href="https://arxiv.org/abs/2002.05202">SwiGLU activation</a>, and <a href="https://arxiv.org/abs/2104.09864">RoPE embedding</a>. As an experiment, I also tried using <a href="https://arxiv.org/pdf/2512.10938">Derf</a> instead of <a href="https://arxiv.org/abs/1910.07467">RMSNorm</a>. The model generates 256x256x images.</p>
+<p>You can find the full notebook with data loading, the model, the training loop, and sampling <a href="https://github.com/moomou/moomou.github.io/blob/master/20260311_diffusion_blog.ipynb">here</a>.</p>
+<p>Instead of copying the notebook verbatim, I will give a high-level overview and highlight a few areas I found interesting while building the project.</p>
+<p>I used a standard Transformer architecture based on <a href="https://arxiv.org/abs/1706.03762">self-attention</a>, with modern components such as <a href="https://arxiv.org/abs/2302.05442">QK norm</a>, <a href="https://arxiv.org/abs/2002.05202">SwiGLU activation</a>, and <a href="https://arxiv.org/abs/2104.09864">RoPE embeddings</a>. As an experiment, I also tried using <a href="https://arxiv.org/pdf/2512.10938">Derf</a> instead of <a href="https://arxiv.org/abs/1910.07467">RMSNorm</a>. The model generates 256x256 images.</p>
 <h3 id="image-to-patch-tokens">
   Image to Patch Tokens
   <a href="#image-to-patch-tokens" class="heading-anchor">#</a>
 </h3>
-<p>In order for the transformer to interact with images, which is represented as tensor of shape (C, H, W), we need to encode images into a sequence of &ldquo;tokens&rdquo;. Following standard literature practice, we will patchify the image; that is, we will chop the image into a sequence of small square images of size <code>p</code> and obtain a tensor of size (T, C&rsquo;), where <code>T = H * W // (p * p)</code> and <code>C' = p * p</code>, assuming a stride of <code>p</code>, which results in no overlapping patches.</p>
-<p>The patchify function is conveniently available inside torch.nn.functional module as</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl">  <span class="n">F</span><span class="o">.</span><span class="n">unfold</span><span class="p">(</span>
-</span></span><span class="line"><span class="cl">    <span class="n">img_tensor</span><span class="p">,</span> 
-</span></span><span class="line"><span class="cl">    <span class="n">kernel_size</span><span class="o">=</span><span class="n">patch_size</span><span class="p">,</span> 
-</span></span><span class="line"><span class="cl">    <span class="n">stride</span><span class="o">=</span><span class="n">patch_size</span><span class="p">)</span>
-</span></span></code></pre></div><p>The inverse function is</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl">  <span class="n">folded_sum</span> <span class="o">=</span> <span class="n">F</span><span class="o">.</span><span class="n">fold</span><span class="p">(</span>
-</span></span><span class="line"><span class="cl">    <span class="n">unfolded</span><span class="p">,</span> 
-</span></span><span class="line"><span class="cl">    <span class="n">output_size</span><span class="o">=</span><span class="p">(</span><span class="n">H</span><span class="p">,</span> <span class="n">W</span><span class="p">),</span> 
-</span></span><span class="line"><span class="cl">    <span class="n">kernel_size</span><span class="o">=</span><span class="n">patch_size</span><span class="p">,</span> 
-</span></span><span class="line"><span class="cl">    <span class="n">stride</span><span class="o">=</span><span class="n">stride</span><span class="p">)</span>
-</span></span></code></pre></div><p>Here is a screenshot showing visually what patchify looks like when stride is set to patch_size.</p>
+<p>To process an image represented as a tensor of shape <code>(C, H, W)</code>, the Transformer needs to encode it as a sequence of tokens. Following standard practice, we patchify the image by dividing it into small squares of size <code>p</code>. This produces a tensor of shape <code>(T, C')</code>, where <code>T = H * W // (p * p)</code> and <code>C' = C * p * p</code>. This assumes a stride of <code>p</code>, which produces non-overlapping patches.</p>
+<p>The patchify operation is available through <code>torch.nn.functional</code>:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="n">F</span><span class="o">.</span><span class="n">unfold</span><span class="p">(</span>
+</span></span><span class="line"><span class="cl">    <span class="n">img_tensor</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="n">kernel_size</span><span class="o">=</span><span class="n">patch_size</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="n">stride</span><span class="o">=</span><span class="n">patch_size</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl"><span class="p">)</span>
+</span></span></code></pre></div><p>The inverse operation is:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="n">folded_sum</span> <span class="o">=</span> <span class="n">F</span><span class="o">.</span><span class="n">fold</span><span class="p">(</span>
+</span></span><span class="line"><span class="cl">    <span class="n">unfolded</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="n">output_size</span><span class="o">=</span><span class="p">(</span><span class="n">H</span><span class="p">,</span> <span class="n">W</span><span class="p">),</span>
+</span></span><span class="line"><span class="cl">    <span class="n">kernel_size</span><span class="o">=</span><span class="n">patch_size</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="n">stride</span><span class="o">=</span><span class="n">stride</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl"><span class="p">)</span>
+</span></span></code></pre></div><p>The following visualization shows patchification when <code>stride</code> equals <code>patch_size</code>.</p>
 <img src="/fold_unfold.png" alt="Patchify"/>
-<p>It can be beneficial to set stride lower than patch_size, say 50% or 25% to give our model more information. If our patches overlap (ie stride is less than patch), then when folding (turning patches back into image), it&rsquo;s important to make sure to account for the overlap with a normalization mask.</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl">    <span class="c1"># Create a normalization mask (fold a tensor of ones)</span>
-</span></span><span class="line"><span class="cl">    <span class="n">ones</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">ones_like</span><span class="p">(</span><span class="n">unfolded</span><span class="p">)</span>
-</span></span><span class="line"><span class="cl">    <span class="n">norm_mask</span> <span class="o">=</span> <span class="n">F</span><span class="o">.</span><span class="n">fold</span><span class="p">(</span>
-</span></span><span class="line"><span class="cl">      <span class="n">ones</span><span class="p">,</span> 
-</span></span><span class="line"><span class="cl">      <span class="n">output_size</span><span class="o">=</span><span class="p">(</span><span class="n">H</span><span class="p">,</span> <span class="n">W</span><span class="p">),</span> 
-</span></span><span class="line"><span class="cl">      <span class="n">kernel_size</span><span class="o">=</span><span class="n">patch_size</span><span class="p">,</span> 
-</span></span><span class="line"><span class="cl">      <span class="n">stride</span><span class="o">=</span><span class="n">stride</span><span class="p">)</span>
-</span></span><span class="line"><span class="cl">    <span class="n">folded_norm</span> <span class="o">=</span> <span class="n">folded_sum</span> <span class="o">/</span> <span class="n">norm_mask</span>
+<p>Setting <code>stride</code> to 50% or 25% of <code>patch_size</code> creates overlapping patches, which can reduce boundary artifacts. When folding those patches back into an image, we need a normalization mask to account for the overlap.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="c1"># Create a normalization mask by folding a tensor of ones</span>
+</span></span><span class="line"><span class="cl"><span class="n">ones</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">ones_like</span><span class="p">(</span><span class="n">unfolded</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="n">norm_mask</span> <span class="o">=</span> <span class="n">F</span><span class="o">.</span><span class="n">fold</span><span class="p">(</span>
+</span></span><span class="line"><span class="cl">    <span class="n">ones</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="n">output_size</span><span class="o">=</span><span class="p">(</span><span class="n">H</span><span class="p">,</span> <span class="n">W</span><span class="p">),</span>
+</span></span><span class="line"><span class="cl">    <span class="n">kernel_size</span><span class="o">=</span><span class="n">patch_size</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="n">stride</span><span class="o">=</span><span class="n">stride</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl"><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="n">folded_norm</span> <span class="o">=</span> <span class="n">folded_sum</span> <span class="o">/</span> <span class="n">norm_mask</span>
 </span></span></code></pre></div><br/>
 <img src="/fold_unfold_half_stride.png" alt="Patchify with stride"/>
-<p>If we didn&rsquo;t normalize with the overlap mask, our image will be unnaturally bright in areas where patches overlap, as shown in the image below.</p>
+<p>Without the overlap mask, the reconstructed image would be unnaturally bright where patches overlap, as shown below.</p>
 <img src="/fold_unfold_half_stride_no_normal.png" alt="Patchify stride but no normal"/>
 <h3 id="noise-sampling-schedule">
   Noise Sampling Schedule
   <a href="#noise-sampling-schedule" class="heading-anchor">#</a>
 </h3>
-<p>In flow matching model, instead of feeding a clean image, we will feed a corrupted image. Let <code>x</code> be a clean image and <code>z(t)</code> be a corrupted image, where <code>t</code> represents time. <code>z(0)</code> is pure noise and <code>z(1)</code> equals <code>x</code>.</p>
+<p>In this flow-matching setup, the model receives a corrupted image rather than a clean one. Let <code>x</code> be a clean image and <code>z(t)</code> its corrupted form, where <code>t</code> represents time. <code>z(0)</code> is pure noise and <code>z(1)</code> equals <code>x</code>.</p>
 <math xmlns="http://www.w3.org/1998/Math/MathML" display="block">
   <mi>z</mi>
   <mo stretchy="false">(</mo>
@@ -226,8 +229,8 @@ Python Notebook with full implementation is <a href="https://github.com/moomou/m
   <mtext>noise</mtext>
 </math>
 <br/>
-<p>Following Back to Basics&rsquo; suggestion, we will make our transformer predict <code>x</code> (image space) and use velocity space (<code>v</code>) for our loss function.</p>
-<p>That is, given <code>t</code> and corrupted input <code>z</code>,</p>
+<p>Following the Back to Basics formulation, the Transformer predicts <code>x</code> in image space, while the loss is computed in velocity space (<code>v</code>).</p>
+<p>Given <code>t</code> and the corrupted input <code>z</code>:</p>
 <math xmlns="http://www.w3.org/1998/Math/MathML" display="block">
   <msub>
     <mi>x</mi>
@@ -241,7 +244,7 @@ Python Notebook with full implementation is <a href="https://github.com/moomou/m
   <mi>t</mi>
   <mo stretchy="false">)</mo>
 </math>
-<p>Using <code>x</code> <sub>predicted</sub>, loss function is</p>
+<p>Using <code>x</code><sub>predicted</sub>, the loss is:</p>
 <math xmlns="http://www.w3.org/1998/Math/MathML" display="block">
   <msub>
     <mi>v</mi>
@@ -309,11 +312,10 @@ Python Notebook with full implementation is <a href="https://github.com/moomou/m
   </msup>
 </math>
 <br/>
-<p>During training, we sample t to generate the corrupted images used for denoising. How we sample t is critical, as it dictates the specific distribution of corruption levels observed by the network. This is particularly important because of image redundancy: larger images contain more spatial information than smaller ones. For example, corrupting 42 pixels in a 64×64 image results in a ∼1% loss of information, whereas the same number of corrupted pixels in a 256×256 image represents a loss of only ∼0.06%.</p>
-<p>This means as we scale up our model to generate higher resolution images, we have to adjust <code>t</code> sampling accordingly. Sample too many <code>t</code> close 1 biases our model to only see lightly corrupted images. I went with the suggested sampling schedule from Back to Basics for 256x256 images. For a reference paper on noise schedule, <a href="https://arxiv.org/pdf/2301.11093">Simple Diffusion</a> is a good resource.</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">torch</span>
-</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">torch.nn.functional</span> <span class="k">as</span> <span class="nn">F</span>
-</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<p>During training, we sample <code>t</code> to generate the corrupted images used for denoising. The sampling distribution is important because it determines which corruption levels the network observes. This matters particularly as image resolution increases: larger images contain more spatial information than smaller ones. For example, corrupting 42 pixels in a 64×64 image affects roughly 1% of its pixels, whereas the same number in a 256×256 image affects only about 0.06%.</p>
+<p>As the output resolution increases, we therefore need to adjust the sampling distribution for <code>t</code>. Sampling too many values close to 1 biases the model toward lightly corrupted images. I used the schedule suggested by Back to Basics for 256x256 images. For more detail on noise schedules, <a href="https://arxiv.org/pdf/2301.11093">Simple Diffusion</a> is a useful reference.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">math</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">torch</span>
 </span></span><span class="line"><span class="cl">
 </span></span><span class="line"><span class="cl"><span class="k">def</span> <span class="nf">sample_logit_t</span><span class="p">(</span><span class="n">dim</span><span class="p">,</span> <span class="n">resolution</span><span class="o">=</span><span class="mi">256</span><span class="p">,</span> <span class="n">base_res</span><span class="o">=</span><span class="mi">256</span><span class="p">,</span> <span class="n">sig</span><span class="o">=</span><span class="mf">0.8</span><span class="p">,</span> <span class="n">mu_base</span><span class="o">=-</span><span class="mf">0.8</span><span class="p">):</span>
 </span></span><span class="line"><span class="cl">    <span class="s2">&#34;&#34;&#34;
@@ -322,23 +324,22 @@ Python Notebook with full implementation is <a href="https://github.com/moomou/m
 </span></span></span><span class="line"><span class="cl"><span class="s2">    &#34;&#34;&#34;</span>
 </span></span><span class="line"><span class="cl">    <span class="c1"># 1. Calculate the resolution shift (from Simple Diffusion paper)</span>
 </span></span><span class="line"><span class="cl">    <span class="c1"># As resolution increases, we shift the mean to sample higher noise levels</span>
-</span></span><span class="line"><span class="cl">    <span class="n">mu</span> <span class="o">=</span> <span class="n">mu_base</span> <span class="o">-</span> <span class="n">math</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">resolution</span><span class="o">/</span><span class="n">base_res</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="n">mu</span> <span class="o">=</span> <span class="n">mu_base</span> <span class="o">-</span> <span class="n">math</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">resolution</span> <span class="o">/</span> <span class="n">base_res</span><span class="p">)</span>
 </span></span><span class="line"><span class="cl">    
 </span></span><span class="line"><span class="cl">    <span class="c1"># 2. Sample from logit-normal distribution</span>
 </span></span><span class="line"><span class="cl">    <span class="n">u_sample</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">randn</span><span class="p">(</span><span class="n">dim</span><span class="p">)</span> <span class="o">*</span> <span class="n">sig</span> <span class="o">+</span> <span class="n">mu</span>
 </span></span><span class="line"><span class="cl">    <span class="n">t</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">sigmoid</span><span class="p">(</span><span class="n">u_sample</span><span class="p">)</span>
 </span></span><span class="line"><span class="cl">    
 </span></span><span class="line"><span class="cl">    <span class="k">return</span> <span class="n">t</span>
-</span></span></code></pre></div><p>A graph showing the distribution of <code>t</code> for the sampling schedule used in my training setup.</p>
+</span></span></code></pre></div><p>The graph below shows the distribution of <code>t</code> produced by this sampling schedule.</p>
 <img src="/sampling_logit_t.png" alt="Sampling Logit t">
-<h3 id="solving-ode-with-euler">
-  Solving ODE with Euler
-  <a href="#solving-ode-with-euler" class="heading-anchor">#</a>
+<h3 id="solving-an-ode-with-eulers-method">
+  Solving an ODE with Euler&rsquo;s Method
+  <a href="#solving-an-ode-with-eulers-method" class="heading-anchor">#</a>
 </h3>
-<p>One of the core mechanisms of the Flow Matching algorithm is the need to iteratively solve an Ordinary Differential Equation (ODE). Specifically, we will leverage our flow matching model to derive a velocity field (position over time), and use that to nudge our image (position) step by step until we get a noise free version.</p>
-<p>While many implementations use complex adaptive solvers, in keeping with the spirit from scratch as much as possible, I have chosen to go with implement Euler&rsquo;s method.</p>
-<p>The core idea is as follows: suppose you have a function x(t) and you know both its derivative dxdt and its value at a specific <code>t</code>. To estimate the value of X at new value <code>t2</code>, we can start from <code>x(t)</code>, take a small step in the directions of the <code>dxdt(t)</code>, arrive at new value <code>x(t + epsilon)</code>. In equation form</p>
-<p>In equation form</p>
+<p>Flow matching requires us to solve an ordinary differential equation (ODE) iteratively. The model defines a velocity field, or rate of change over time, which moves the image step by step from noise toward a clean sample.</p>
+<p>While many implementations use adaptive solvers, I chose Euler&rsquo;s method to keep the implementation simple and avoid relying on a solver library.</p>
+<p>Suppose we know a function <code>x(t)</code>, its derivative <code>dx/dt</code>, and its value at time <code>t</code>. We can approximate <code>x(t + epsilon)</code> by taking a small step in the direction of the derivative:</p>
 <math xmlns="http://www.w3.org/1998/Math/MathML" display="block">
   <mi>x</mi>
   <mo stretchy="false">(</mo>
@@ -368,12 +369,12 @@ Python Notebook with full implementation is <a href="https://github.com/moomou/m
   <mo>&#x22C5;</mo>
   <mi>&#x03B5;</mi>
 </math>
-<p>We can repeat this process until we arrive at <code>t2</code> and get at an estimate for <code>x(t2)</code>.</p>
-<p>The smaller the epsilon, the better the approximateion and the smaller the error.</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="nd">@torch.no_grad</span>
-</span></span><span class="line"><span class="cl"><span class="k">def</span> <span class="nf">euler_method</span><span class="p">(</span><span class="n">y0</span><span class="p">,</span> <span class="n">x0</span><span class="p">,</span> <span class="n">x1</span><span class="p">,</span> <span class="n">dfdx</span><span class="p">):</span>
+<p>We can repeat this process until we reach <code>t2</code>, producing an estimate of <code>x(t2)</code>.</p>
+<p>A smaller step size, <code>epsilon</code>, generally produces a more accurate approximation at the cost of more steps.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="nd">@torch.no_grad</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl"><span class="k">def</span> <span class="nf">euler_method</span><span class="p">(</span><span class="n">y0</span><span class="p">,</span> <span class="n">x0</span><span class="p">,</span> <span class="n">x1</span><span class="p">,</span> <span class="n">dfdx</span><span class="p">,</span> <span class="n">step_size</span><span class="p">):</span>
 </span></span><span class="line"><span class="cl">    <span class="n">x</span> <span class="o">=</span> <span class="n">x0</span>
-</span></span><span class="line"><span class="cl">    <span class="n">x_tensor</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">(</span><span class="n">x</span><span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">y0</span><span class="o">.</span><span class="n">device</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="n">x_tensor</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">device</span><span class="o">=</span><span class="n">y0</span><span class="o">.</span><span class="n">device</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">y0</span><span class="o">.</span><span class="n">dtype</span><span class="p">)</span>
 </span></span><span class="line"><span class="cl">    
 </span></span><span class="line"><span class="cl">    <span class="n">y</span> <span class="o">=</span> <span class="n">y0</span>
 </span></span><span class="line"><span class="cl">    <span class="n">B</span> <span class="o">=</span> <span class="n">y</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
@@ -381,18 +382,18 @@ Python Notebook with full implementation is <a href="https://github.com/moomou/m
 </span></span><span class="line"><span class="cl">        <span class="n">dfdx_val</span> <span class="o">=</span> <span class="n">dfdx</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">x_tensor</span><span class="o">.</span><span class="n">repeat</span><span class="p">(</span><span class="n">B</span><span class="p">))</span>
 </span></span><span class="line"><span class="cl">        <span class="n">y</span> <span class="o">=</span> <span class="n">y</span> <span class="o">+</span> <span class="n">step_size</span> <span class="o">*</span> <span class="n">dfdx_val</span>
 </span></span><span class="line"><span class="cl">        <span class="n">x</span> <span class="o">+=</span> <span class="n">step_size</span>
-</span></span><span class="line"><span class="cl">        <span class="n">x_tensor</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">(</span><span class="n">x</span><span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">y0</span><span class="o">.</span><span class="n">device</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">        <span class="n">x_tensor</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">device</span><span class="o">=</span><span class="n">y0</span><span class="o">.</span><span class="n">device</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">y0</span><span class="o">.</span><span class="n">dtype</span><span class="p">)</span>
 </span></span><span class="line"><span class="cl">    <span class="k">return</span> <span class="n">y</span>
-</span></span></code></pre></div><p>To verify the euler function is working correctly, here is a visualization of euler function approximating sine wave with different step sizes (the bigger the steps, the smaller the epislon)</p>
+</span></span></code></pre></div><p>To verify the implementation, the visualization below shows Euler&rsquo;s method approximating a sine wave with different step sizes. Smaller steps correspond to a smaller <code>epsilon</code> and lower approximation error.</p>
 <img src="/euler_example2.jpg" alt="euler example"/>
-<p>As we can see, while not perfect, with 100 steps, euler method matches sine wave shape very well.</p>
+<p>With 100 steps, Euler&rsquo;s method closely matches the sine wave.</p>
 <h2 id="results">
   Results
   <a href="#results" class="heading-anchor">#</a>
 </h2>
-<p>I ran the training loop on the full celebrity dataset using a 12-layer transformer (~114M params). With an embedding size of 768, patch_size=16, and stride=12, the model reached 100 epochs in about 6 hours on an RTX 5090.</p>
+<p>I ran the training loop on the full celebrity dataset using a 12-layer Transformer with approximately 114 million parameters. With an embedding size of 768, <code>patch_size=16</code>, and <code>stride=12</code>, the model reached 100 epochs in about 6 hours on an RTX 5090.</p>
 <img src="/loss_curve.png" alt="training loss"/>
-<p>Here are few selected samples of what the model can generate after this modest training</p>
+<p>Here are a few samples generated after this modest training run:</p>
 <div style="display: flex; justify-content: space-around;">
   <img src="/ex5.png" alt="Example 5" style="width: 45%;" />
   <img src="/ex4.png" alt="Example 4" style="width: 45%;" />
@@ -400,14 +401,14 @@ Python Notebook with full implementation is <a href="https://github.com/moomou/m
 <img src="/ex3.png" alt="Example 3"/>
 <img src="/ex2.png" alt="Example 2"/>
 <img src="/ex1.png" alt="Example 1"/>
-<p>While far from perfect, these images demonstrate that model successfully learnt facial positions and the overlapping patches successfully mitigated grid like artifacts, a common failure mode I encountered during the course of this exercise.</p>
-<p>Noticeable denoising artifacts appear at the high t end of the spectrum, likely due to the noise sampling schedule&rsquo;s bias toward lower t values. This could be resolved with an adjusted noise schedule, which I will leave for future exploration.</p>
+<p>While far from perfect, these images show that the model learned the overall structure of faces. The overlapping patches also mitigated grid-like artifacts, a common failure mode I encountered during this exercise.</p>
+<p>Noticeable denoising artifacts appear at high values of <code>t</code>, likely because the sampling schedule is biased toward lower values. An adjusted schedule may improve this, which I will leave for future exploration.</p>
 <h2 id="reflection">
   Reflection
   <a href="#reflection" class="heading-anchor">#</a>
 </h2>
-<p>I think it&rsquo;s important to point out this learning path has been highly <strong>nonlinear</strong>. There were many debugging sessions (is rope implementation correct? is my attention implementation correct) and reading different papers to try to get to the essence of the flow matching algorithm.</p>
-<p>In an era where a single prompt to a LLM can generate <em>anything</em>, one might ask: what is the point of spending all these time to write a blog to document the journey? For me, it boils down to the pure joy of building. It’s much like hiking - there is a deep, quiet satisfaction in setting a goal and seeing it through to the end, regardless of how many others have trekked the same path. Similarly, I find that writing these posts remains rewarding because it represents a mini milestone in my learning journey.</p>
+<p>This learning path has been highly <strong>nonlinear</strong>. It involved repeatedly asking debugging questions (&ldquo;Is my RoPE implementation correct?&rdquo; &ldquo;Is my attention implementation correct?&rdquo;) and reading different papers to understand the essence of flow matching.</p>
+<p>In an era where a single prompt to an LLM can generate <em>anything</em>, one might ask: what is the point of spending all this time writing a post to document the journey? For me, it comes down to the pure joy of building. It is much like hiking: there is a deep, quiet satisfaction in setting a goal and seeing it through, regardless of how many others have walked the same path. Writing these posts remains rewarding because each one represents a small milestone in my learning journey.</p>
 
 		</div>
 
