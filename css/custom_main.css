@@ -155,20 +155,21 @@ ul {
 }
 .header .info {
   max-width: 300px;
-  overflow: auto;
+  overflow: visible;
+  text-align: right;
 }
-.header .info a:first-child {
-  margin-top: 0;
-}
-.header .info a.link {
-  margin: 10px 0;
+.header .info .contact-link {
+  color: #444;
+  display: block;
+  font-size: 14px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: 1.55;
   text-decoration: none;
+  white-space: nowrap;
 }
-.header .info .title {
-  font-size: 15px;
-  font-weight: 300;
-  margin: 5px;
-  clear: both;
+.header .info .contact-link:hover {
+  color: #990003;
 }
 .header .info .icon-container {
   margin: 0;
@@ -344,9 +345,9 @@ ul {
   .header .info {
     image-rendering: crisp-edges;
   }
-  .header .info .title {
-    margin: 0;
-    font-size: 12px;
+  .header .info .contact-link {
+    font-size: 11px;
+    line-height: 1.45;
   }
   .job ul {
     display: block;
